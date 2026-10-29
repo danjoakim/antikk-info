@@ -38,7 +38,13 @@ test("materiale fra stempler", () => {
   assert.equal(detectMaterial(hallmarks, ["0.935", "Swiss"]).material, "silver_935");
   assert.equal(detectMaterial(hallmarks, ["1800"]).material, null);
   assert.equal(detectMaterial(hallmarks, ["8001"]).material, null);
-  const conflict = detectMaterial(hallmarks, ["0.800", "Cuvette Métal"]);
+  const cuvette = detectMaterial(hallmarks, ["0.800", "Cuvette: Métal"]);
+  assert.equal(cuvette.material, "silver_800");
+  assert.deepEqual(cuvette.warnings, []);
+  const onlyCuvette = detectMaterial(hallmarks, ["Cuvette Métal"]);
+  assert.equal(onlyCuvette.material, null);
+  assert.match(onlyCuvette.warnings[0], /Bare cuvetten/);
+  const conflict = detectMaterial(hallmarks, ["0.800", "Métal"]);
   assert.equal(conflict.material, "silver_800");
   assert.ok(conflict.warnings.some((w) => w.includes("cuvetten")));
 });

@@ -16,16 +16,20 @@ const MIN_SALES = 5;
 
 const STEPS = [
   {
-    key: "dial", title: "Urskiven",
+    key: "dial", title: "Urskiven", guide: "guide-dial",
     tips: ["Fotografer rett forfra.", "Få med hele skiven og eventuell tekst.", "Unngå blits; vipp litt bort fra lyset hvis glasset reflekterer."],
   },
   {
-    key: "movement", title: "Urverket", closeup: "movement_closeup",
-    tips: ["Åpne baklokket forsiktig.", "Gå nært: serienummeret er lite.", "Skrått lys får graveringene fram.", "Legg gjerne til et nærbilde av nummeret."],
+    key: "caseback", title: "Ytre baklokk", closeup: "caseback_closeup", guide: "guide-caseback",
+    tips: ["Åpne det ytre lokket med neglen i det lille sporet.", "Fotografer innsiden av lokket.", "Se etter stempler som 0.800 og små symboler (bjørn, tiur, ekorn).", "Få med kassenummeret."],
   },
   {
-    key: "caseback", title: "Innsiden av lokket", closeup: "caseback_closeup",
-    tips: ["Se etter stempler som 0.800, Argentan eller Métal.", "Få med kassenummeret.", "Små symboler (f.eks. en bjørn eller en fugl) er sølvstempler."],
+    key: "cuvette", title: "Cuvetten (indre lokk)", guide: "guide-cuvette",
+    tips: ["Fotografer utsiden av det indre lokket før du åpner det.", "Her står ofte merke, gangtype («Ancre», «Cylindre») og «Cuvette Métal».", "Ingen cuvette? Hopp over steget."],
+  },
+  {
+    key: "movement", title: "Urverket", closeup: "movement_closeup", guide: "guide-movement",
+    tips: ["Åpne cuvetten forsiktig, og ikke rør verket.", "Gå nært: verksnummeret er lite.", "Skrått lys får graveringene fram.", "Legg gjerne til et nærbilde av nummeret."],
   },
 ];
 
@@ -119,7 +123,7 @@ function renderStep() {
   $("#step-count").textContent = `Steg ${state.step + 1} av ${STEPS.length}`;
   $("#step-title").textContent = step.title;
   $("#step-tips").innerHTML = step.tips.map((t) => `<li>${esc(t)}</li>`).join("");
-  document.querySelectorAll(".progress span").forEach((el, i) => el.classList.toggle("done", i <= state.step));
+  $(".progress").innerHTML = STEPS.map((_, i) => `<span class="${i <= state.step ? "done" : ""}"></span>`).join("");
 
   const main = state.photos[step.key];
   renderSlot($("#photo-main"), main, step.title);
@@ -219,7 +223,8 @@ function showLoadingError(message, retry) {
   $("#back-btn").onclick = () => (state.analysis ? show("confirm") : goToStep(STEPS.length - 1));
 }
 
-const FIELD_TO_STEP = { movement_serial: 1, escapement: 1, case_number: 2, case_stamps: 2, dial_text: 0, brand_signed: 0 };
+// Felt → bildesteget der det oftest står (0 urskive, 1 ytre lokk, 2 cuvette, 3 urverk).
+const FIELD_TO_STEP = { movement_serial: 3, escapement: 3, case_number: 1, case_stamps: 1, dial_text: 0, brand_signed: 0 };
 
 function renderConfirm() {
   const { facts, normalized } = state.analysis;
@@ -255,7 +260,7 @@ function renderConfirm() {
     notices.push(`<div class="notice notice-warn">${normalized.warnings.map((w) => `<p>${esc(w)}</p>`).join("")}</div>`);
   }
   if (facts.retake_hints.length) {
-    const step = facts.unreadable.map((f) => FIELD_TO_STEP[f]).find((s) => s != null) ?? 1;
+    const step = facts.unreadable.map((f) => FIELD_TO_STEP[f]).find((s) => s != null) ?? 3;
     notices.push(`<div class="notice notice-hint">${facts.retake_hints.map((h) => `<p>${esc(h)}</p>`).join("")}
       <button class="link" type="button" data-goto-step="${step}">Ta «${esc(STEPS[step].title.toLowerCase())}» på nytt</button></div>`);
   }
@@ -347,6 +352,17 @@ function restart() {
   show("intro");
 }
 
+// --- Veiledning ------------------------------------------------------------------
+
+let guideReturn = "intro";
+
+function openGuide(anchor) {
+  const visible = document.querySelector(".screen:not([hidden])")?.id?.replace("screen-", "");
+  if (visible && visible !== "guide") guideReturn = visible;
+  show("guide");
+  if (anchor) document.getElementById(anchor)?.scrollIntoView({ block: "start" });
+}
+
 // --- Hendelser -----------------------------------------------------------------
 
 document.addEventListener("change", (e) => {
@@ -367,6 +383,9 @@ document.addEventListener("click", (e) => {
     "retake-step": () => { setPhoto(step.key, null); if (step.closeup) setPhoto(step.closeup, null); renderStep(); },
     retake: () => goToStep(0),
     edit: () => show("confirm"),
+    guide: () => openGuide(),
+    "guide-step": () => openGuide(step.guide),
+    "close-guide": () => show(guideReturn),
     settings: openSettings,
     "close-settings": () => show(returnTo),
     "test-key": onTestKey,

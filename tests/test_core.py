@@ -39,8 +39,17 @@ def test_material_from_stamps(conn):
     assert detect_material(conn, ["0.935", "Swiss"])[0] == "silver_935"
 
 
-def test_material_conflict_prefers_precious_and_warns(conn):
-    material, _, warnings = detect_material(conn, ["0.800", "Cuvette Métal"])
+def test_cuvette_metal_does_not_decide_case_material(conn):
+    # «Cuvette Métal» gjelder bare det indre lokket: sølvstempelet på kassen avgjør, uten advarsel.
+    material, _, warnings = detect_material(conn, ["0.800", "Cuvette: Métal"])
+    assert material == "silver_800" and warnings == []
+    # Er bare cuvetten merket, vet vi ikke hva kassen er laget av.
+    material, _, warnings = detect_material(conn, ["Cuvette Métal"])
+    assert material is None and "Bare cuvetten" in warnings[0]
+
+
+def test_material_conflict_on_case_prefers_precious_and_warns(conn):
+    material, _, warnings = detect_material(conn, ["0.800", "Métal"])
     assert material == "silver_800"
     assert any("cuvetten" in w for w in warnings)
 

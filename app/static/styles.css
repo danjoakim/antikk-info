@@ -181,3 +181,23 @@ summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; al
 .sales li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
 .sales li:last-child { border: 0; }
 .sales .price { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Veiledning */
+.link-inline { padding: 0; min-height: 0; font-size: inherit; color: var(--ink); }
+.guide-link { margin: -8px 0 14px; font-size: .95rem; }
+.guide-figure { margin: 0 0 16px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 10px 10px; }
+.guide-figure svg { width: 100%; height: auto; display: block; }
+.guide-figure figcaption { font-size: .85rem; color: var(--muted); margin-top: 6px; }
+.g-line * { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.g-line .g-fill { fill: var(--brass-soft); }
+.g-line .g-fill-soft { fill: var(--paper); }
+.g-line .g-accent { stroke: var(--brass); stroke-width: 3.5; }
+.g-line .g-accent2 { stroke: var(--ink); stroke-width: 4; }
+.g-line .g-dot { fill: var(--ink); }
+.g-label line { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 3; }
+.g-label text { fill: var(--ink); font: 600 11px var(--sans); }
+.guide-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 12px; scroll-margin-top: 12px; }
+.guide-card h2 { font-family: var(--serif); font-size: 1.2rem; margin: 0 0 8px; display: flex; align-items: center; gap: 10px; }
+.guide-card p, .guide-card li { margin: 0 0 8px; }
+.guide-card ul { padding-left: 1.2em; margin: 0; }
+.guide-card .num { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--brass); color: var(--brass-ink); font: 700 .9rem var(--sans); flex: none; }

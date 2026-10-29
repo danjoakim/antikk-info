@@ -93,14 +93,23 @@ def detect_material(conn: sqlite3.Connection, stamps: list[str]) -> tuple[str | 
     """Finner kassematerialet fra stempler via hallmarks-tabellen."""
     rules = conn.execute("SELECT pattern, material, label, priority FROM hallmarks").fetchall()
     matches: list[tuple[int, MaterialMatch]] = []
+    cuvette_base_metal = False
     for stamp in stamps:
         text = stamp.lower().replace(",", ".").strip()
         if not text:
             continue
+        on_cuvette = "cuvette" in text
         for rule in rules:
             if re.search(rule["pattern"], text):
+                # «Cuvette Métal» sier bare at det indre lokket er av metall, ikke hva kassen er laget av.
+                if on_cuvette and rule["material"] in NON_PRECIOUS:
+                    cuvette_base_metal = True
+                    continue
                 matches.append((rule["priority"], MaterialMatch(stamp=stamp, material=rule["material"], label=rule["label"])))
     if not matches:
+        if cuvette_base_metal:
+            return None, [], ["Bare cuvetten (det indre lokket) er merket metall. Det sier ikke hva kassen er laget av. "
+                              "Se etter stempel i det ytre lokket, eller velg materiale manuelt."]
         warnings = ["Fant ikke noe kjent materialstempel. Velg materiale manuelt."] if stamps else []
         return None, [], warnings
 
@@ -110,7 +119,7 @@ def detect_material(conn: sqlite3.Connection, stamps: list[str]) -> tuple[str | 
     warnings = []
     precious = {m for m in found if m.startswith(PRECIOUS_PREFIXES)}
     if precious and found & NON_PRECIOUS:
-        warnings.append("Både edelt og uedelt metall er stemplet. Ofte er bare innerlokket (cuvetten) i metall. "
+        warnings.append("Både edelt og uedelt metall er stemplet på kassen. Ofte er bare innerlokket (cuvetten) i metall. "
                         "Bekreft materialet for selve kassen.")
     if len(precious) > 1:
         warnings.append("Flere ulike edelmetallstempler er funnet. Bekreft materialet.")

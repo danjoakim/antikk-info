@@ -55,6 +55,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 - [x] Legge koden i GitHub-repo (`danjoakim/antikk-info`, offentlig)
 - [ ] Skru på Pages: *Settings → Pages*, gren `main`, mappe `/docs`
 - [ ] Første ekte test med Gemini-nøkkel på telefonen
+- [x] Fire bildesteg i åpningsrekkefølge (urskive → ytre lokk → cuvette → urverk) og illustrert veiledning
 
 ### Neste
 - [ ] Kjøre `pytest` lokalt med FastAPI installert (API-testene ble hoppet over i sandkassen)
@@ -105,6 +106,9 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-10-29 | Gemini-kallet bruker `responseJsonSchema`, med ett nytt forsøk med `responseSchema` (OpenAPI) ved avvisning | Full JSON Schema er nyest; reserven gir robusthet hvis API-et ikke godtar den |
 | 2026-10-29 | Demomodus er av som standard når en nøkkel er lagret, men kan slås på manuelt | Funnet under testing: demo ble stående på etter lagring av nøkkel |
 | 2026-10-29 | Offentlig repo `danjoakim/antikk-info` | GitHub Free krever offentlig repo for Pages; repoet har ingen hemmeligheter, og Pages-siden ville uansett vært offentlig |
+| 2026-10-29 | Fire bildesteg i samme rekkefølge som uret åpnes: urskive, ytre baklokk, cuvette, urverk | Brukerens innspill: lommeur har som regel to lokk bak, og stempler og nummer kan sitte på begge |
+| 2026-10-29 | Stempler fra cuvetten merkes «Cuvette: …»; metallmerke på cuvetten avgjør ikke kassematerialet | «Cuvette Métal» betyr at bare det indre lokket er av metall. Edelmetallstempel på cuvetten teller fortsatt |
+| 2026-10-29 | Veiledning i appen («Slik åpner du et lommeur») fra startsiden og fra hvert bildesteg | Brukeren trenger opplæring; feil åpning kan skade uret og senke verdien |
 | 2026-10-29 | Standardmodeller: `gpt-6-astra` (OpenAIs anbefalte), `gemini-3.8-flash` (Googles anbefalte stabile Flash) | Hentet fra leverandørenes modelloversikter 29.10.2026; overstyres med `VISION_MODEL` |
 
 ---
@@ -120,6 +124,22 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-10-29 – Økt 6: To baklokk og veiledning
+**Bakgrunn:** Brukeren påpekte at lommeur som regel har to lokk bak (ytre lokk og cuvette), og at appen trenger en liten opplæring.
+
+**Gjort:**
+- Bildestegene endret fra tre til fire, i åpningsrekkefølge: urskive, ytre baklokk (innsiden), cuvetten (utsiden) og urverket. Valgfrie nærbilder av ytre lokk og verk. Fremdriftslinjen lages nå ut fra stegene.
+- Ny bilderolle `cuvette` i modellen, API-et og vision-instruksen. Instruksen ber modellen merke stempler fra det indre lokket med «Cuvette: ».
+- Stempeltolking: metallmerke på cuvetten avgjør ikke kassematerialet. Er bare cuvetten merket metall, ber appen om stempel fra det ytre lokket eller manuelt valg.
+- Veiledningen «Slik åpner du et lommeur» med skjematisk tegning av lagene og korte kort: før du begynner, de fire stegene (inkludert savonett med frontlokk og ur som åpnes forfra) og lukking. Åpnes fra startsiden og via «Slik åpner du dette» i hvert steg, rett til riktig avsnitt.
+- Gjelder både nettversjonen og serverversjonen. Demoeksempel og eksporterte data oppdatert.
+
+**Filer:** `app/models.py`, `app/routes/analyze.py`, `app/services/vision/{core,mock}.py`, `app/services/normalize.py`, `app/static/{index.html,app.js,styles.css}`, `docs/{index.html,styles.css}`, `docs/js/{app,normalize}.js`, `docs/data/vision_contract.json`, `tests/test_core.py`, `tests_web/core.test.mjs`, `README.md`, `LOGG.md`.
+
+**Tester:** Python 38 bestått, JavaScript 14 bestått. Nettversjonen kjørt i mobilnettleser: fire steg, veiledningen fra startsiden og fra steg 3 (lander på cuvette-avsnittet og går tilbake til samme steg), demoflyt og live-flyt med fire bilder sendt til simulert Gemini. Ingen JavaScript-feil.
+
+**Neste:** Skru på Pages og test med et ekte ur.
 
 ### 2026-10-29 – Økt 5: Publisert til GitHub
 **Gjort:** Hele prosjektet lagt i `danjoakim/antikk-info` som første commit (59 filer). Sjekket at verken `.env`, nøkler eller databasefiler er med. Claude GitHub App installert av brukeren for å gi skrivetilgang.

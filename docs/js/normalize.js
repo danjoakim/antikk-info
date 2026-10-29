@@ -65,16 +65,24 @@ export function cleanSerial(raw, label) {
 /** Finner kassematerialet fra stempler via hallmarks-tabellen. */
 export function detectMaterial(hallmarks, stamps) {
   const matches = [];
+  let cuvetteBaseMetal = false;
   for (const stamp of stamps ?? []) {
     const text = String(stamp).toLowerCase().replaceAll(",", ".").trim();
     if (!text) continue;
+    const onCuvette = text.includes("cuvette");
     for (const rule of hallmarks) {
       if (new RegExp(rule.pattern).test(text)) {
+        // «Cuvette Métal» sier bare at det indre lokket er av metall, ikke hva kassen er laget av.
+        if (onCuvette && NON_PRECIOUS.has(rule.material)) { cuvetteBaseMetal = true; continue; }
         matches.push({ priority: rule.priority, stamp, material: rule.material, label: rule.label });
       }
     }
   }
   if (!matches.length) {
+    if (cuvetteBaseMetal) {
+      return { material: null, matches: [], warnings: ["Bare cuvetten (det indre lokket) er merket metall. Det sier ikke hva kassen er laget av. " +
+        "Se etter stempel i det ytre lokket, eller velg materiale manuelt."] };
+    }
     return { material: null, matches: [], warnings: stamps?.length ? ["Fant ikke noe kjent materialstempel. Velg materiale manuelt."] : [] };
   }
   matches.sort((a, b) => b.priority - a.priority);
@@ -82,7 +90,7 @@ export function detectMaterial(hallmarks, stamps) {
   const precious = [...found].filter(isPrecious);
   const warnings = [];
   if (precious.length && [...found].some((m) => NON_PRECIOUS.has(m))) {
-    warnings.push("Både edelt og uedelt metall er stemplet. Ofte er bare innerlokket (cuvetten) i metall. " +
+    warnings.push("Både edelt og uedelt metall er stemplet på kassen. Ofte er bare innerlokket (cuvetten) i metall. " +
       "Bekreft materialet for selve kassen.");
   }
   if (precious.length > 1) warnings.push("Flere ulike edelmetallstempler er funnet. Bekreft materialet.");

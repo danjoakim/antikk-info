@@ -109,7 +109,7 @@ LOGG.md                  Prosjektlogg: plan, beslutninger, økter
 
 ## Flyt
 
-1. `POST /api/analyze` (multipart: `dial`, `movement`, `caseback`, valgfritt `movement_closeup`, `caseback_closeup`) → observasjoner + normaliserte verdier.
+1. `POST /api/analyze` (multipart: `dial`, `caseback`, `cuvette`, `movement`, valgfritt `caseback_closeup`, `movement_closeup`) → observasjoner + normaliserte verdier.
 2. Brukeren bekrefter eller retter i skjemaet.
 3. `POST /api/lookup` (JSON) → datering og prisintervall.
 

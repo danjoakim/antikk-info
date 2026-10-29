@@ -64,6 +64,7 @@ async def analyze(
     dial: UploadFile | None = File(None),
     movement: UploadFile | None = File(None),
     caseback: UploadFile | None = File(None),
+    cuvette: UploadFile | None = File(None),
     movement_closeup: UploadFile | None = File(None),
     caseback_closeup: UploadFile | None = File(None),
     mock_scenario: str | None = Form(None),
@@ -71,7 +72,7 @@ async def analyze(
     conn: sqlite3.Connection = Depends(get_conn),
 ) -> AnalyzeResponse:
     """Steg 1: vision trekker ut fakta. Ingen datering eller pris her."""
-    uploads = {"dial": dial, "movement": movement, "caseback": caseback,
+    uploads = {"dial": dial, "caseback": caseback, "cuvette": cuvette, "movement": movement,
                "movement_closeup": movement_closeup, "caseback_closeup": caseback_closeup}
     present = {role: up for role, up in uploads.items() if up is not None and up.filename}
     if not present:

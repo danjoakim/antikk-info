@@ -13,10 +13,11 @@ from app.models import ImageRole, VisionFacts
 
 ROLE_LABELS: dict[str, str] = {
     "dial": "Urskiven (forsiden)",
-    "movement": "Urverket (baklokket åpnet)",
-    "caseback": "Innsiden av lokket (stempler og kassenummer)",
+    "caseback": "Ytre baklokk, innsiden (stempler og kassenummer)",
+    "cuvette": "Cuvetten, det indre støvlokket (gravert tekst på utsiden)",
+    "movement": "Urverket (begge lokk åpnet)",
+    "caseback_closeup": "Nærbilde av stempler i det ytre lokket",
     "movement_closeup": "Nærbilde av urverket",
-    "caseback_closeup": "Nærbilde av stempler i lokket",
 }
 
 SYSTEM_PROMPT = """You are a careful horological observer. You only REPORT what is visible in the photos of an antique pocket watch. You never estimate age, production year, value or price, and you never guess.
@@ -24,6 +25,7 @@ SYSTEM_PROMPT = """You are a careful horological observer. You only REPORT what 
 Rules:
 - Copy text, numbers and stamps verbatim as they appear (keep commas, dots and spacing).
 - If a digit or character is not clearly legible, set the field to null and list the field name in `unreadable`. A wrong digit is worse than a missing one.
+- Pocket watches usually have two back covers: an outer case back and an inner dust cover (cuvette). Report marks from both in case_stamps, and prefix marks from the inner cover with "Cuvette: " (e.g. "Cuvette: Métal"). Engravings on the cuvette often name the brand, jewels and escapement; use them as evidence.
 - Keep the MOVEMENT serial (engraved on a bridge or plate of the movement) separate from the CASE number (stamped inside the case or lid). Never copy one into the other. Caliber or reference numbers are neither; ignore them.
 - Escapement: report "lever" only if a pallet fork/anchor is visible or the movement is marked e.g. "Ancre", "Anker", "Lever"; "cylinder" only if marked e.g. "Cylindre", "Cylinder", "Zylinder" or the cylinder escapement is clearly visible; "verge" for a fusee/verge with crown wheel. Otherwise "unknown". Describe what you saw in `escapement_evidence`.
 - case_stamps: every mark inside the case/lids verbatim, e.g. "0,800", "Argentan", "Métal", "Cuvette métal". Describe pictorial hallmarks in words (e.g. "bear hallmark", "grouse hallmark", "Helvetia head").

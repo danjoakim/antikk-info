@@ -5,7 +5,7 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 Escapement = Literal["cylinder", "lever", "verge", "unknown"]
-ImageRole = Literal["dial", "movement", "caseback", "movement_closeup", "caseback_closeup"]
+ImageRole = Literal["dial", "caseback", "cuvette", "movement", "movement_closeup", "caseback_closeup"]
 
 
 # --- Det vision-modellen ser (aldri år eller pris) ---------------------------

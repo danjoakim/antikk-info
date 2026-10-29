@@ -5,8 +5,8 @@ from app.models import VisionFacts
 MOCK_SCENARIOS: dict[str, VisionFacts] = {
     "omega_silver": VisionFacts(
         dial_text="OMEGA", brand_signed="Omega", movement_serial="2 345 678", case_number="6 012 345",
-        escapement="lever", escapement_evidence="Ankergaffel synlig; verket merket «Ancre 15 Rubis».",
-        case_stamps=["0,800", "Tiur-stempel (grouse hallmark)", "Cuvette Métal"], jewels=15,
+        escapement="lever", escapement_evidence="Cuvetten er gravert «Ancre 15 Rubis», og ankergaffelen er synlig i verket.",
+        case_stamps=["0,800", "Tiur-stempel (grouse hallmark)", "Cuvette: Métal"], jewels=15,
         confidence={"brand_signed": 0.97, "movement_serial": 0.86, "case_number": 0.74,
                     "escapement": 0.9, "case_stamps": 0.88},
     ),

@@ -145,6 +145,11 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ## Øktlogg
 
+### 2026-10-29 – Økt 12: Steampunk-venteskjerm
+**Gjort:** Venteskjermen i viktoriansk steampunk-stil: messing- og kobbertannhjul som går i hverandre bak uret (motsatt vei, fart etter antall tenner), rifflet kasse, romertall, Breguet-visere, åpent vindu der uroen svinger, og en messinglupe som glir over skiven. Teksten i kursiv antikva med ❦-ornamenter og tidstypiske formuleringer («Studerer bildene …», «Tyder gravering og tekst …», «Blar i protokollene …»). Fungerer i lys og mørk modus; står stille ved «redusert bevegelse». Vinduet med uroen krympet så det ikke dekker romertallet VI.
+**Filer:** `app/static/{app.js,styles.css}`, `docs/styles.css`, `docs/js/app.js`, `LOGG.md`.
+**Tester:** JavaScript 20 bestått. Animasjonen tatt opp i lys og mørk modus.
+
 ### 2026-10-29 – Økt 11: Venteskjerm med animasjon
 **Gjort:** Spinneren og «Gemini leser bildene …» er byttet ut med en animasjon av et lommeur under lupe: sekundviseren tikker, lupen glir over urskiven. Teksten under skifter rolig: «Ser på bildene …», «Finner ut hva hvert bilde viser …», «Leter etter nummer og stempler …» osv., og blir stående på siste linje. Respekterer «redusert bevegelse». Leverandørnavnet er fjernet fra startsiden og feilmeldingene; det står bare i innstillingene. Begge versjoner.
 **Filer:** `app/static/{index.html,app.js,styles.css}`, `docs/{index.html,styles.css}`, `docs/js/{app,vision}.js`, `tests_web/vision.test.mjs`, `LOGG.md`.

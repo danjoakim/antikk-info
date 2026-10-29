@@ -171,30 +171,94 @@ function openCapture() {
 
 // --- Venteskjerm ---------------------------------------------------------------
 
-// Et lommeur som undersøkes med lupe: sekundviseren tikker, lupen glir over urskiven.
-const LOADER_SVG = `<svg class="loader" viewBox="0 0 160 160" aria-hidden="true">
-  <g class="ld-watch">
-    <path class="ld-bow" d="M68 30a12 12 0 0 1 24 0"/>
-    <rect class="ld-crown" x="73" y="30" width="14" height="10" rx="3"/>
-    <circle class="ld-case" cx="80" cy="88" r="46"/>
-    <circle class="ld-dial" cx="80" cy="88" r="39"/>
-    ${Array.from({ length: 12 }, (_, i) => `<line class="ld-tick" x1="80" y1="53" x2="80" y2="${i % 3 ? 57 : 60}" transform="rotate(${i * 30} 80 88)"/>`).join("")}
-    <circle class="ld-sub" cx="80" cy="106" r="9"/>
-    <line class="ld-hand ld-hour" x1="80" y1="88" x2="80" y2="68" transform="rotate(-60 80 88)"/>
-    <line class="ld-hand ld-minute" x1="80" y1="88" x2="80" y2="58" transform="rotate(50 80 88)"/>
-    <g class="ld-seconds"><line class="ld-hand ld-sec" x1="80" y1="110" x2="80" y2="99"/></g>
-    <circle class="ld-pin" cx="80" cy="88" r="3"/>
+// Viktoriansk/steampunk lommeur: tannhjul i messing og kobber bak, romertall og Breguet-visere,
+// et åpent vindu der uroen svinger, og en messinglupe som glir over skiven.
+function gearPath(cx, cy, r, teeth, depth) {
+  const pts = [];
+  for (let i = 0; i < teeth; i++) {
+    const a = (i / teeth) * Math.PI * 2, s = (Math.PI * 2) / teeth;
+    for (const [da, rr] of [[0, r - depth], [s * 0.18, r], [s * 0.5, r], [s * 0.68, r - depth]]) {
+      pts.push(`${(cx + rr * Math.cos(a + da)).toFixed(1)},${(cy + rr * Math.sin(a + da)).toFixed(1)}`);
+    }
+  }
+  return `M${pts.join("L")}Z`;
+}
+
+function gear(cls, cx, cy, r, teeth, spokes) {
+  const spokeLines = Array.from({ length: spokes }, (_, i) => {
+    const a = (i / spokes) * Math.PI * 2;
+    return `<line x1="${cx}" y1="${cy}" x2="${(cx + (r - 9) * Math.cos(a)).toFixed(1)}" y2="${(cy + (r - 9) * Math.sin(a)).toFixed(1)}"/>`;
+  }).join("");
+  return `<g class="sp-gear ${cls}" style="transform-origin:${cx}px ${cy}px">
+    <path class="sp-gear-body" d="${gearPath(cx, cy, r, teeth, 5)}"/>
+    <circle class="sp-gear-cut" cx="${cx}" cy="${cy}" r="${r - 9}"/>
+    <g class="sp-gear-spokes">${spokeLines}</g>
+    <circle class="sp-gear-hub" cx="${cx}" cy="${cy}" r="4.5"/></g>`;
+}
+
+const ROMAN = ["XII", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI"];
+const numerals = ROMAN.map((n, i) => {
+  const a = (i / 12) * Math.PI * 2 - Math.PI / 2;
+  return `<text x="${(100 + 29 * Math.cos(a)).toFixed(1)}" y="${(104 + 29 * Math.sin(a) + 3).toFixed(1)}">${n}</text>`;
+}).join("");
+const minuteTicks = Array.from({ length: 60 }, (_, i) =>
+  `<line x1="100" y1="${i % 5 ? 66.5 : 65.5}" x2="100" y2="68.5" transform="rotate(${i * 6} 100 104)"/>`).join("");
+
+const LOADER_SVG = `<svg class="loader" viewBox="0 0 200 200" aria-hidden="true">
+  <defs>
+    <linearGradient id="sp-brass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" class="sp-s1"/><stop offset=".5" class="sp-s2"/><stop offset="1" class="sp-s3"/>
+    </linearGradient>
+    <linearGradient id="sp-copper" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" class="sp-c1"/><stop offset="1" class="sp-c2"/>
+    </linearGradient>
+    <radialGradient id="sp-dial" cx=".4" cy=".35" r=".75">
+      <stop offset="0" class="sp-d1"/><stop offset="1" class="sp-d2"/>
+    </radialGradient>
+  </defs>
+  ${gear("sp-g1", 48, 132, 34, 16, 5)}
+  ${gear("sp-g2 sp-copperish", 154, 70, 24, 11, 4)}
+  ${gear("sp-g3", 160, 150, 16, 8, 3)}
+  <g class="sp-watch">
+    <circle class="sp-bow" cx="100" cy="30" r="13"/>
+    <rect class="sp-crown" x="93" y="42" width="14" height="12" rx="3"/>
+    <line class="sp-knurl-line" x1="96" y1="44" x2="96" y2="52"/><line class="sp-knurl-line" x1="100" y1="44" x2="100" y2="52"/><line class="sp-knurl-line" x1="104" y1="44" x2="104" y2="52"/>
+    <rect class="sp-pendant" x="96" y="53" width="8" height="5" rx="1.5"/>
+    <circle class="sp-case" cx="100" cy="104" r="50"/>
+    <circle class="sp-knurl" cx="100" cy="104" r="46.5"/>
+    <circle class="sp-dial" cx="100" cy="104" r="42"/>
+    <circle class="sp-chapter" cx="100" cy="104" r="37.5"/>
+    <g class="sp-ticks">${minuteTicks}</g>
+    <g class="sp-numerals">${numerals}</g>
+    <circle class="sp-window-rim" cx="100" cy="119" r="9.5"/>
+    <circle class="sp-window" cx="100" cy="119" r="8.2"/>
+    <path class="sp-hairspring" d="M100 119 m0 -1.2 a1.2 1.2 0 1 1 -1.2 1.2 a2.4 2.4 0 1 1 2.4 2.4 a3.6 3.6 0 1 1 -3.6 -3.6 a4.8 4.8 0 1 1 4.8 4.8"/>
+    <g class="sp-balance" style="transform-origin:100px 119px">
+      <circle class="sp-balance-rim" cx="100" cy="119" r="6.2"/>
+      <line x1="93.8" y1="119" x2="106.2" y2="119"/><line x1="100" y1="112.8" x2="100" y2="125.2"/>
+      <circle class="sp-screw" cx="93.8" cy="119" r="1.1"/><circle class="sp-screw" cx="106.2" cy="119" r="1.1"/>
+    </g>
+    <g class="sp-hand sp-hour" transform="rotate(-50 100 104)">
+      <line x1="100" y1="108" x2="100" y2="86"/><circle cx="100" cy="83" r="3.2"/>
+    </g>
+    <g class="sp-hand sp-minute" style="transform-origin:100px 104px">
+      <line x1="100" y1="109" x2="100" y2="74"/><circle cx="100" cy="77" r="2.4"/><path d="M100 70 L101.6 74 L98.4 74 Z"/>
+    </g>
+    <circle class="sp-pin" cx="100" cy="104" r="2.6"/>
   </g>
-  <g class="ld-lens">
-    <circle class="ld-glass" cx="0" cy="0" r="17"/>
-    <line class="ld-handle" x1="12" y1="12" x2="27" y2="27"/>
+  <g class="sp-lens">
+    <line class="sp-handle" x1="13" y1="13" x2="31" y2="31"/>
+    <circle class="sp-handle-ring" cx="17" cy="17" r="3"/><circle class="sp-handle-ring" cx="27" cy="27" r="3"/>
+    <circle class="sp-lens-rim" cx="0" cy="0" r="17"/>
+    <circle class="sp-lens-glass" cx="0" cy="0" r="13.5"/>
+    <path class="sp-lens-shine" d="M-8 -6 A10 10 0 0 1 2 -10"/>
   </g>
 </svg>`;
 
 const LOADING_STEPS = {
-  analyze: ["Ser på bildene …", "Finner ut hva hvert bilde viser …", "Leter etter nummer og stempler …",
-            "Leser gravering og tekst …", "Ser på gangtype og oppstrekk …"],
-  lookup: ["Slår opp i tabellene …", "Finner sammenlignbare salg …"],
+  analyze: ["Studerer bildene …", "Finner ut hva hvert bilde viser …", "Leter etter nummer og stempler …",
+            "Tyder gravering og tekst …", "Undersøker gang og oppstrekk …"],
+  lookup: ["Blar i protokollene …", "Finner sammenlignbare salg …"],
 };
 let loadingTimer = null;
 

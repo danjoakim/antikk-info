@@ -52,7 +52,8 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 - [x] Kjernelogikken portet til JavaScript (`docs/js/normalize.js`, `dating.js`, `valuation.js`) med samme tester
 - [x] Gemini-kall fra nettleseren med strengt skjema og reserveskjema
 - [x] Innstillinger: nøkkel og modell i nettleseren, test av nøkkel, demomodus
-- [ ] Legge koden i GitHub-repo og skru på Pages (venter på reponavn)
+- [x] Legge koden i GitHub-repo (`danjoakim/antikk-info`, offentlig)
+- [ ] Skru på Pages: *Settings → Pages*, gren `main`, mappe `/docs`
 - [ ] Første ekte test med Gemini-nøkkel på telefonen
 
 ### Neste
@@ -103,6 +104,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-10-29 | Python er eneste kilde til data, instruks og skjema; `tools/export_data.py` eksporterer til JSON | Hindrer at de to versjonene glir fra hverandre |
 | 2026-10-29 | Gemini-kallet bruker `responseJsonSchema`, med ett nytt forsøk med `responseSchema` (OpenAPI) ved avvisning | Full JSON Schema er nyest; reserven gir robusthet hvis API-et ikke godtar den |
 | 2026-10-29 | Demomodus er av som standard når en nøkkel er lagret, men kan slås på manuelt | Funnet under testing: demo ble stående på etter lagring av nøkkel |
+| 2026-10-29 | Offentlig repo `danjoakim/antikk-info` | GitHub Free krever offentlig repo for Pages; repoet har ingen hemmeligheter, og Pages-siden ville uansett vært offentlig |
 | 2026-10-29 | Standardmodeller: `gpt-6-astra` (OpenAIs anbefalte), `gemini-3.8-flash` (Googles anbefalte stabile Flash) | Hentet fra leverandørenes modelloversikter 29.10.2026; overstyres med `VISION_MODEL` |
 
 ---
@@ -118,6 +120,13 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-10-29 – Økt 5: Publisert til GitHub
+**Gjort:** Hele prosjektet lagt i `danjoakim/antikk-info` som første commit (59 filer). Sjekket at verken `.env`, nøkler eller databasefiler er med. Claude GitHub App installert av brukeren for å gi skrivetilgang.
+
+**Filer:** Alle (første commit), `LOGG.md`.
+**Tester:** Uendret siden økt 4 (Python 37, JavaScript 14).
+**Neste:** Brukeren skrur på Pages; deretter første ekte test med Gemini-nøkkel på telefonen via https://danjoakim.github.io/antikk-info/.
 
 ### 2026-10-29 – Økt 4: Nettversjon for mobil (GitHub Pages + Gemini)
 **Bakgrunn:** Brukeren skal bruke appen på mobilen og kan ikke installere Python der. Valgte GitHub Pages (kjent fra før) med egen Gemini-nøkkel i testperioden.

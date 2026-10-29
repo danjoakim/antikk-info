@@ -132,7 +132,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 2. **Omega «Extract from the Archives»** er ifølge Omega Forums avviklet i 2023. Bekreft hos Omega.
 3. **Demodata** for serienumre, stempler og priser må verifiseres mot minst to kilder før `is_demo` settes til 0. Gjelder også de sveitsiske kontrollmerkene (bjørn, tiur, ekorn, Helvetia).
 4. **HEIC fra iPhone:** Safari dekoder HEIC og konverterer til JPEG før opplasting, men dette er ikke testet på ekte enhet.
-6. **Monard-uret – kontrollmerke:** Gemini meldte en tiur (sveitsisk kontrollmerke for 0.800). Et innslått merke i ramme finnes ved kassenummeret i lokket og i cuvetten, men figuren er ikke lesbar i bildene. Avklares med lupe. Bekreftet tiur ville gitt periode fra 1880-tallet.
+6. **Monard-uret – kontrollmerke:** Gemini meldte en tiur i én av to kjøringer (sveitsisk kontrollmerke for 0.800). Et innslått merke i ramme finnes ved kassenummeret i lokket og i cuvetten, men figuren er ikke lesbar i bildene. Avklares med lupe. Bekreftet tiur ville gitt periode fra 1880-tallet.
 7. **Monard-uret – G.S og monogram:** «G.S» ved 0.800 i lokk og cuvette er trolig kassemakerens punselmerke (slås opp i Mikrolisk / registre over kassemakere). Bokstavene i det graverte monogrammet er ikke lest sikkert; kan være eier, giver eller unntaksvis produsent.
 5. **Leverandørkall er ikke kjørt live.** Koden følger leverandørenes dokumentasjon, men første ekte kall per leverandør kan avdekke detaljer (f.eks. skjemastøtte i Gemini eller lokale modeller).
 
@@ -142,7 +142,9 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ### 2026-10-29 – Første ekte Gemini-test med fri opplasting
 **Gjort:** Brukeren kjørte Monard-uret gjennom den publiserte appen med egen Gemini-nøkkel. Resultatet var det samme som ved forrige ekte kjøring, altså stabilt mellom to kjøringer. Detaljert sammenligning mot fasiten er ikke gjort ennå.
-**Neste:** Sammenligne skjermbildet «Stemmer dette?» mot fasiten (nummer og steder, oppstrekk, gangtype, materiale, periode, eventuell tiur).
+Tiuren fra første kjøring ble **ikke** nevnt denne gangen. Det tyder på at Gemini var usikker og at tiuren var en tolkning, ikke en avlesning.
+**Endret:** Instruksen sier nå at figuren i et kontrollmerke bare skal navngis når den er tydelig synlig, ikke utledes fra sølvgrad eller land; ellers «unidentified hallmark in a frame».
+**Neste:** Sammenligne skjermbildet «Stemmer dette?» mot fasiten (nummer og steder, oppstrekk, gangtype, materiale, periode).
 
 ### 2026-10-29 – Økt 9: Legg inn bildene du har
 **Bakgrunn:** Brukeren påpekte at et ur kan identifiseres på mange måter, og at alle kjennetegn ikke alltid trengs. Forslag fra brukeren: legg inn bilder av det du har.

@@ -37,7 +37,7 @@ Numbers (`numbers`):
 
 Marks (`marks`), each with `location` and `type`:
 - "fineness": silver/gold fineness, verbatim (e.g. "0.800", "0,935", "14K").
-- "hallmark_symbol": pictorial control marks, described in words (e.g. "bear hallmark", "grouse hallmark", "squirrel hallmark", "Helvetia head").
+- "hallmark_symbol": pictorial control marks. Name the figure (e.g. "bear hallmark", "grouse hallmark") ONLY if the figure itself is clearly visible in the photo. Do not infer it from the fineness, the country or what is usual. If you can see a punched frame but not the figure, write "unidentified hallmark in a frame" and describe the shape of the frame.
 - "maker_mark": small punched initials or symbols of the case maker.
 - "inscription": stamped or engraved text such as "Echappement à cylindre", "8 Rubis", "Ancre", "Métal", "Argentan", maker or retailer names, "Genève", "Aiguilles".
 - "owner_engraving": monograms, initials or dedications engraved for an owner.

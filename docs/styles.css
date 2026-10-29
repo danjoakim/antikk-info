@@ -1,204 +1,339 @@
+/* InformAntikk – viktoriansk / steampunk
+   Et urmakerverksted i 1890-årene: hovedbokpapir, valnøtt, messing, irgrønn og oksblod.
+   Knappene er graverte messingplater; kortene er etiketter i et kuriositetskabinett. */
+
 :root {
-  --paper: #f6f1e7;
-  --card: #fffdf8;
-  --ink: #2b2620;
-  --muted: #6e6457;
-  --line: #e2d8c6;
-  --brass: #94661c;
-  --brass-ink: #ffffff;
-  --brass-soft: #f1e4c8;
-  --ok: #2f6b3d;
-  --warn: #9a5b00;
-  --warn-soft: #fbefd8;
-  --bad: #a33a2a;
-  --bad-soft: #f8e3df;
-  --radius: 14px;
-  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
-  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --paper: #e9e1cc;          /* hovedbokpapir */
+  --paper-deep: #ddd2b6;
+  --card: #f4eedd;           /* etikett */
+  --ink: #261a12;
+  --muted: #6b5a47;
+  --rule: #4a3523;           /* valnøtt-strek */
+  --rule-soft: #b9a888;
+  --walnut: #2b1a10;
+  --walnut-2: #3d2716;
+  --brass: #b4873a;
+  --brass-hi: #ecd08a;
+  --brass-lo: #7e561f;
+  --brass-ink: #2b1a10;
+  --brass-soft: #e6d6ae;
+  --ok: #3e6b5e;             /* verdigris */
+  --ok-soft: #d7e2d6;
+  --warn: #8a5a12;
+  --warn-soft: #efe0bb;
+  --bad: #7a2c24;            /* oksblod */
+  --bad-soft: #ecd3cb;
+  --radius: 4px;
+  --display: "IM Fell English", Baskerville, "Baskerville Old Face", "GFS Baskerville", "Iowan Old Style", Palatino, Georgia, serif;
+  --display-sc: "IM Fell English SC", "IM Fell English", Baskerville, "GFS Baskerville", "Iowan Old Style", Palatino, Georgia, serif;
+  --serif: "Libre Caslon Text", "Big Caslon", Baskerville, "Iowan Old Style", "Palatino Linotype", Palatino, Charter, "Bitstream Charter", Georgia, serif;
+  --sans: var(--serif);
   color-scheme: light dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #1b1814;
-    --card: #25211b;
-    --ink: #efe7d8;
-    --muted: #b3a690;
-    --line: #3a342b;
-    --brass: #d4a24c;
-    --brass-ink: #1b1814;
-    --brass-soft: #3a2f1c;
-    --ok: #7fc28d;
-    --warn: #e4b05c;
-    --warn-soft: #3a2f1c;
-    --bad: #ef8a78;
-    --bad-soft: #3d2420;
+    --paper: #1b120b;
+    --paper-deep: #140d08;
+    --card: #271a10;
+    --ink: #ece0c4;
+    --muted: #b9a582;
+    --rule: #8c6a3c;
+    --rule-soft: #4b3824;
+    --walnut: #120b06;
+    --walnut-2: #24170d;
+    --brass: #d2a659;
+    --brass-hi: #f3d995;
+    --brass-lo: #8f6526;
+    --brass-ink: #1b120b;
+    --brass-soft: #3a2a17;
+    --ok: #8dbfae;
+    --ok-soft: #1f2f29;
+    --warn: #e2b766;
+    --warn-soft: #3a2b14;
+    --bad: #e0968a;
+    --bad-soft: #3b1d18;
   }
 }
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-
 html, body { margin: 0; }
 
 body {
-  background: var(--paper);
   color: var(--ink);
-  font: 17px/1.5 var(--sans);
+  font: 17px/1.6 var(--serif);
   -webkit-text-size-adjust: 100%;
   min-height: 100dvh;
+  background-color: var(--paper);
+  /* Papir som har ligget i en skuff: mørkere kanter og svake fibre */
+  background-image:
+    radial-gradient(ellipse at 50% 0%, transparent 55%, color-mix(in srgb, var(--paper-deep) 80%, transparent) 100%),
+    repeating-linear-gradient(97deg, transparent 0 3px, color-mix(in srgb, var(--rule-soft) 9%, transparent) 3px 4px);
 }
 
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+
+/* --- Toppfelt: messingskilt på valnøtt ------------------------------------------ */
+
 .topbar {
-  display: flex; align-items: center; gap: 10px;
+  display: flex; align-items: center; gap: 12px;
   padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
-  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--walnut-2), var(--walnut));
+  border-bottom: 3px double var(--brass);
+  color: var(--brass-hi);
 }
-.brand { font-family: var(--serif); font-size: 1.15rem; font-weight: 600; letter-spacing: .01em; }
+.topbar img { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .5)); }
+.brand {
+  font-family: var(--display-sc); font-size: 1.45rem; letter-spacing: .03em; line-height: 1;
+  color: var(--brass-hi); text-shadow: 0 1px 0 rgba(0, 0, 0, .6);
+}
 
 main { max-width: 560px; margin: 0 auto; }
 
 .screen {
-  padding: 20px 16px calc(24px + env(safe-area-inset-bottom));
-  min-height: calc(100dvh - 60px);
+  padding: 22px 16px calc(24px + env(safe-area-inset-bottom));
+  min-height: calc(100dvh - 64px);
   display: flex; flex-direction: column;
 }
-.screen-center { align-items: center; justify-content: center; text-align: center; gap: 16px; }
+.screen-center { align-items: center; justify-content: center; text-align: center; gap: 12px; }
 
-h1 { font-family: var(--serif); font-size: 1.75rem; line-height: 1.2; margin: 4px 0 10px; font-weight: 600; }
-.lead { color: var(--muted); margin: 0 0 16px; }
-.fineprint { color: var(--muted); font-size: .88rem; }
+/* --- Typografi -------------------------------------------------------------------- */
 
-.howto { padding-left: 1.3em; margin: 0 0 8px; }
-.howto li { margin: 6px 0; }
+h1 {
+  font-family: var(--display); font-weight: 400; font-size: 2.15rem; line-height: 1.12;
+  margin: 0 0 14px; letter-spacing: -.005em;
+}
+/* Kapittelpynt under overskriften: strek – blomst – strek */
+h1::after {
+  content: "❦"; display: block; margin-top: 8px; width: 9.5rem;
+  font-size: .9rem; line-height: 1; color: var(--brass); text-align: center;
+  background: linear-gradient(var(--rule-soft), var(--rule-soft)) left 50% / 3.6rem 1px no-repeat,
+              linear-gradient(var(--rule-soft), var(--rule-soft)) right 50% / 3.6rem 1px no-repeat;
+}
+.screen-center h1::after { margin-inline: auto; }
+.lead { color: var(--muted); margin: 0 0 16px; font-size: 1.02rem; }
+.fineprint { color: var(--muted); font-size: .9rem; font-style: italic; }
+p { margin: 0 0 12px; }
 
-/* Knapper: store trykkflater, samlet nederst der tommelen når */
-.actions { margin-top: auto; padding-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+/* --- Knapper: graverte messingplater med nagler ------------------------------------------ */
+
+.actions { margin-top: auto; padding-top: 22px; display: flex; flex-direction: column; gap: 12px; }
 .row { display: flex; gap: 10px; }
 .row > * { flex: 1; }
 .row-links { justify-content: space-between; }
 .row-links > * { flex: 0 1 auto; }
 
 .btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-height: 52px; padding: 0 20px; border-radius: var(--radius);
-  font: 600 1.02rem var(--sans); border: 1.5px solid transparent; cursor: pointer;
-  text-align: center; user-select: none; -webkit-tap-highlight-color: transparent;
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  min-height: 54px; padding: 0 26px; border-radius: var(--radius); cursor: pointer;
+  font: 400 1.22rem/1 var(--display-sc); letter-spacing: .04em; text-align: center;
+  user-select: none; -webkit-tap-highlight-color: transparent;
 }
-.btn:active { transform: translateY(1px); }
-.btn-primary { background: var(--brass); color: var(--brass-ink); }
-.btn-secondary { background: transparent; color: var(--ink); border-color: var(--line); }
-.btn[disabled] { opacity: .5; }
+.btn-primary {
+  color: var(--brass-ink);
+  background: linear-gradient(180deg, var(--brass-hi) 0%, var(--brass) 52%, var(--brass-lo) 100%);
+  border: 1px solid #4b3214;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), inset 0 -2px 0 rgba(0, 0, 0, .18), 0 2px 0 #4b3214, 0 4px 8px rgba(43, 26, 16, .25);
+  text-shadow: 0 1px 0 rgba(255, 244, 210, .55);
+}
+/* Nagler i hver ende av platen */
+.btn-primary::before, .btn-primary::after {
+  content: ""; position: absolute; top: 50%; width: 7px; height: 7px; margin-top: -3.5px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff3c9 0 18%, var(--brass-lo) 60%, #3b2610 100%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .35);
+}
+.btn-primary::before { left: 10px; }
+.btn-primary::after { right: 10px; }
+.btn-primary:active { transform: translateY(2px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), 0 0 0 #4b3214, 0 1px 3px rgba(43, 26, 16, .3); }
+.btn-secondary {
+  color: var(--ink); background: color-mix(in srgb, var(--card) 70%, transparent);
+  border: 1px solid var(--rule); box-shadow: inset 0 0 0 2px var(--card), inset 0 0 0 3px var(--rule-soft);
+}
+.btn-secondary:active { transform: translateY(1px); }
+.btn[disabled] { filter: grayscale(.6); opacity: .55; cursor: default; }
 
 .link {
-  background: none; border: 0; padding: 12px 4px; min-height: 44px;
-  color: var(--muted); font: 500 .95rem var(--sans); text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+  background: none; border: 0; padding: 12px 4px; min-height: 44px; cursor: pointer;
+  color: var(--ink); font: italic 1rem var(--serif);
+  text-decoration: underline; text-decoration-color: var(--brass); text-decoration-thickness: 1px; text-underline-offset: 4px;
 }
+.link-inline { padding: 0; min-height: 0; font-size: inherit; }
 
-.badge { font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
-.badge-demo { background: var(--warn-soft); color: var(--warn); margin-left: auto; }
+/* --- Etiketter: små emaljeskilt ------------------------------------------------------ */
 
-.mock-panel { margin-top: 16px; padding: 14px; border: 1px dashed var(--line); border-radius: var(--radius); }
-.mock-panel label { display: block; font-weight: 600; margin-bottom: 6px; }
-
-/* Bildesteg */
-.progress { display: flex; gap: 6px; margin-bottom: 10px; }
-.progress span { flex: 1; height: 4px; border-radius: 2px; background: var(--line); }
-.progress span.done { background: var(--brass); }
-.step-count { margin: 0; color: var(--muted); font-size: .9rem; }
-.tips { margin: 0 0 16px; padding-left: 1.2em; color: var(--muted); }
-.tips li { margin: 3px 0; }
-
-.photo-slot {
-  border: 1.5px dashed var(--line); border-radius: var(--radius);
-  aspect-ratio: 4 / 3; max-height: 42dvh; width: 100%; display: grid; place-items: center; overflow: hidden;
-  background: var(--card); color: var(--muted); position: relative;
+.badge {
+  font: .82rem/1 var(--display-sc); letter-spacing: .04em; padding: 4px 9px 5px;
+  border: 1px solid currentColor; border-radius: 2px;
 }
-.photo-slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.photo-slot svg { width: 46%; height: auto; opacity: .55; }
-.photo-slot-small { aspect-ratio: 16 / 9; max-height: 22dvh; margin-top: 10px; }
-.photo-slot .size { position: absolute; right: 8px; bottom: 8px; font-size: .75rem; background: rgba(0,0,0,.55); color: #fff; padding: 2px 8px; border-radius: 999px; }
+.badge-demo { color: var(--brass-hi); border-color: var(--brass); margin-left: auto; }
+.card .badge-demo, .guide-card .badge-demo { color: var(--warn); border-color: var(--warn); background: var(--warn-soft); margin-left: auto; }
 
-.error { color: var(--bad); background: var(--bad-soft); padding: 12px 14px; border-radius: 10px; margin: 12px 0 0; }
-
-/* Laster */
-.spinner { width: 44px; height: 44px; border-radius: 50%; border: 4px solid var(--line); border-top-color: var(--brass); animation: spin .9s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 3s; } }
-
-/* Skjema */
-.field { margin-bottom: 16px; }
-.field label { display: flex; align-items: center; gap: 8px; font-weight: 600; margin-bottom: 6px; }
-.field small { display: block; color: var(--muted); font-size: .85rem; margin-top: 4px; }
-input, select {
-  width: 100%; min-height: 50px; padding: 0 14px; border-radius: 12px;
-  border: 1.5px solid var(--line); background: var(--card); color: var(--ink);
-  font: 1.05rem var(--sans);
+.chip {
+  font: .82rem/1 var(--display-sc); font-variant-numeric: lining-nums; letter-spacing: .03em; padding: 3px 8px 4px;
+  border: 1px solid currentColor; border-radius: 2px; white-space: nowrap;
 }
-input:focus, select:focus { outline: none; border-color: var(--brass); box-shadow: 0 0 0 3px var(--brass-soft); }
-input[name$="serial"], input[name="case_number"] { font-variant-numeric: tabular-nums; letter-spacing: .04em; }
-
-.chip { font-size: .72rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
 .chip:empty { display: none; }
-.chip.high { background: color-mix(in srgb, var(--ok) 16%, transparent); color: var(--ok); }
-.chip.mid { background: var(--warn-soft); color: var(--warn); }
-.chip.low { background: var(--bad-soft); color: var(--bad); }
+.chip.high { color: var(--ok); background: var(--ok-soft); }
+.chip.mid { color: var(--warn); background: var(--warn-soft); }
+.chip.low { color: var(--bad); background: var(--bad-soft); }
 
-.stamps { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.stamp { font-size: .85rem; padding: 4px 10px; border-radius: 8px; background: var(--brass-soft); }
+/* --- Kort: etiketter i et kuriositetskabinett (dobbel strek) ------------------------------- */
 
-.notice { border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; font-size: .95rem; }
-.notice p { margin: 0 0 6px; }
-.notice p:last-child { margin: 0; }
-.notice-warn { background: var(--warn-soft); }
-.notice-hint { background: var(--card); border: 1px solid var(--line); }
-.notice .link { padding: 4px 0; min-height: 0; color: var(--ink); }
-
-/* Resultat */
-.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 16px; margin-bottom: 14px; }
-.card h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 6px; font-weight: 700; display: flex; gap: 8px; align-items: center; }
-.big { font-family: var(--serif); font-size: 2.2rem; line-height: 1.1; margin: 0 0 6px; font-weight: 600; }
-.card p { margin: 0 0 8px; }
-.meta { color: var(--muted); font-size: .9rem; }
+.card, .guide-card, .notice, .mock-panel, .status, .guide-figure {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 3px var(--card), inset 0 0 0 4px var(--rule-soft), 0 1px 2px rgba(43, 26, 16, .12);
+}
+.card { padding: 18px 18px 16px; margin-bottom: 16px; }
+.card h2, .guide-card h2 {
+  font: italic 400 1.3rem/1.2 var(--display); margin: 0 0 10px; color: var(--ink);
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+}
+.card p { margin: 0 0 10px; }
+.big { font: 400 2.4rem/1.1 var(--serif); font-variant-numeric: lining-nums; margin: 0 0 8px; letter-spacing: -.01em; }
+.meta { color: var(--muted); font-size: .92rem; }
+.meta.good { color: var(--ok); }
 .nowrap { white-space: nowrap; }
 
-.range { margin: 18px 0 6px; }
-.range-track { position: relative; height: 10px; border-radius: 5px; background: linear-gradient(90deg, var(--brass-soft), var(--brass)); }
-.range-marker { position: absolute; top: 50%; width: 22px; height: 22px; border-radius: 50%; background: var(--card); border: 4px solid var(--ink); transform: translate(-50%, -50%); }
-.range-labels { display: flex; justify-content: space-between; margin-top: 10px; font-variant-numeric: tabular-nums; }
-.range-labels div { display: flex; flex-direction: column; font-size: .8rem; color: var(--muted); }
-.range-labels strong { color: var(--ink); font-size: 1rem; }
+.notice { padding: 14px 16px; margin-bottom: 14px; font-size: .98rem; }
+.notice p { margin: 0 0 6px; }
+.notice p:last-child { margin: 0; }
+.notice-warn { background: var(--warn-soft); box-shadow: inset 0 0 0 3px var(--warn-soft), inset 0 0 0 4px color-mix(in srgb, var(--warn) 40%, transparent); }
+.notice .link { padding: 6px 0 0; min-height: 0; }
+
+.mock-panel { margin-top: 18px; padding: 16px; }
+.mock-panel label { display: block; font: italic 1.1rem var(--display); margin-bottom: 8px; }
+
+.status { padding: 12px 14px; margin: 0; }
+.status.ok { color: var(--ok); }
+.status.bad { color: var(--bad); background: var(--bad-soft); }
+
+.error {
+  color: var(--bad); background: var(--bad-soft); padding: 12px 14px; margin: 12px 0 0;
+  border-left: 3px solid var(--bad); font-style: italic;
+}
+
+/* --- Ikonknapp (innstillinger) ---------------------------------------------------------- */
+
+.icon-btn { background: none; border: 0; color: var(--brass-hi); width: 44px; height: 44px; display: grid; place-items: center; margin-right: -10px; cursor: pointer; border-radius: 50%; }
+.topbar .icon-btn:first-of-type { margin-left: auto; }
+.badge-demo:not([hidden]) + .icon-btn { margin-left: 4px; }
+
+/* --- Lister og tips --------------------------------------------------------------------- */
+
+.tips { margin: 0 0 14px; padding-left: 1.2em; color: var(--muted); }
+.tips li { margin: 4px 0; }
+.tips li::marker { content: "❧  "; color: var(--brass); }
+
+/* --- Skjema ---------------------------------------------------------------------------------- */
+
+.field { margin-bottom: 18px; }
+.field label { display: flex; align-items: center; gap: 10px; font: italic 1.15rem var(--display); margin-bottom: 6px; }
+.field small { display: block; color: var(--muted); font-size: .88rem; margin-top: 5px; font-style: italic; }
+input, select {
+  width: 100%; min-height: 52px; padding: 0 14px; border-radius: var(--radius);
+  border: 1px solid var(--rule-soft); border-bottom: 2px solid var(--rule);
+  background: color-mix(in srgb, var(--card) 85%, #fff 15%); color: var(--ink);
+  font: 1.08rem var(--serif);
+}
+@media (prefers-color-scheme: dark) { input, select { background: var(--card); } }
+input::placeholder { color: var(--muted); font-style: italic; }
+input:focus, select:focus { outline: none; border-color: var(--brass); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brass) 30%, transparent); }
+input[name$="serial"], input[name="case_number"] { font-variant-numeric: lining-nums tabular-nums; letter-spacing: .06em; }
+.field-check label { font: 1rem var(--serif); gap: 10px; }
+.field-check input { width: 22px; min-height: 22px; height: 22px; accent-color: var(--brass); }
+
+.stamps { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.stamp { font-size: .9rem; padding: 4px 10px; border-radius: 2px; background: var(--brass-soft); border: 1px solid var(--rule-soft); }
+.stamp small { display: block; color: var(--muted); font-size: .76rem; font-style: italic; }
+
+/* --- Funnet på uret ------------------------------------------------------------------------ */
+
+.found h2 { margin-bottom: 6px; }
+.found-list { list-style: none; padding: 0; margin: 0; }
+.found-list li { padding: 10px 0; border-bottom: 1px dotted var(--rule-soft); }
+.found-list li:last-child { border-bottom: 0; }
+.found-list small { color: var(--muted); font-style: italic; }
+.found-list .chip { display: inline-block; margin-top: 2px; }
+.num-value { font: 700 1.25rem var(--serif); font-variant-numeric: lining-nums tabular-nums; letter-spacing: .02em; }
+.found-ignored { margin-top: 6px; }
+.found-ignored ul { margin: 6px 0 0; padding-left: 1.1em; color: var(--muted); font-size: .92rem; }
+
+/* --- Resultat: prisskala som et messinginstrument ----------------------------------------------- */
+
+.range { margin: 20px 0 8px; }
+.range-track {
+  position: relative; height: 12px; border-radius: 6px; border: 1px solid #4b3214;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), rgba(43, 26, 16, .45) calc(10% - 1px) 10%),
+    linear-gradient(180deg, var(--brass-hi), var(--brass) 55%, var(--brass-lo));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4);
+}
+.range-marker {
+  position: absolute; top: 50%; width: 26px; height: 26px; border-radius: 50%; transform: translate(-50%, -50%);
+  background: radial-gradient(circle at 35% 30%, #fff6d6 0 15%, var(--brass) 55%, var(--brass-lo) 100%);
+  border: 2px solid #3b2610; box-shadow: 0 2px 3px rgba(0, 0, 0, .35);
+}
+.range-labels { display: flex; justify-content: space-between; margin-top: 12px; font-variant-numeric: lining-nums tabular-nums; }
+.range-labels div { display: flex; flex-direction: column; font-size: .85rem; color: var(--muted); font-style: italic; }
+.range-labels strong { color: var(--ink); font: 700 1.1rem var(--serif); font-style: normal; font-variant-numeric: lining-nums tabular-nums; }
 .range-labels .mid { text-align: center; }
 .range-labels .end { text-align: right; }
 
-.caveats { margin: 10px 0 0; padding-left: 1.1em; font-size: .9rem; color: var(--muted); }
-.caveats li { margin: 4px 0; }
-.caveats li.demo { color: var(--warn); font-weight: 600; }
+.caveats { margin: 12px 0 0; padding-left: 1.1em; font-size: .92rem; color: var(--muted); }
+.caveats li { margin: 5px 0; }
+.caveats li::marker { content: "✦  "; color: var(--brass); font-size: .8em; }
+.caveats li.demo { color: var(--warn); font-weight: 700; }
 
-details { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }
-summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; align-items: center; }
-.sales { list-style: none; padding: 0; margin: 4px 0 0; font-size: .92rem; }
-.sales li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+details { margin-top: 12px; border-top: 1px solid var(--rule-soft); padding-top: 8px; }
+summary { cursor: pointer; font: italic 1.1rem var(--display); min-height: 44px; display: flex; align-items: center; }
+.sales { list-style: none; padding: 0; margin: 4px 0 0; font-size: .95rem; }
+.sales li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px dotted var(--rule-soft); }
 .sales li:last-child { border: 0; }
-.sales .price { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sales .price { font-variant-numeric: lining-nums tabular-nums; white-space: nowrap; font-weight: 700; }
 
-/* Nettversjonen: innstillinger */
-.icon-btn { background: none; border: 0; color: var(--ink); width: 44px; height: 44px; display: grid; place-items: center; margin-right: -10px; cursor: pointer; border-radius: 10px; }
-.badge-demo + .icon-btn { margin-left: 0; }
-.topbar .icon-btn:first-of-type { margin-left: auto; }
-.badge-demo:not([hidden]) + .icon-btn { margin-left: 4px; }
-.link-inline { padding: 0; min-height: 0; font-size: inherit; color: var(--ink); }
-.field-check label { font-weight: 500; gap: 10px; }
-.field-check input { width: 22px; min-height: 22px; height: 22px; accent-color: var(--brass); }
-.status { padding: 12px 14px; border-radius: 10px; margin: 0; background: var(--card); border: 1px solid var(--line); }
-.status.ok { color: var(--ok); }
-.status.bad { color: var(--bad); background: var(--bad-soft); border-color: transparent; }
+.maker-name { font: 400 1.55rem/1.15 var(--display); margin: 0 0 8px; }
+.sources { padding-left: 1.1em; margin: 6px 0 0; font-size: .92rem; }
+.sources li { margin: 5px 0; }
 
-/* Veiledning */
-.guide-link { margin: -8px 0 14px; font-size: .95rem; }
-.guide-figure { margin: 0 0 16px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 10px 10px; }
+/* --- Bilder: fotografier i messingramme ---------------------------------------------------------- */
+
+.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 12px; }
+.thumb {
+  position: relative; margin: 0; aspect-ratio: 3 / 4; display: grid; place-items: center; overflow: hidden;
+  padding: 4px; border-radius: 3px;
+  background: linear-gradient(135deg, var(--brass-hi), var(--brass) 45%, var(--brass-lo));
+  box-shadow: 0 2px 5px rgba(43, 26, 16, .3);
+}
+.thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 1px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .3); filter: sepia(.12); }
+.thumb svg { width: 50%; opacity: .55; color: var(--walnut); }
+.thumb figcaption {
+  position: absolute; left: 4px; right: 4px; bottom: 4px; padding: 5px 6px; font: italic .8rem/1.25 var(--serif);
+  background: linear-gradient(transparent, rgba(27, 18, 11, .85)); color: #f5e8c8;
+}
+.thumb-note { position: absolute; top: 10px; left: 8px; right: 8px; font-size: .72rem; text-align: center; color: var(--walnut); font-style: italic; }
+.thumb-remove {
+  position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+  border: 1px solid #3b2610; color: var(--walnut); font: 1.15rem/1 var(--serif);
+  background: radial-gradient(circle at 35% 30%, #fff6d6 0 15%, var(--brass) 60%, var(--brass-lo));
+}
+.photo-empty {
+  grid-column: 1 / -1; padding: 30px 16px; text-align: center; color: var(--muted);
+  border: 1px dashed var(--rule); border-radius: var(--radius); background: color-mix(in srgb, var(--card) 60%, transparent);
+}
+.photo-empty svg { width: 64px; opacity: .45; }
+.photo-empty p { margin: 6px 0 0; font-style: italic; }
+#suggest-box { margin-bottom: 14px; }
+
+/* --- Veiledning -------------------------------------------------------------------------------- */
+
+.guide-link { margin: -6px 0 14px; font-size: 1rem; }
+.guide-figure { margin: 0 0 16px; padding: 12px 10px 10px; }
 .guide-figure svg { width: 100%; height: auto; display: block; }
-.guide-figure figcaption { font-size: .85rem; color: var(--muted); margin-top: 6px; }
+.guide-figure figcaption { font-size: .88rem; color: var(--muted); margin-top: 6px; font-style: italic; }
 .g-line * { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .g-line .g-fill { fill: var(--brass-soft); }
 .g-line .g-fill-soft { fill: var(--paper); }
@@ -206,46 +341,19 @@ summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; al
 .g-line .g-accent2 { stroke: var(--ink); stroke-width: 4; }
 .g-line .g-dot { fill: var(--ink); }
 .g-label line { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 3; }
-.g-label text { fill: var(--ink); font: 600 11px var(--sans); }
-.guide-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 12px; scroll-margin-top: 12px; }
-.guide-card h2 { font-family: var(--serif); font-size: 1.2rem; margin: 0 0 8px; display: flex; align-items: center; gap: 10px; }
+.g-label text { fill: var(--ink); font: italic 12px var(--serif); }
+.guide-card { padding: 16px 18px; margin-bottom: 14px; scroll-margin-top: 12px; }
 .guide-card p, .guide-card li { margin: 0 0 8px; }
 .guide-card ul { padding-left: 1.2em; margin: 0; }
-.guide-card .num { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--brass); color: var(--brass-ink); font: 700 .9rem var(--sans); flex: none; }
+.guide-card li::marker { content: "❧  "; color: var(--brass); }
+.guide-card .num {
+  display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; flex: none;
+  font: 400 1rem/1 var(--display); font-style: normal; color: var(--brass-ink);
+  background: radial-gradient(circle at 35% 30%, var(--brass-hi), var(--brass) 60%, var(--brass-lo));
+  border: 1px solid #4b3214;
+}
 
-/* Funnet på uret */
-.found h2 { margin-bottom: 8px; }
-.found-list { list-style: none; padding: 0; margin: 0; }
-.found-list li { padding: 8px 0; border-bottom: 1px solid var(--line); }
-.found-list li:last-child { border-bottom: 0; }
-.found-list small { color: var(--muted); }
-.num-value { font-variant-numeric: tabular-nums; letter-spacing: .03em; }
-.found-ignored { margin-top: 6px; }
-.found-ignored ul { margin: 6px 0 0; padding-left: 1.1em; color: var(--muted); font-size: .9rem; }
-.stamp small { color: var(--muted); font-size: .75rem; }
-.meta.good { color: var(--ok); }
-.slot-note { position: absolute; bottom: 36px; left: 0; right: 0; text-align: center; font-size: .85rem; margin: 0; padding: 0 12px; }
-
-/* Fri bildeopplasting */
-.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
-.thumb { position: relative; margin: 0; border-radius: 12px; overflow: hidden; background: var(--card); border: 1px solid var(--line); aspect-ratio: 3 / 4; display: grid; place-items: center; }
-.thumb img { width: 100%; height: 100%; object-fit: cover; }
-.thumb svg { width: 50%; opacity: .5; }
-.thumb figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 4px 6px; font-size: .72rem; line-height: 1.25; background: rgba(0,0,0,.6); color: #fff; }
-.thumb-note { position: absolute; top: 8px; left: 6px; right: 6px; font-size: .7rem; text-align: center; color: var(--muted); }
-.thumb-remove { position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; border-radius: 50%; border: 0; background: rgba(0,0,0,.6); color: #fff; font-size: 1.2rem; line-height: 1; cursor: pointer; }
-.photo-empty { grid-column: 1 / -1; border: 1.5px dashed var(--line); border-radius: var(--radius); padding: 28px 16px; text-align: center; color: var(--muted); }
-.photo-empty svg { width: 64px; opacity: .5; }
-.photo-empty p { margin: 6px 0 0; }
-#suggest-box { margin-bottom: 12px; }
-
-/* Om navnet */
-.maker-name { font-family: var(--serif); font-size: 1.3rem; font-weight: 600; margin: 0 0 6px; }
-.sources { padding-left: 1.1em; margin: 6px 0 0; font-size: .9rem; }
-.sources li { margin: 4px 0; }
-.sources a { color: var(--ink); }
-
-/* Venteskjerm: viktoriansk lommeur med tannhjul */
+/* --- Venteskjerm: viktoriansk lommeur med tannhjul ---------------------------------------------- */
 :root {
   --sp-brass-1: #f0cf86; --sp-brass-2: #c8933a; --sp-brass-3: #7a4f17;
   --sp-copper-1: #e3946a; --sp-copper-2: #8c4422;
@@ -258,7 +366,7 @@ summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; al
 .sp-gear-body { fill: url(#sp-brass); stroke: var(--sp-dark); stroke-width: 1.4; stroke-linejoin: round; }
 .sp-copperish .sp-gear-body { fill: url(#sp-copper); }
 .sp-gear-cut { fill: var(--paper); stroke: var(--sp-dark); stroke-width: 1.2; }
-.sp-gear-spokes line { stroke: url(#sp-brass); stroke: var(--sp-brass-2); stroke-width: 4; stroke-linecap: round; }
+.sp-gear-spokes line { stroke: var(--sp-brass-2); stroke-width: 4; stroke-linecap: round; }
 .sp-copperish .sp-gear-spokes line { stroke: var(--sp-copper-2); }
 .sp-gear-hub { fill: var(--sp-dark); }
 .sp-g1 { animation: sp-spin 16s linear infinite; }
@@ -272,12 +380,12 @@ summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; al
 .sp-dial { fill: url(#sp-dial); stroke: var(--sp-brass-3); stroke-width: 1.5; }
 .sp-chapter { fill: none; stroke: var(--sp-dark); stroke-width: .6; opacity: .6; }
 .sp-ticks line { stroke: var(--sp-dark); stroke-width: .7; }
-.sp-numerals text { font: 600 7.2px "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; fill: var(--sp-dark); text-anchor: middle; }
+.sp-numerals text { font: 400 7.6px var(--display); fill: var(--sp-dark); text-anchor: middle; }
 .sp-window-rim { fill: url(#sp-brass); stroke: var(--sp-dark); stroke-width: 1; }
 .sp-window { fill: var(--sp-window); }
 .sp-hairspring { fill: none; stroke: var(--sp-brass-1); stroke-width: .5; opacity: .8; }
 .sp-balance { animation: sp-swing .5s ease-in-out infinite alternate; }
-.sp-balance-rim { fill: none; stroke: url(#sp-copper); stroke: var(--sp-copper-1); stroke-width: 1.8; }
+.sp-balance-rim { fill: none; stroke: var(--sp-copper-1); stroke-width: 1.8; }
 .sp-balance line { stroke: var(--sp-copper-1); stroke-width: 1; }
 .sp-screw { fill: var(--sp-brass-1); }
 .sp-hand line { stroke: var(--sp-dark); stroke-linecap: round; }
@@ -302,8 +410,8 @@ summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; al
   75% { transform: translate(82px, 120px); }
 }
 .loading-text {
-  font-family: var(--serif); font-style: italic; font-size: 1.1rem; color: var(--sp-brass-3);
-  min-height: 1.5em; margin: 4px 0 0; transition: opacity .25s; letter-spacing: .01em;
+  font: italic 1.2rem var(--display); color: var(--sp-brass-3);
+  min-height: 1.5em; margin: 4px 0 0; transition: opacity .25s;
 }
 .loading-text::before, .loading-text::after { content: "❦"; font-style: normal; color: var(--sp-brass-2); margin: 0 .5em; font-size: .9em; }
 .loading-text.fade { opacity: 0; }
@@ -314,7 +422,5 @@ summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; al
 @media (prefers-reduced-motion: reduce) {
   .sp-gear, .sp-balance, .sp-minute, .sp-lens { animation: none; }
   .sp-lens { transform: translate(118px, 92px); }
+  .btn:active { transform: none; }
 }
-
-.chip { white-space: nowrap; }
-.found-list .chip { display: inline-block; margin-top: 2px; }

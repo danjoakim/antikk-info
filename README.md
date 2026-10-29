@@ -1,4 +1,4 @@
-# InformAntique (MVP)
+# InformAntikk (MVP)
 
 Mobil web-app som gir informasjon om antikviteter og gamle ting, for eksempel når du går rundt på et loppemarked. Første kategori er lommeur: appen hjelper med å identifisere, datere og finne prisintervall.
 

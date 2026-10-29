@@ -1,4 +1,4 @@
-# Prosjektlogg – InformAntique (MVP)
+# Prosjektlogg – InformAntikk (MVP)
 
 Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
@@ -127,7 +127,9 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-10-29 | Forslag til neste bilde regnes ut med regler (`suggest.py` / `suggest.js`) ut fra hva som mangler og hva som er fotografert; høyst to forslag, ingen når det holder | Appen skal ikke presse fram svar på alt, men si ærlig hva som ville hjulpet |
 | 2026-10-29 | Produsentkunnskap i egen tabell (`makers`) med kilder; tolkning i egen kolonne og merket «Ikke verifisert» | Brukeren vil ha bakgrunn om navnet; det som ikke er dokumentert, skal ikke se ut som fakta |
 | 2026-10-29 | Leverandørnavnet vises bare i innstillingene, ikke i flyten eller feilmeldingene | Brukeren: hvilken modell som gjør jobben, betyr lite for den som bruker appen |
-| 2026-10-29 | Appen heter **InformAntique** (foreløpig) | Brukerens valg: en app som gir informasjon om antikviteter, f.eks. på loppemarked. Lommeur er første kategori. Alternativ under vurdering: **InformAntikk** (norsk form); se åpne spørsmål |
+| 2026-10-29 | Appen het først **InformAntique** | Brukerens valg: en app som gir informasjon om antikviteter, f.eks. på loppemarked. Lommeur er første kategori |
+| 2026-10-29 | Appen heter **InformAntikk** | Appen skal være norsk. Nettsøk fant ingen andre med navnet |
+| 2026-10-29 | Gjennomført viktoriansk steampunk-stil i hele appen | Brukerens ønske. Uttrykk: urmakerverksted i 1890-årene – hovedbokpapir, valnøtt, messing, verdigris og oksblod; IM Fell English til overskrifter, Libre Caslon Text til brødtekst; knapper som graverte messingplater med nagler, kort som etiketter i et kuriositetskabinett. Tall med jevnhøye sifre for lesbarhet |
 | 2026-10-29 | Lagringsnøkkelen i nettleseren (`lommeur.settings.v1`) beholdes | Endring ville slettet brukerens lagrede nøkkel |
 | 2026-10-29 | Standardmodeller: `gpt-6-astra` (OpenAIs anbefalte), `gemini-3.8-flash` (Googles anbefalte stabile Flash) | Hentet fra leverandørenes modelloversikter 29.10.2026; overstyres med `VISION_MODEL` |
 
@@ -142,11 +144,20 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 6. **Monard-uret – kontrollmerke:** Gemini meldte en tiur i én av to kjøringer (sveitsisk kontrollmerke for 0.800). Et innslått merke i ramme finnes ved kassenummeret i lokket og i cuvetten, men figuren er ikke lesbar i bildene. Avklares med lupe. Bekreftet tiur ville gitt periode fra 1880-tallet.
 7. **Monard-uret – G.S og monogram:** «G.S» ved 0.800 i lokk og cuvette er trolig kassemakerens punselmerke (slås opp i Mikrolisk / registre over kassemakere). Bokstavene i det graverte monogrammet er ikke lest sikkert; kan være eier, giver eller unntaksvis produsent.
 5. **Leverandørkall er ikke kjørt live.** Koden følger leverandørenes dokumentasjon, men første ekte kall per leverandør kan avdekke detaljer (f.eks. skjemastøtte i Gemini eller lokale modeller).
-8. **Navn: InformAntique eller InformAntikk?** Appen heter foreløpig InformAntique. InformAntikk er vurdert fordi appen skal være norsk. Ikke avgjort. Nettsøk 29.10.2026 (brukeren og Claude) fant ingen treff på verken InformAntikk eller InformAntique. Markedet har mange engelske «Antique Identifier»-apper, så et særpreget norsk navn skiller seg ut. Gjenstår: søk i Patentstyrets varemerkebase, Brønnøysundregistrene, domene (.no via Norid) og App Store / Google Play.
+8. **Navn:** Avgjort: InformAntikk. Gjenstår å sjekke Patentstyret, Brønnøysundregistrene, Norid og appbutikkene før eventuell lansering.
 
 ---
 
 ## Øktlogg
+
+### 2026-10-29 – Økt 14: InformAntikk i viktoriansk steampunk-stil
+**Gjort:**
+- Navnet byttet til **InformAntikk** overalt (tittel, toppfelt, manifest, hjemskjermtittel, README, FastAPI).
+- Nytt tema for hele appen (`styles.css`, delt av begge versjoner): hovedbokpapir med svake fibre og mørkere kanter, toppfelt som messingskilt på valnøtt, overskrifter i IM Fell English med kapittelpynt (strek – ❦ – strek), knapper som graverte messingplater med nagler, sekundærknapper og kort med dobbel strek som museumsetiketter, emaljeskilt for «Sikker/Sjekk/Usikker», bilder i messingramme, prisskala som messingstang med gradering og knott, ❧/✦ som punkttegn. Mørk modus i valnøtt og lær.
+- Nytt ikon: lommeur på messingtannhjul, valnøtt med messingkant (SVG + PNG 192/512).
+- Skrifter fra Google Fonts med Baskerville (iPhone) og Palatino som reserve.
+**Filer:** `docs/{styles.css,index.html,manifest.webmanifest,icon.svg,icon-192.png,icon-512.png}`, `app/static/` (samme), `app/main.py`, `README.md`, `LOGG.md`.
+**Tester:** JavaScript 20 bestått. Alle skjermene kontrollert i lys og mørk modus (med reserveskrifter; Google Fonts er sperret i byggemiljøet).
 
 ### 2026-10-29 – Sammenligning: ekte Gemini mot fasiten (Monard)
 **Stemmer:** 101954 som kassenummer på tre steder (ytre lokk innside, cuvetten inn- og utside), merke «G. MONARD», teksten «Echappement à cylindre», «Aiguilles», «Genève», sylindergang, nøkkeloppstrekk (med riktig begrunnelse: to nøkkelhull, «Aiguilles», ingen krone), verk med broer, sølv 0.800 i både lokk og cuvette, ingen falske advarsler. Ingen tiur.

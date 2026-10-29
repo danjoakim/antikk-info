@@ -315,3 +315,6 @@ summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; al
   .sp-gear, .sp-balance, .sp-minute, .sp-lens { animation: none; }
   .sp-lens { transform: translate(118px, 92px); }
 }
+
+.chip { white-space: nowrap; }
+.found-list .chip { display: inline-block; margin-top: 2px; }

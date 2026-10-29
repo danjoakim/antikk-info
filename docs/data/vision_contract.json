@@ -1,0 +1,232 @@
+{
+ "system_prompt": "You are a careful horological observer. You only REPORT what is visible in the photos of an antique pocket watch. You never estimate age, production year, value or price, and you never guess.\n\nRules:\n- Copy text, numbers and stamps verbatim as they appear (keep commas, dots and spacing).\n- If a digit or character is not clearly legible, set the field to null and list the field name in `unreadable`. A wrong digit is worse than a missing one.\n- Keep the MOVEMENT serial (engraved on a bridge or plate of the movement) separate from the CASE number (stamped inside the case or lid). Never copy one into the other. Caliber or reference numbers are neither; ignore them.\n- Escapement: report \"lever\" only if a pallet fork/anchor is visible or the movement is marked e.g. \"Ancre\", \"Anker\", \"Lever\"; \"cylinder\" only if marked e.g. \"Cylindre\", \"Cylinder\", \"Zylinder\" or the cylinder escapement is clearly visible; \"verge\" for a fusee/verge with crown wheel. Otherwise \"unknown\". Describe what you saw in `escapement_evidence`.\n- case_stamps: every mark inside the case/lids verbatim, e.g. \"0,800\", \"Argentan\", \"Métal\", \"Cuvette métal\". Describe pictorial hallmarks in words (e.g. \"bear hallmark\", \"grouse hallmark\", \"Helvetia head\").\n- confidence: a number 0–1 for each field you filled in, null for fields you left empty.\n- retake_hints: short, practical photo advice in Norwegian for anything you could not read (e.g. \"Ta et nærbilde av verket i skrått lys\").\n- Every key in the schema must be present; use null or an empty list when you have nothing.",
+ "user_instruction": "Registrer observasjonene fra bildene over i henhold til skjemaet.",
+ "schema": {
+  "type": "object",
+  "properties": {
+   "dial_text": {
+    "type": [
+     "string",
+     "null"
+    ],
+    "description": "Text on the dial, verbatim"
+   },
+   "brand_signed": {
+    "type": [
+     "string",
+     "null"
+    ],
+    "description": "Brand name as written on dial or movement"
+   },
+   "movement_serial": {
+    "type": [
+     "string",
+     "null"
+    ],
+    "description": "Serial engraved on the movement, verbatim"
+   },
+   "case_number": {
+    "type": [
+     "string",
+     "null"
+    ],
+    "description": "Number stamped inside the case, verbatim"
+   },
+   "escapement": {
+    "type": "string",
+    "enum": [
+     "cylinder",
+     "lever",
+     "verge",
+     "unknown"
+    ]
+   },
+   "escapement_evidence": {
+    "type": [
+     "string",
+     "null"
+    ],
+    "description": "What in the photo shows the escapement"
+   },
+   "case_stamps": {
+    "type": "array",
+    "items": {
+     "type": "string"
+    },
+    "description": "All case marks, verbatim"
+   },
+   "jewels": {
+    "type": [
+     "integer",
+     "null"
+    ],
+    "description": "Jewel count only if marked, e.g. '15 Rubis'"
+   },
+   "confidence": {
+    "type": "object",
+    "properties": {
+     "dial_text": {
+      "type": [
+       "number",
+       "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+     },
+     "brand_signed": {
+      "type": [
+       "number",
+       "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+     },
+     "movement_serial": {
+      "type": [
+       "number",
+       "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+     },
+     "case_number": {
+      "type": [
+       "number",
+       "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+     },
+     "escapement": {
+      "type": [
+       "number",
+       "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+     },
+     "case_stamps": {
+      "type": [
+       "number",
+       "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+     }
+    },
+    "required": [
+     "dial_text",
+     "brand_signed",
+     "movement_serial",
+     "case_number",
+     "escapement",
+     "case_stamps"
+    ],
+    "additionalProperties": false
+   },
+   "unreadable": {
+    "type": "array",
+    "items": {
+     "type": "string"
+    }
+   },
+   "retake_hints": {
+    "type": "array",
+    "items": {
+     "type": "string"
+    }
+   }
+  },
+  "additionalProperties": false,
+  "required": [
+   "dial_text",
+   "brand_signed",
+   "movement_serial",
+   "case_number",
+   "escapement",
+   "escapement_evidence",
+   "case_stamps",
+   "jewels",
+   "confidence",
+   "unreadable",
+   "retake_hints"
+  ]
+ },
+ "role_labels": {
+  "dial": "Urskiven (forsiden)",
+  "movement": "Urverket (baklokket åpnet)",
+  "caseback": "Innsiden av lokket (stempler og kassenummer)",
+  "movement_closeup": "Nærbilde av urverket",
+  "caseback_closeup": "Nærbilde av stempler i lokket"
+ },
+ "mock_scenarios": {
+  "omega_silver": {
+   "dial_text": "OMEGA",
+   "brand_signed": "Omega",
+   "movement_serial": "2 345 678",
+   "case_number": "6 012 345",
+   "escapement": "lever",
+   "escapement_evidence": "Ankergaffel synlig; verket merket «Ancre 15 Rubis».",
+   "case_stamps": [
+    "0,800",
+    "Tiur-stempel (grouse hallmark)",
+    "Cuvette Métal"
+   ],
+   "jewels": 15,
+   "confidence": {
+    "brand_signed": 0.97,
+    "movement_serial": 0.86,
+    "case_number": 0.74,
+    "escapement": 0.9,
+    "case_stamps": 0.88
+   },
+   "unreadable": [],
+   "retake_hints": []
+  },
+  "cylinder_metal": {
+   "dial_text": "Remontoir Cylindre 10 Rubis",
+   "brand_signed": null,
+   "movement_serial": null,
+   "case_number": "48213",
+   "escapement": "cylinder",
+   "escapement_evidence": "Urskiven og verket er merket «Cylindre».",
+   "case_stamps": [
+    "ARGENTAN"
+   ],
+   "jewels": 10,
+   "confidence": {
+    "case_number": 0.8,
+    "escapement": 0.92,
+    "case_stamps": 0.95
+   },
+   "unreadable": [
+    "movement_serial"
+   ],
+   "retake_hints": [
+    "Fant ikke verksnummer. Ta et nærbilde av broene på verket i skrått lys."
+   ]
+  },
+  "unreadable": {
+   "dial_text": null,
+   "brand_signed": null,
+   "movement_serial": null,
+   "case_number": null,
+   "escapement": "unknown",
+   "escapement_evidence": null,
+   "case_stamps": [],
+   "jewels": null,
+   "confidence": {},
+   "unreadable": [
+    "dial_text",
+    "movement_serial",
+    "case_number",
+    "case_stamps",
+    "escapement"
+   ],
+   "retake_hints": [
+    "Bildene er for uskarpe. Hold telefonen stødig og gå nærmere.",
+    "Unngå refleks: vipp uret litt bort fra lyskilden."
+   ]
+  }
+ }
+}

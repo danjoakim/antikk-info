@@ -1,0 +1,114 @@
+[
+ {
+  "pattern": "(^|[^0-9])(0\\.)?750([^0-9]|$)|18 ?k",
+  "material": "gold_18k",
+  "label": "Gull 18 karat (0.750)",
+  "region": null,
+  "priority": 90,
+  "is_demo": true
+ },
+ {
+  "pattern": "helvetia",
+  "material": "gold_18k",
+  "label": "Sveitsisk kontrollmerke for 18 k gull (Helvetia-hode)",
+  "region": "CH 1882–1933",
+  "priority": 88,
+  "is_demo": true
+ },
+ {
+  "pattern": "(^|[^0-9])(0\\.)?585([^0-9]|$)|14 ?k",
+  "material": "gold_14k",
+  "label": "Gull 14 karat (0.585)",
+  "region": null,
+  "priority": 85,
+  "is_demo": true
+ },
+ {
+  "pattern": "ekorn|squirrel|écureuil|ecureuil",
+  "material": "gold_14k",
+  "label": "Sveitsisk kontrollmerke for 14 k gull (ekorn)",
+  "region": "CH 1882–1933",
+  "priority": 83,
+  "is_demo": true
+ },
+ {
+  "pattern": "(^|[^0-9])(0\\.)?935([^0-9]|$)",
+  "material": "silver_935",
+  "label": "Sølv 0.935",
+  "region": null,
+  "priority": 80,
+  "is_demo": true
+ },
+ {
+  "pattern": "(^|[^0-9])(0\\.)?925([^0-9]|$)|sterling",
+  "material": "silver_925",
+  "label": "Sølv 0.925 (sterling)",
+  "region": null,
+  "priority": 78,
+  "is_demo": true
+ },
+ {
+  "pattern": "(^|[^0-9])(0\\.)?900([^0-9]|$)",
+  "material": "silver_900",
+  "label": "Sølv 0.900",
+  "region": null,
+  "priority": 76,
+  "is_demo": true
+ },
+ {
+  "pattern": "(^|[^0-9])(0\\.)?875([^0-9]|$)",
+  "material": "silver_875",
+  "label": "Sølv 0.875",
+  "region": null,
+  "priority": 75,
+  "is_demo": true
+ },
+ {
+  "pattern": "bjørn|bjorn|bear|ours",
+  "material": "silver_875",
+  "label": "Sveitsisk kontrollmerke for sølv 0.875 (bjørn)",
+  "region": "CH 1882–1933",
+  "priority": 74,
+  "is_demo": true
+ },
+ {
+  "pattern": "(^|[^0-9])(0\\.)?800([^0-9]|$)",
+  "material": "silver_800",
+  "label": "Sølv 0.800",
+  "region": null,
+  "priority": 70,
+  "is_demo": true
+ },
+ {
+  "pattern": "tiur|auerhahn|grouse|tétras|tetras|coq de bruy",
+  "material": "silver_800",
+  "label": "Sveitsisk kontrollmerke for sølv 0.800 (tiur)",
+  "region": "CH 1882–1933",
+  "priority": 69,
+  "is_demo": true
+ },
+ {
+  "pattern": "doubl[ée]|plaqu[ée]|gold ?filled|(^|[^a-z])g\\.?f\\.?([^a-z]|$)",
+  "material": "gold_filled",
+  "label": "Forgylt / doublé (ikke massivt gull)",
+  "region": null,
+  "priority": 40,
+  "is_demo": true
+ },
+ {
+  "pattern": "acier|stahl|steel|stål",
+  "material": "steel",
+  "label": "Stål",
+  "region": null,
+  "priority": 30,
+  "is_demo": true
+ },
+ {
+  "pattern": "argentan|alpac+a|alpaka|neusilber|nysølv|maillechort|nickel|m[ée]tal",
+  "material": "base_metal",
+  "label": "Uedelt metall (argentan, nikkel o.l.)",
+  "region": null,
+  "priority": 20,
+  "is_demo": true
+ }
+]

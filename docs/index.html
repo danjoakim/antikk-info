@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Lommeur-sjekk</title>
+  <meta name="description" content="Identifiser, dater og finn prisintervall for gamle lommeur.">
+  <meta name="theme-color" content="#f6f1e7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1b1814" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <img src="icon.svg" alt="" width="28" height="28">
+    <span class="brand">Lommeur-sjekk</span>
+    <span id="mode-badge" class="badge badge-demo" hidden>Demo</span>
+    <button class="icon-btn" data-action="settings" aria-label="Innstillinger">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
+    </button>
+  </header>
+
+  <main id="app">
+    <!-- 1. Start -->
+    <section id="screen-intro" class="screen">
+      <h1>Hva er lommeuret verdt?</h1>
+      <p class="lead">Ta tre bilder. Appen leser av nummer og stempler, og slår opp alder og reelle salgspriser.</p>
+      <ol class="howto">
+        <li><strong>Urskiven</strong> forfra</li>
+        <li><strong>Urverket</strong> med baklokket åpnet</li>
+        <li><strong>Innsiden av lokket</strong> med stempler</li>
+      </ol>
+      <p class="fineprint">Du kan rette opp det appen har lest før noe slås opp. Årstall og priser hentes fra tabeller, ikke fra gjetting.</p>
+      <p class="fineprint" id="provider-info" hidden></p>
+      <div id="mock-panel" class="mock-panel" hidden>
+        <label for="mock-scenario">Demomodus – velg eksempel</label>
+        <select id="mock-scenario"></select>
+        <p class="fineprint">Bildeanalysen bruker faste eksempler. <button class="link link-inline" data-action="settings">Legg inn Gemini-nøkkel</button> for ekte analyse.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" data-action="start">Start</button>
+      </div>
+    </section>
+
+    <!-- 2. Bildesteg -->
+    <section id="screen-capture" class="screen" hidden>
+      <div class="progress" aria-hidden="true"><span></span><span></span><span></span></div>
+      <p class="step-count" id="step-count"></p>
+      <h1 id="step-title"></h1>
+      <ul class="tips" id="step-tips"></ul>
+
+      <div class="photo-slot" id="photo-main"></div>
+      <div class="photo-slot photo-slot-small" id="photo-closeup" hidden></div>
+
+      <p class="error" id="capture-error" role="alert" hidden></p>
+
+      <div class="actions">
+        <div class="row" id="capture-buttons">
+          <label class="btn btn-primary">
+            <input type="file" accept="image/*" capture="environment" data-input="main" hidden>
+            <span data-label="camera">Ta bilde</span>
+          </label>
+          <label class="btn btn-secondary">
+            <input type="file" accept="image/*" data-input="main" hidden>
+            Galleri
+          </label>
+        </div>
+        <div class="row" id="next-buttons" hidden>
+          <label class="btn btn-secondary" id="closeup-btn" hidden>
+            <input type="file" accept="image/*" capture="environment" data-input="closeup" hidden>
+            <span>+ Nærbilde</span>
+          </label>
+          <button class="btn btn-primary" data-action="next">Neste</button>
+        </div>
+        <div class="row row-links">
+          <button class="link" data-action="back">Tilbake</button>
+          <button class="link" data-action="skip" id="skip-btn">Hopp over dette bildet</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Analyserer -->
+    <section id="screen-loading" class="screen screen-center" hidden>
+      <div class="spinner" aria-hidden="true"></div>
+      <p id="loading-text">Leser bildene …</p>
+    </section>
+
+    <!-- 4. Bekreft -->
+    <section id="screen-confirm" class="screen" hidden>
+      <h1>Stemmer dette?</h1>
+      <p class="lead">Sjekk mot uret og rett opp feil. Ett feil siffer kan flytte dateringen flere år.</p>
+
+      <div id="confirm-notices"></div>
+
+      <form id="confirm-form" novalidate>
+        <div class="field">
+          <label for="f-brand">Merke <span class="chip" data-conf="brand_signed"></span></label>
+          <input id="f-brand" name="brand" autocomplete="off" autocapitalize="words" placeholder="Usignert">
+        </div>
+        <div class="field">
+          <label for="f-movement">Verksnummer <span class="chip" data-conf="movement_serial"></span></label>
+          <input id="f-movement" name="movement_serial" inputmode="numeric" pattern="[0-9 ]*" autocomplete="off" placeholder="Ikke lest">
+          <small>Graveringen på selve urverket.</small>
+        </div>
+        <div class="field">
+          <label for="f-case">Kassenummer <span class="chip" data-conf="case_number"></span></label>
+          <input id="f-case" name="case_number" inputmode="numeric" pattern="[0-9 ]*" autocomplete="off" placeholder="Ikke lest">
+          <small>Stemplet inni kassen eller lokket.</small>
+        </div>
+        <div class="field">
+          <label for="f-escapement">Gangtype <span class="chip" data-conf="escapement"></span></label>
+          <select id="f-escapement" name="escapement"></select>
+          <small id="escapement-evidence"></small>
+        </div>
+        <div class="field">
+          <label for="f-material">Kassemateriale <span class="chip" data-conf="case_stamps"></span></label>
+          <select id="f-material" name="material"></select>
+          <div class="stamps" id="stamps"></div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">Finn alder og verdi</button>
+          <div class="row row-links">
+            <button class="link" type="button" data-action="retake">Ta bildene på nytt</button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- 5. Resultat -->
+    <section id="screen-result" class="screen" hidden>
+      <h1>Resultat</h1>
+      <article class="card" id="dating-card"></article>
+      <article class="card" id="value-card"></article>
+      <div class="actions">
+        <button class="btn btn-primary" data-action="restart">Ny vurdering</button>
+        <div class="row row-links">
+          <button class="link" data-action="edit">Rett opplysninger</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Innstillinger -->
+    <section id="screen-settings" class="screen" hidden>
+      <h1>Innstillinger</h1>
+      <p class="lead">Nøkkelen lagres bare i denne nettleseren og sendes bare til Google.</p>
+      <form id="settings-form" novalidate>
+        <div class="field">
+          <label for="s-key">Gemini API-nøkkel</label>
+          <input id="s-key" name="key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="AIza…">
+          <small>Lag en i Google AI Studio. Begrens den til Generative Language API og denne nettadressen.</small>
+        </div>
+        <div class="field">
+          <label for="s-model">Modell</label>
+          <input id="s-model" name="model" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <small>Bytt hvis Google har pensjonert modellen.</small>
+        </div>
+        <div class="field field-check">
+          <label><input type="checkbox" name="demo"> Demomodus (ingen kall til Gemini)</label>
+        </div>
+        <p id="settings-status" class="status" role="status" hidden></p>
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">Lagre</button>
+          <div class="row">
+            <button class="btn btn-secondary" type="button" data-action="test-key">Test nøkkelen</button>
+            <button class="btn btn-secondary" type="button" data-action="clear-key">Slett nøkkel</button>
+          </div>
+          <div class="row row-links">
+            <button class="link" type="button" data-action="close-settings">Tilbake</button>
+          </div>
+        </div>
+      </form>
+    </section>
+  </main>
+  <noscript><p class="error">Appen trenger JavaScript.</p></noscript>
+
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+[
+ {
+  "brand": "omega",
+  "number_type": "movement",
+  "serial_start": 1000000,
+  "serial_end": 1499999,
+  "year_from": 1895,
+  "year_to": 1901,
+  "source": "DEMO: offentlig siterte Omega-tabeller, ikke verifisert",
+  "is_demo": true
+ },
+ {
+  "brand": "omega",
+  "number_type": "movement",
+  "serial_start": 1500000,
+  "serial_end": 1999999,
+  "year_from": 1902,
+  "year_to": 1907,
+  "source": "DEMO: offentlig siterte Omega-tabeller, ikke verifisert",
+  "is_demo": true
+ },
+ {
+  "brand": "omega",
+  "number_type": "movement",
+  "serial_start": 2000000,
+  "serial_end": 2999999,
+  "year_from": 1908,
+  "year_to": 1911,
+  "source": "DEMO: offentlig siterte Omega-tabeller, ikke verifisert",
+  "is_demo": true
+ },
+ {
+  "brand": "omega",
+  "number_type": "movement",
+  "serial_start": 3000000,
+  "serial_end": 3999999,
+  "year_from": 1912,
+  "year_to": 1915,
+  "source": "DEMO: offentlig siterte Omega-tabeller, ikke verifisert",
+  "is_demo": true
+ },
+ {
+  "brand": "omega",
+  "number_type": "movement",
+  "serial_start": 4000000,
+  "serial_end": 4999999,
+  "year_from": 1916,
+  "year_to": 1922,
+  "source": "DEMO: offentlig siterte Omega-tabeller, ikke verifisert",
+  "is_demo": true
+ }
+]

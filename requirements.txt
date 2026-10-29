@@ -1,0 +1,15 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+python-multipart>=0.0.9
+python-dotenv>=1.0
+pydantic>=2.7
+
+# Bildeanalyse. Bare pakken for leverandøren du bruker er nødvendig,
+# men alle installeres så du kan bytte i .env uten nye steg.
+anthropic>=0.40       # Anthropic Claude
+openai>=1.55          # OpenAI og OpenAI-kompatible (OpenRouter, Ollama, LM Studio)
+google-genai>=1.30    # Google Gemini
+
+# Tester
+pytest>=8
+httpx>=0.27

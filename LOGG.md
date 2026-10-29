@@ -56,6 +56,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 - [ ] Skru på Pages: *Settings → Pages*, gren `main`, mappe `/docs`
 - [ ] Første ekte test med Gemini-nøkkel på telefonen
 - [x] Fire bildesteg i åpningsrekkefølge (urskive → ytre lokk → cuvette → urverk) og illustrert veiledning
+- [x] Lært av ekte ur (G. Monard): nummer og merker med plassering, oppstrekk, verktype, reparasjons- og eiermerker, grov periode, ukjente navn mot usignerte, HEIC
 
 ### Neste
 - [ ] Kjøre `pytest` lokalt med FastAPI installert (API-testene ble hoppet over i sandkassen)
@@ -64,6 +65,8 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 - [ ] Teste på ekte telefon via HTTPS-tunnel (iPhone/HEIC og Android)
 - [ ] Verifisere Omega-tabellen og avklare verks- vs. kassenummer (åpent spørsmål 1)
 - [ ] Erstatte fiktive salg med kuraterte, lenkede salg
+- [ ] Verifisere periodereglene (`period_rules`) mot faglitteratur
+- [ ] Legge til salgsdata for nøkkeloppstrekk vs. kroneoppstrekk (påvirker prisen)
 
 ### Senere (utenfor MVP)
 - [ ] Importskript for kuraterte auksjonsdata (CSV → SQLite, `is_demo = 0`)
@@ -109,6 +112,13 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-10-29 | Fire bildesteg i samme rekkefølge som uret åpnes: urskive, ytre baklokk, cuvette, urverk | Brukerens innspill: lommeur har som regel to lokk bak, og stempler og nummer kan sitte på begge |
 | 2026-10-29 | Stempler fra cuvetten merkes «Cuvette: …»; metallmerke på cuvetten avgjør ikke kassematerialet | «Cuvette Métal» betyr at bare det indre lokket er av metall. Edelmetallstempel på cuvetten teller fortsatt |
 | 2026-10-29 | Veiledning i appen («Slik åpner du et lommeur») fra startsiden og fra hvert bildesteg | Brukeren trenger opplæring; feil åpning kan skade uret og senke verdien |
+| 2026-10-29 | Modellen rapporterer hvert nummer og merke med plassering og type; reglene avgjør hva de betyr | Monard-uret hadde kassenummeret tre steder og ingenting på verket; faste felt for «verksnummer» og «kassenummer» ville tolket det feil |
+| 2026-10-29 | Innrissede nummer og nummer med bokstaver brukes aldri som serienummer | Urmakere risset inn reparasjonskoder (f.eks. «K9341») som lett forveksles med serienumre |
+| 2026-10-29 | Eiergravering og kassemakermerker teller ikke for materialet | Monogrammer og initialer sier ingenting om metallet |
+| 2026-10-29 | Grov periode fra kjennetegn (oppstrekk, gang, verktype) via tabellen `period_rules`, vist som intervall | Gir nyttig alder uten serienummertabell, uten at modellen gjetter årstall |
+| 2026-10-29 | Navn som ikke er i merkelisten, sammenlignes med usignerte ur, med merknad; kjente merker bare med seg selv | Forhandler- og fabrikantnavn som «G. Monard, Genève» ga ellers ingen pris |
+| 2026-10-29 | Ekte ur lagres som tekstlig fasit (`app/services/vision/examples/`), ikke som bilder | Repoet er offentlig, og bildene viser personlige graveringer |
+| 2026-10-29 | HEIC som nettleseren ikke kan lese, sendes uendret til Gemini | Gemini leser HEIC; iPhone-bilder skal fungere uten omvei |
 | 2026-10-29 | Standardmodeller: `gpt-6-astra` (OpenAIs anbefalte), `gemini-3.8-flash` (Googles anbefalte stabile Flash) | Hentet fra leverandørenes modelloversikter 29.10.2026; overstyres med `VISION_MODEL` |
 
 ---
@@ -124,6 +134,28 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-10-29 – Økt 7: Lært av et ekte ur (G. Monard, Genève)
+**Bakgrunn:** Brukeren fotograferte et ekte lommeur (6 HEIC-bilder). Det avvek fra antakelsene: nummeret sto på lokkene og ikke på verket, cuvetten hadde stempler på begge sider, verket og urskiven hadde nesten ingen merker.
+
+**Avlesning (fasit):** Sveitsisk lommeur med nøkkeloppstrekk, sølv 0.800 i både kasse og cuvette, sylindergang, 8 steiner, verk med broer. Signert «G. Monard, Genève» på cuvetten. Nummer 101954 i ytre lokk og på begge sider av cuvetten. «K9341» og riper på balansebroen tolket som reparasjonsmerker. Monogram og initialer er eiergravering. Ingen sveitsisk kontrollmerke sett.
+
+**Gjort:**
+- Nytt observasjonsskjema: `numbers[]` og `marks[]` med plassering, metode og type; `winding` og `movement_layout`. Ny instruks som forklarer stempling vs. gravering vs. riping.
+- Normalisering: grupperer like nummer på tvers av deler og markerer samsvar, varsler ved ulike kassenummer, skiller ut reparasjons- og eiermerker, finner merke også i graverte tekster og fjerner bynavn fra nøkkelen.
+- Datering: ny tabell `period_rules`; uten serienummerdatering vises en grov periode (Monard: ca. 1830–1890).
+- Verdivurdering: ukjente navn sammenlignes med usignerte ur, med merknad.
+- Grensesnitt: eget bilde av cuvettens innside, felt for oppstrekk og verktype, boks «Funnet på uret» med nummer, steder, samsvar og hva som ble sett bort fra. Veiledningen oppdatert.
+- HEIC: originalen sendes til Gemini når nettleseren ikke kan lese den.
+- Monard-uret er standard demoeksempel og testfasit i begge språk.
+
+**Filer:** `app/models.py`, `app/services/vision/{core,mock}.py`, `app/services/vision/examples/monard_101954.json` (ny), `app/services/{normalize,dating,valuation}.py`, `app/db/{schema,seed,database}`, `app/routes/analyze.py`, `app/config.py`, `app/static/*`, `docs/index.html`, `docs/styles.css`, `docs/js/{app,normalize,dating,valuation,vision}.js`, `docs/data/*.json`, `tools/export_data.py`, `tests/*`, `tests_web/*`, `.env.example`, `LOGG.md`.
+
+**Tester:** Python 44 bestått, JavaScript 18 bestått (nye: Monard-fasit, innrissede nummer, ulike kassenummer, perioder). Nettversjonen kjørt i mobilnettleser med de ekte bildene: demo og simulert Gemini-svar ga samme resultat, fem merkede bilder sendt. HEIC-bilde sendt uendret som `image/heif`. To feil funnet og rettet (krasj i steg uten ekstra bilde, sikkerhetsmerke ved tomt felt).
+
+**Ikke testet:** Ekte Gemini-kall med disse bildene.
+
+**Neste:** Skru på Pages og kjør Monard-uret gjennom ekte Gemini; sammenlign med fasiten.
 
 ### 2026-10-29 – Økt 6: To baklokk og veiledning
 **Bakgrunn:** Brukeren påpekte at lommeur som regel har to lokk bak (ytre lokk og cuvette), og at appen trenger en liten opplæring.

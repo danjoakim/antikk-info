@@ -61,7 +61,7 @@ def test_case_numbers_are_not_mistaken_for_silver(conn):
 
 
 def test_brand_found_in_dial_text(conn):
-    facts = VisionFacts(dial_text="OMEGA", movement_serial="2 345 678", escapement="lever")
+    facts = VisionFacts(dial_text="OMEGA", numbers=[{"value": "2 345 678", "location": "movement"}], escapement="lever")
     assert normalize(conn, facts).brand == "omega"
 
 
@@ -110,7 +110,7 @@ def test_valuation_exact_match_omega_silver(conn):
 def test_valuation_unsigned_cylinder_metal(conn):
     v = value_item(conn, NormalizedFacts(brand=None, material="base_metal", escapement="cylinder"))
     assert (v.min, v.median, v.max, v.n_sales) == (150, 265, 450, 10)
-    assert v.match_label.startswith("Usignerte ur")
+    assert v.match_label.startswith("Usignerte og mindre kjente ur")
 
 
 def test_valuation_widens_when_too_few_sales(conn):
@@ -139,3 +139,59 @@ def test_valuation_skips_unknown_criteria(conn):
 def test_init_db_does_not_duplicate_seed(db_path, conn):
     init_db(db_path)
     assert conn.execute("SELECT COUNT(*) FROM serial_ranges").fetchone()[0] == 5
+
+
+# --- Ekte ur: G. Monard, Genève (fasit i app/services/vision/examples) -------------
+
+from app.services.vision.mock import MOCK_SCENARIOS  # noqa: E402
+
+MONARD = MOCK_SCENARIOS["monard_key_wind"]
+
+
+def test_monard_numbers_and_marks(conn):
+    n = normalize(conn, MONARD)
+    assert n.brand == "g. monard" and n.brand_display == "G. Monard, Genève" and not n.known_brand
+    assert n.case_number == 101954 and n.movement_serial is None
+    assert n.numbers_match
+    assert n.number_groups[0].locations == ["outer_lid_inside", "cuvette_outside", "cuvette_inside"]
+    assert any("K9341" in r for r in n.repair_marks)          # innrisset, ikke serienummer
+    assert any("balansebroen" in r for r in n.repair_marks)
+    assert len(n.owner_engravings) == 2                       # monogram og initialer er ikke stempler
+    assert n.material == "silver_800" and n.warnings == []     # sølvcuvette gir ingen konflikt
+    assert (n.escapement, n.winding, n.movement_layout) == ("cylinder", "key", "bar")
+
+
+def test_monard_dating_gives_rough_period_only(conn):
+    d = date_item(conn, normalize(conn, MONARD))
+    assert d.status == "unknown_brand" and d.estimate is None
+    assert (d.period.year_from, d.period.year_to) == (1830, 1890)
+    assert d.period.basis == ["nøkkeloppstrekk", "sylindergang", "verk med broer"]
+
+
+def test_monard_valued_against_unsigned(conn):
+    v = value_item(conn, normalize(conn, MONARD))
+    assert v.match_level == "brand+material+escapement"
+    assert (v.min, v.median, v.max, v.n_sales) == (450, 625, 900, 6)
+    assert any("G. Monard" in c and "merkelisten" in c for c in v.caveats)
+
+
+def test_scratched_or_lettered_numbers_never_become_serials(conn):
+    facts = VisionFacts(numbers=[{"value": "K9341", "location": "outer_lid_inside", "method": "stamped"},
+                                 {"value": "4512", "location": "movement", "method": "scratched"}])
+    n = normalize(conn, facts)
+    assert n.case_number is None and n.movement_serial is None
+    assert any("K9341" in w for w in n.warnings) and any("4512" in r for r in n.repair_marks)
+
+
+def test_mismatched_case_numbers_warn(conn):
+    facts = VisionFacts(numbers=[{"value": "101954", "location": "outer_lid_inside", "method": "stamped"},
+                                 {"value": "55321", "location": "cuvette_inside", "method": "stamped"}])
+    n = normalize(conn, facts)
+    assert not n.numbers_match and any("satt sammen" in w for w in n.warnings)
+
+
+def test_contradictory_features_give_no_period(conn):
+    from app.models import NormalizedFacts as NF
+    assert date_item(conn, NF(winding="key", escapement="unknown", movement_layout="unknown")).period.year_to == 1890
+    # spindelgang (–1870) og kroneoppstrekk (1860–) overlapper; nøkkel + hel plate gir bredt intervall
+    assert date_item(conn, NF(escapement="verge", winding="stem")).period.display == "ca. 1860–1870"

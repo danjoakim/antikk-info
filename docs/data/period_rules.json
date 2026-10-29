@@ -1,0 +1,74 @@
+[
+ {
+  "feature": "escapement",
+  "value": "cylinder",
+  "year_from": 1820,
+  "year_to": 1940,
+  "note": "Sylindergang ble masseprodusert i Sveits fra 1800-tallet og fram til 1930-tallet.",
+  "source": "DEMO: generell urhistorie, ikke verifisert",
+  "is_demo": true
+ },
+ {
+  "feature": "escapement",
+  "value": "lever",
+  "year_from": 1820,
+  "year_to": 1990,
+  "note": "Ankergang har vært brukt fra tidlig 1800-tall og gir lite datering alene.",
+  "source": "DEMO: generell urhistorie, ikke verifisert",
+  "is_demo": true
+ },
+ {
+  "feature": "escapement",
+  "value": "verge",
+  "year_from": 1650,
+  "year_to": 1870,
+  "note": "Spindelgang er den eldste gangtypen og forsvant fra vanlige lommeur i løpet av 1800-tallet.",
+  "source": "DEMO: generell urhistorie, ikke verifisert",
+  "is_demo": true
+ },
+ {
+  "feature": "movement_layout",
+  "value": "bar",
+  "year_from": 1830,
+  "year_to": 1940,
+  "note": "Verk med separate broer (Lépine-kaliber).",
+  "source": "DEMO: generell urhistorie, ikke verifisert",
+  "is_demo": true
+ },
+ {
+  "feature": "movement_layout",
+  "value": "full_plate",
+  "year_from": 1650,
+  "year_to": 1900,
+  "note": "Hel plate, vanlig på eldre engelske og tidlige ur.",
+  "source": "DEMO: generell urhistorie, ikke verifisert",
+  "is_demo": true
+ },
+ {
+  "feature": "movement_layout",
+  "value": "three_quarter_plate",
+  "year_from": 1850,
+  "year_to": 1950,
+  "note": "Trekvart plate.",
+  "source": "DEMO: generell urhistorie, ikke verifisert",
+  "is_demo": true
+ },
+ {
+  "feature": "winding",
+  "value": "key",
+  "year_from": 1700,
+  "year_to": 1890,
+  "note": "Nøkkeloppstrekk dominerte til kroneoppstrekk (remontoir) tok over, gradvis fra 1860- til 1890-tallet.",
+  "source": "DEMO: generell urhistorie, ikke verifisert",
+  "is_demo": true
+ },
+ {
+  "feature": "winding",
+  "value": "stem",
+  "year_from": 1860,
+  "year_to": 1970,
+  "note": "Kroneoppstrekk ble vanlig på lommeur fra 1860–1870-tallet.",
+  "source": "DEMO: generell urhistorie, ikke verifisert",
+  "is_demo": true
+ }
+]

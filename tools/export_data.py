@@ -16,6 +16,8 @@ sys.path.insert(0, str(ROOT))
 from app.db.database import connect, init_db  # noqa: E402
 from app.services.vision.core import (OBSERVATION_SCHEMA, ROLE_LABELS, SYSTEM_PROMPT,  # noqa: E402
                                       USER_INSTRUCTION)
+from app.models import LOCATION_LABELS  # noqa: E402
+from app.services.normalize import LAYOUT_LABELS, WINDING_LABELS  # noqa: E402
 from app.services.vision.mock import MOCK_SCENARIOS  # noqa: E402
 
 OUT = ROOT / "docs" / "data"
@@ -25,6 +27,7 @@ TABLES = {
     "hallmarks": "SELECT pattern, material, label, region, priority, is_demo FROM hallmarks ORDER BY priority DESC",
     "auction_results": "SELECT item_type, brand, material, escapement, condition, price_nok, price_basis, sale_date, "
                        "auction_house, source_url, notes, is_demo FROM auction_results ORDER BY sale_date DESC",
+    "period_rules": "SELECT feature, value, year_from, year_to, note, source, is_demo FROM period_rules ORDER BY feature, value",
 }
 
 
@@ -45,6 +48,7 @@ def main() -> None:
     # Samme instruks, skjema og demoeksempler som Python-versjonen bruker.
     contract = {"system_prompt": SYSTEM_PROMPT, "user_instruction": USER_INSTRUCTION,
                 "schema": OBSERVATION_SCHEMA, "role_labels": ROLE_LABELS,
+                "labels": {"locations": LOCATION_LABELS, "windings": WINDING_LABELS, "layouts": LAYOUT_LABELS},
                 "mock_scenarios": {k: v.model_dump() for k, v in MOCK_SCENARIOS.items()}}
     (OUT / "vision_contract.json").write_text(json.dumps(contract, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print("vision_contract: instruks, skjema og", len(MOCK_SCENARIOS), "demoeksempler")

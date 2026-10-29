@@ -1,26 +1,47 @@
 """Faste eksempler som gjør hele flyten kjørbar uten API-nøkkel."""
 
+import json
+from pathlib import Path
+
 from app.models import VisionFacts
 
+EXAMPLES = Path(__file__).resolve().parent / "examples"
+
+
+def _example(name: str) -> VisionFacts:
+    data = json.loads((EXAMPLES / f"{name}.json").read_text(encoding="utf-8"))
+    return VisionFacts.model_validate({k: v for k, v in data.items() if not k.startswith("_")})
+
+
 MOCK_SCENARIOS: dict[str, VisionFacts] = {
+    # Ekte ur, avlest manuelt fra brukerens bilder.
+    "monard_key_wind": _example("monard_101954"),
     "omega_silver": VisionFacts(
-        dial_text="OMEGA", brand_signed="Omega", movement_serial="2 345 678", case_number="6 012 345",
-        escapement="lever", escapement_evidence="Cuvetten er gravert «Ancre 15 Rubis», og ankergaffelen er synlig i verket.",
-        case_stamps=["0,800", "Tiur-stempel (grouse hallmark)", "Cuvette: Métal"], jewels=15,
-        confidence={"brand_signed": 0.97, "movement_serial": 0.86, "case_number": 0.74,
-                    "escapement": 0.9, "case_stamps": 0.88},
+        dial_text="OMEGA", brand_signed="Omega",
+        numbers=[{"value": "2 345 678", "location": "movement", "method": "engraved"},
+                 {"value": "6 012 345", "location": "outer_lid_inside", "method": "stamped"},
+                 {"value": "6 012 345", "location": "cuvette_inside", "method": "stamped"}],
+        marks=[{"text": "0,800", "location": "outer_lid_inside", "type": "fineness"},
+               {"text": "grouse hallmark", "location": "outer_lid_inside", "type": "hallmark_symbol"},
+               {"text": "Métal", "location": "cuvette_outside", "type": "inscription"},
+               {"text": "Ancre 15 Rubis", "location": "cuvette_outside", "type": "inscription"}],
+        escapement="lever", escapement_evidence="Cuvetten er gravert «Ancre 15 Rubis», og ankergaffelen er synlig.",
+        winding="stem", winding_evidence="Krone på pendanten.", movement_layout="three_quarter_plate", jewels=15,
+        confidence={"brand_signed": 0.97, "numbers": 0.8, "marks": 0.88, "escapement": 0.9, "winding": 0.9},
     ),
     "cylinder_metal": VisionFacts(
-        dial_text="Remontoir Cylindre 10 Rubis", brand_signed=None, movement_serial=None, case_number="48213",
-        escapement="cylinder", escapement_evidence="Urskiven og verket er merket «Cylindre».",
-        case_stamps=["ARGENTAN"], jewels=10,
-        confidence={"case_number": 0.8, "escapement": 0.92, "case_stamps": 0.95},
-        unreadable=["movement_serial"],
-        retake_hints=["Fant ikke verksnummer. Ta et nærbilde av broene på verket i skrått lys."],
+        dial_text="Remontoir Cylindre 10 Rubis",
+        numbers=[{"value": "48213", "location": "outer_lid_inside", "method": "stamped"}],
+        marks=[{"text": "ARGENTAN", "location": "outer_lid_inside", "type": "inscription"}],
+        escapement="cylinder", escapement_evidence="Urskiven er merket «Cylindre».",
+        winding="stem", winding_evidence="Urskiven er merket «Remontoir», og pendanten har krone.",
+        movement_layout="bar", jewels=10,
+        confidence={"numbers": 0.8, "marks": 0.95, "escapement": 0.92, "winding": 0.85},
+        unreadable=["movement"],
+        retake_hints=["Fant ingen tekst på verket. Det er vanlig, men ta gjerne et nærbilde i skrått lys."],
     ),
     "unreadable": VisionFacts(
-        escapement="unknown", case_stamps=[], confidence={},
-        unreadable=["dial_text", "movement_serial", "case_number", "case_stamps", "escapement"],
+        unreadable=["dial", "outer_lid_inside", "cuvette_outside", "movement"],
         retake_hints=["Bildene er for uskarpe. Hold telefonen stødig og gå nærmere.",
                       "Unngå refleks: vipp uret litt bort fra lyskilden."],
     ),
@@ -28,4 +49,5 @@ MOCK_SCENARIOS: dict[str, VisionFacts] = {
 
 
 def mock_facts(scenario: str | None) -> VisionFacts:
-    return MOCK_SCENARIOS.get(scenario or "omega_silver", MOCK_SCENARIOS["omega_silver"]).model_copy(deep=True)
+    default = "monard_key_wind"
+    return MOCK_SCENARIOS.get(scenario or default, MOCK_SCENARIOS[default]).model_copy(deep=True)

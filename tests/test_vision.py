@@ -14,11 +14,14 @@ from app.services.vision.providers import gemini as gemini_p
 from app.services.vision.providers import openai as openai_p
 
 IMAGES = [ImageInput("dial", b"a", "image/jpeg"), ImageInput("movement", b"b", "image/png")]
-RAW = {"dial_text": "OMEGA", "brand_signed": "Omega", "movement_serial": "1234567", "case_number": None,
-       "escapement": "lever", "escapement_evidence": None, "case_stamps": ["0,800"], "jewels": 15,
-       "confidence": {"dial_text": 0.9, "brand_signed": 0.95, "movement_serial": 0.8, "case_number": None,
-                      "escapement": 0.7, "case_stamps": 0.9},
-       "unreadable": ["case_number"], "retake_hints": []}
+RAW = {"dial_text": "OMEGA", "brand_signed": "Omega",
+       "numbers": [{"value": "1234567", "location": "movement", "method": "engraved", "prefix": None},
+                   {"value": "", "location": "dial", "method": "unknown", "prefix": None}],
+       "marks": [{"text": "0,800", "location": "outer_lid_inside", "type": "fineness"}],
+       "escapement": "lever", "escapement_evidence": None, "winding": "stem", "winding_evidence": None,
+       "movement_layout": "unknown", "jewels": 15,
+       "confidence": {"brand_signed": 0.95, "numbers": 0.8, "marks": 0.9, "escapement": 0.7, "winding": None},
+       "unreadable": ["cuvette_inside"], "retake_hints": []}
 
 PROVIDER_ENV = ("VISION_PROVIDER", "VISION_MODE", "VISION_MODEL", "OPENAI_BASE_URL", "ANTHROPIC_API_KEY",
                 "OPENAI_API_KEY", "GEMINI_API_KEY", "GOOGLE_API_KEY", "OPENAI_COMPATIBLE_API_KEY")
@@ -51,7 +54,8 @@ def test_schema_is_strict_everywhere():
 
 def test_to_facts_drops_null_confidence_and_validates():
     facts = to_facts(RAW)
-    assert facts.movement_serial == "1234567" and "case_number" not in facts.confidence
+    assert [n.value for n in facts.numbers] == ["1234567"]  # tomme oppføringer fjernes
+    assert facts.numbers[0].location == "movement" and "winding" not in facts.confidence
     with pytest.raises(VisionError):
         to_facts({**RAW, "escapement": "quartz"})
     with pytest.raises(VisionError):
@@ -102,10 +106,11 @@ def test_unknown_provider_is_rejected(env):
 
 def test_mock_scenarios(env):
     s = config.load_settings()
-    assert extract_facts([], s).brand_signed == "Omega"
+    assert extract_facts([], s).brand_signed == "G. Monard, Genève"
+    assert extract_facts([], s, "omega_silver").brand_signed == "Omega"
     assert extract_facts([], s, "cylinder_metal").escapement == "cylinder"
-    extract_facts([], s).case_stamps.append("endret")
-    assert "endret" not in extract_facts([], s).case_stamps
+    extract_facts([], s).retake_hints.append("endret")
+    assert "endret" not in extract_facts([], s).retake_hints
 
 
 def test_live_without_key_fails_clearly(env):

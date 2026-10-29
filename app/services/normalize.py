@@ -6,7 +6,8 @@ Ingen modell her: samme input gir alltid samme output, og alt kan testes.
 import re
 import sqlite3
 
-from app.models import ConfirmedFacts, MaterialMatch, NormalizedFacts, VisionFacts
+from app.models import (LOCATION_LABELS, ConfirmedFacts, MarkObservation, MaterialMatch, NormalizedFacts, NumberGroup,
+                        NumberObservation, VisionFacts)
 
 MATERIAL_LABELS: dict[str, str] = {
     "gold_18k": "Gull 18 k",
@@ -44,6 +45,16 @@ BRAND_ALIASES: dict[str, str] = {
     "moeris": "moeris",
     "roskopf": "roskopf",
 }
+KNOWN_BRANDS = set(BRAND_ALIASES.values())
+
+WINDING_LABELS: dict[str, str] = {"key": "Nøkkeloppstrekk", "stem": "Krone (remontoir)", "unknown": "Ukjent"}
+LAYOUT_LABELS: dict[str, str] = {
+    "bar": "Broer (Lépine)", "three_quarter_plate": "Trekvart plate", "full_plate": "Hel plate", "unknown": "Ukjent",
+}
+# Merketyper som kan si noe om kassematerialet. Eiergravering, reparasjoner og kassemakermerker gjør ikke det.
+MATERIAL_MARK_TYPES = {"fineness", "hallmark_symbol", "inscription", "other"}
+_CITY_SUFFIX = re.compile(r"[,\s]*(à\s+|a\s+)?(gen[eèé]ve|geneva|genf|la chaux-de-fonds|le locle|bienne|biel|"
+                          r"suisse|switzerland|swiss made|schweiz)\s*$", re.IGNORECASE)
 UNSIGNED_WORDS = {"", "usignert", "unsigned", "ukjent", "unknown", "none", "null", "-", "ingen"}
 
 PRECIOUS_PREFIXES = ("gold_18k", "gold_14k", "silver_")
@@ -127,23 +138,87 @@ def detect_material(conn: sqlite3.Connection, stamps: list[str]) -> tuple[str | 
     return chosen, unique, warnings
 
 
+def _strip_city(text: str) -> str:
+    return _CITY_SUFFIX.sub("", text).strip(" ,")
+
+
+def brand_info(raw: str | None) -> tuple[str | None, str | None, bool]:
+    """(kanonisk nøkkel, visningsnavn, kjent merke). Bynavn som «Genève» tas ikke med i nøkkelen."""
+    display = (raw or "").strip()
+    if display.lower() in UNSIGNED_WORDS:
+        return None, None, False
+    canonical = normalize_brand(_strip_city(display) or display)
+    return canonical, display, canonical in KNOWN_BRANDS
+
+
+def _stamp_text(mark: MarkObservation) -> str:
+    """Merker fra cuvetten får prefikset «Cuvette:», slik at metallmerket der ikke avgjør kassematerialet."""
+    return f"Cuvette: {mark.text}" if mark.location.startswith("cuvette") else mark.text
+
+
+def _analyse_numbers(numbers: list[NumberObservation]) -> tuple[list[NumberGroup], list[str], list[str]]:
+    """Grupperer like nummer på tvers av deler. Innrissede nummer regnes som reparasjonsmerker."""
+    groups: dict[int, list[str]] = {}
+    repairs: list[str] = []
+    warnings: list[str] = []
+    for n in numbers:
+        where = LOCATION_LABELS.get(n.location, n.location)
+        if n.method == "scratched":
+            repairs.append(f"{n.value} ({where})")
+            continue
+        value, _ = clean_serial(n.value, "Nummer")
+        if value is None:
+            warnings.append(f"Så bort fra «{n.value}» ({where}): ikke et rent nummer, kanskje et reparasjonsmerke.")
+            continue
+        locations = groups.setdefault(value, [])
+        if n.location not in locations:
+            locations.append(n.location)
+    result = [NumberGroup(value=v, locations=locs, role="movement" if "movement" in locs else "case")
+              for v, locs in groups.items()]
+    result.sort(key=lambda g: len(g.locations), reverse=True)
+    case_groups = [g for g in result if g.role == "case"]
+    if len(case_groups) > 1:
+        values = ", ".join(str(g.value) for g in case_groups)
+        warnings.append(f"Ulike nummer i kassen ({values}). Lokkene kan være satt sammen av forskjellige ur, "
+                        "eller ett av numrene betyr noe annet.")
+    return result, repairs, warnings
+
+
 def normalize(conn: sqlite3.Connection, facts: VisionFacts | ConfirmedFacts) -> NormalizedFacts:
     warnings: list[str] = []
+    groups: list[NumberGroup] = []
+    repairs: list[str] = []
+    owner: list[str] = []
 
     if isinstance(facts, VisionFacts):
-        brand = normalize_brand(facts.brand_signed) or (
-            normalize_brand(facts.dial_text) if facts.dial_text and _mentions_known_brand(facts.dial_text) else None)
+        candidates = [facts.brand_signed] + [m.text for m in facts.marks if m.type == "inscription"] + [facts.dial_text]
+        brand, display, known = brand_info(facts.brand_signed)
+        if not known:  # et kjent merke et annet sted på uret slår et ukjent navn
+            for text in candidates[1:]:
+                b, d, k = brand_info(text)
+                if k:
+                    brand, display, known = b, d, k
+                    break
+        groups, repairs, w = _analyse_numbers(facts.numbers)
+        warnings += w
+        repairs += [f"{m.text} ({LOCATION_LABELS.get(m.location, m.location)})"
+                    for m in facts.marks if m.type == "repair_mark"]
+        owner = [f"{m.text} ({LOCATION_LABELS.get(m.location, m.location)})"
+                 for m in facts.marks if m.type == "owner_engraving"]
+        stamps = [_stamp_text(m) for m in facts.marks if m.type in MATERIAL_MARK_TYPES]
+        movement = next((g.value for g in groups if g.role == "movement"), None)
+        case = next((g.value for g in groups if g.role == "case"), None)
         explicit_material = None
     else:
-        brand = normalize_brand(facts.brand)
+        brand, display, known = brand_info(facts.brand)
+        movement, w = clean_serial(facts.movement_serial, "Verksnummer")
+        warnings += w
+        case, w = clean_serial(facts.case_number, "Kassenummer")
+        warnings += w
+        stamps = list(facts.case_stamps)
         explicit_material = facts.material or None
 
-    movement, w = clean_serial(facts.movement_serial, "Verksnummer")
-    warnings += w
-    case, w = clean_serial(facts.case_number, "Kassenummer")
-    warnings += w
-
-    detected, matches, w = detect_material(conn, facts.case_stamps)
+    detected, matches, w = detect_material(conn, stamps)
     if explicit_material:
         if explicit_material not in MATERIAL_LABELS:
             warnings.append(f"Ukjent materialkode «{explicit_material}».")
@@ -154,10 +229,12 @@ def normalize(conn: sqlite3.Connection, facts: VisionFacts | ConfirmedFacts) -> 
         material = detected
         warnings += w
 
-    return NormalizedFacts(brand=brand, movement_serial=movement, case_number=case,
-                           escapement=facts.escapement, material=material,
-                           material_matches=matches, warnings=warnings)
-
-
-def _mentions_known_brand(text: str) -> bool:
-    return normalize_brand(text) in set(BRAND_ALIASES.values())
+    case_group = next((g for g in groups if g.role == "case"), None)
+    return NormalizedFacts(
+        brand=brand, brand_display=display, known_brand=known,
+        movement_serial=movement, case_number=case,
+        number_groups=groups, numbers_match=bool(case_group and len(case_group.locations) > 1),
+        repair_marks=repairs, owner_engravings=owner,
+        escapement=facts.escapement, winding=facts.winding, movement_layout=facts.movement_layout,
+        material=material, material_matches=matches, case_stamps=stamps, warnings=warnings,
+    )

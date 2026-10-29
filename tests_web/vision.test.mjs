@@ -8,23 +8,26 @@ import { analyzeWithGemini, buildRequest, mockFacts, parseGemini, toFacts, toOpe
 
 const contract = JSON.parse(readFileSync(new URL("../docs/data/vision_contract.json", import.meta.url), "utf8"));
 const RAW = {
-  dial_text: "OMEGA", brand_signed: "Omega", movement_serial: "1234567", case_number: null, escapement: "lever",
-  escapement_evidence: null, case_stamps: ["0,800"], jewels: 15,
-  confidence: { dial_text: 0.9, brand_signed: 0.95, movement_serial: 0.8, case_number: null, escapement: 0.7, case_stamps: 0.9 },
-  unreadable: ["case_number"], retake_hints: [],
+  dial_text: "OMEGA", brand_signed: "Omega",
+  numbers: [{ value: "1234567", location: "movement", method: "engraved", prefix: null }, { value: "", location: "dial" }],
+  marks: [{ text: "0,800", location: "outer_lid_inside", type: "fineness" }, { text: "x", location: "nowhere", type: "weird" }],
+  escapement: "lever", escapement_evidence: null, winding: "stem", winding_evidence: null, movement_layout: "bar", jewels: 15,
+  confidence: { brand_signed: 0.95, numbers: 0.8, marks: 0.9, escapement: 0.7, winding: null },
+  unreadable: ["cuvette_inside"], retake_hints: [],
 };
 const geminiReply = (text, extra = {}) => ({ candidates: [{ content: { parts: [{ text }] }, ...extra }] });
 
 test("kontrakten har ingen felt for år eller pris", () => {
   const fields = Object.keys(contract.schema.properties);
   assert.ok(!fields.some((f) => /year|date|price|value|age/.test(f)));
-  assert.deepEqual(Object.keys(contract.mock_scenarios).sort(), ["cylinder_metal", "omega_silver", "unreadable"]);
+  assert.deepEqual(Object.keys(contract.mock_scenarios).sort(), ["cylinder_metal", "monard_key_wind", "omega_silver", "unreadable"]);
 });
 
 test("toFacts validerer og rydder", () => {
   const f = toFacts(RAW);
-  assert.equal(f.movement_serial, "1234567");
-  assert.ok(!("case_number" in f.confidence));
+  assert.deepEqual(f.numbers.map((n) => n.value), ["1234567"]);
+  assert.deepEqual([f.marks[1].location, f.marks[1].type], ["unknown", "other"]);
+  assert.ok(!("winding" in f.confidence));
   assert.throws(() => toFacts({ ...RAW, escapement: "quartz" }), VisionError);
   assert.throws(() => toFacts("tekst"), VisionError);
 });
@@ -54,7 +57,8 @@ test("forespørselen merker bildene og låser skjemaet", async () => {
 test("OpenAPI-konvertering bevarer enum og lister", () => {
   const out = toOpenApiSchema(contract.schema);
   assert.deepEqual(out.properties.escapement.enum, ["cylinder", "lever", "verge", "unknown"]);
-  assert.equal(out.properties.case_stamps.items.type, "string");
+  assert.equal(out.properties.marks.items.properties.type.type, "string");
+  assert.ok(!("additionalProperties" in out.properties.marks.items));
 });
 
 test("Gemini-kall: reserveskjema ved 400 og tydelige feil", async (t) => {
@@ -90,7 +94,7 @@ test("Gemini-kall: feilmeldinger på norsk", async (t) => {
 
 test("demoeksempler kopieres", () => {
   const a = mockFacts(contract, "omega_silver");
-  a.case_stamps.push("endret");
-  assert.ok(!mockFacts(contract, "omega_silver").case_stamps.includes("endret"));
-  assert.equal(mockFacts(contract, "finnes-ikke").brand_signed, "Omega");
+  a.marks.push("endret");
+  assert.ok(!mockFacts(contract, "omega_silver").marks.includes("endret"));
+  assert.equal(mockFacts(contract, "finnes-ikke").brand_signed, "G. Monard, Genève");
 });

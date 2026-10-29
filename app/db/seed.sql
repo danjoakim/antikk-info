@@ -65,3 +65,14 @@ INSERT INTO auction_results (item_type, brand, material, escapement, condition, 
   ('pocket_watch', 'omega', 'base_metal', 'lever', 'svært god',   1600, '2021-12-11', 'DEMO (fiktivt salg)', 'Fiktiv demopost', 1),
   ('pocket_watch', 'omega', 'base_metal', 'lever', 'god',         1300, '2023-03-04', 'DEMO (fiktivt salg)', 'Fiktiv demopost', 1),
   ('pocket_watch', 'omega', 'base_metal', 'lever', 'slitt',       1100, '2024-09-28', 'DEMO (fiktivt salg)', 'Fiktiv demopost', 1);
+
+-- Grove perioder for kjennetegn. Brede, forsiktige intervaller; må verifiseres mot faglitteratur.
+INSERT INTO period_rules (feature, value, year_from, year_to, note, source, is_demo) VALUES
+  ('winding', 'key',   1700, 1890, 'Nøkkeloppstrekk dominerte til kroneoppstrekk (remontoir) tok over, gradvis fra 1860- til 1890-tallet.', 'DEMO: generell urhistorie, ikke verifisert', 1),
+  ('winding', 'stem',  1860, 1970, 'Kroneoppstrekk ble vanlig på lommeur fra 1860–1870-tallet.', 'DEMO: generell urhistorie, ikke verifisert', 1),
+  ('escapement', 'verge',    1650, 1870, 'Spindelgang er den eldste gangtypen og forsvant fra vanlige lommeur i løpet av 1800-tallet.', 'DEMO: generell urhistorie, ikke verifisert', 1),
+  ('escapement', 'cylinder', 1820, 1940, 'Sylindergang ble masseprodusert i Sveits fra 1800-tallet og fram til 1930-tallet.', 'DEMO: generell urhistorie, ikke verifisert', 1),
+  ('escapement', 'lever',    1820, 1990, 'Ankergang har vært brukt fra tidlig 1800-tall og gir lite datering alene.', 'DEMO: generell urhistorie, ikke verifisert', 1),
+  ('movement_layout', 'bar',                 1830, 1940, 'Verk med separate broer (Lépine-kaliber).', 'DEMO: generell urhistorie, ikke verifisert', 1),
+  ('movement_layout', 'three_quarter_plate', 1850, 1950, 'Trekvart plate.', 'DEMO: generell urhistorie, ikke verifisert', 1),
+  ('movement_layout', 'full_plate',          1650, 1900, 'Hel plate, vanlig på eldre engelske og tidlige ur.', 'DEMO: generell urhistorie, ikke verifisert', 1);

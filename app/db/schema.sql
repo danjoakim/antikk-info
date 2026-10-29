@@ -50,3 +50,18 @@ CREATE TABLE IF NOT EXISTS auction_results (
 );
 CREATE INDEX IF NOT EXISTS idx_auction_lookup
     ON auction_results (item_type, brand, material, escapement);
+
+-- Grov periode ut fra kjennetegn, brukt når serienummeret ikke kan dateres.
+-- Periodene for alle kjennetegn som er kjent, snittes; resultatet er et intervall, aldri et årstall.
+CREATE TABLE IF NOT EXISTS period_rules (
+    id        INTEGER PRIMARY KEY,
+    feature   TEXT    NOT NULL CHECK (feature IN ('winding', 'escapement', 'movement_layout')),
+    value     TEXT    NOT NULL,
+    year_from INTEGER NOT NULL,
+    year_to   INTEGER NOT NULL,
+    note      TEXT    NOT NULL,
+    source    TEXT    NOT NULL,
+    is_demo   INTEGER NOT NULL DEFAULT 1,
+    CHECK (year_to >= year_from),
+    UNIQUE (feature, value)
+);

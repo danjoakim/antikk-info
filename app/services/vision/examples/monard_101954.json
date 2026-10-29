@@ -1,0 +1,34 @@
+{
+ "_beskrivelse": "Fasit for et ekte ur (fotografert 29.10.2026): sveitsisk lommeur med nøkkeloppstrekk i sølv 0.800, sylindergang, 8 steiner, signert G. Monard, Genève på cuvetten. Avlest manuelt fra brukerens bilder; bildene er ikke lagret i repoet.",
+ "dial_text": null,
+ "brand_signed": "G. Monard, Genève",
+ "numbers": [
+  {"value": "101954", "location": "outer_lid_inside", "method": "stamped", "prefix": null},
+  {"value": "K9341", "location": "outer_lid_inside", "method": "scratched", "prefix": null},
+  {"value": "101954", "location": "cuvette_outside", "method": "engraved", "prefix": "No"},
+  {"value": "101954", "location": "cuvette_inside", "method": "stamped", "prefix": null}
+ ],
+ "marks": [
+  {"text": "0.800", "location": "outer_lid_inside", "type": "fineness"},
+  {"text": "Sammenslyngede initialer i skrift", "location": "outer_lid_inside", "type": "maker_mark"},
+  {"text": "Gravert monogram", "location": "outer_lid_inside", "type": "owner_engraving"},
+  {"text": "Graverte initialer", "location": "outer_lid_outside", "type": "owner_engraving"},
+  {"text": "Echappement à cylindre", "location": "cuvette_outside", "type": "inscription"},
+  {"text": "8 Rubis", "location": "cuvette_outside", "type": "inscription"},
+  {"text": "Aiguilles", "location": "cuvette_outside", "type": "inscription"},
+  {"text": "G. Monard", "location": "cuvette_outside", "type": "inscription"},
+  {"text": "Genève", "location": "cuvette_outside", "type": "inscription"},
+  {"text": "0.800", "location": "cuvette_inside", "type": "fineness"},
+  {"text": "Sammenslyngede initialer i skrift", "location": "cuvette_inside", "type": "maker_mark"},
+  {"text": "Innrissede streker og tegn på balansebroen", "location": "movement", "type": "repair_mark"}
+ ],
+ "escapement": "cylinder",
+ "escapement_evidence": "Cuvetten er gravert «Echappement à cylindre».",
+ "winding": "key",
+ "winding_evidence": "To nøkkelhull i cuvetten (det ene merket «Aiguilles»), firkanttapper på verket og ingen krone på pendanten.",
+ "movement_layout": "bar",
+ "jewels": 8,
+ "confidence": {"brand_signed": 0.9, "numbers": 0.85, "marks": 0.85, "escapement": 0.95, "winding": 0.95},
+ "unreadable": [],
+ "retake_hints": []
+}

@@ -85,7 +85,7 @@ def load_settings() -> Settings:
         db_path=Path(os.getenv("DB_PATH", BASE_DIR / "data" / "lommeur.db")),
         # Strengeste leverandørgrense er Claude API: 10 MB base64 per bilde (~7,5 MB rådata).
         max_image_bytes=int(os.getenv("MAX_IMAGE_BYTES", 7 * 1024 * 1024)),
-        max_images=int(os.getenv("MAX_IMAGES", 6)),
+        max_images=int(os.getenv("MAX_IMAGES", 7)),
         min_sales=int(os.getenv("MIN_SALES", 5)),
     )
 

@@ -31,8 +31,8 @@
       <ol class="howto">
         <li><strong>Urskiven</strong> forfra</li>
         <li><strong>Ytre baklokk</strong>, innsiden, med stempler</li>
-        <li><strong>Cuvetten</strong>, det indre lokket</li>
-        <li><strong>Urverket</strong> med verksnummer</li>
+        <li><strong>Cuvetten</strong>, det indre lokket, på begge sider</li>
+        <li><strong>Urverket</strong>, selv om det står lite der</li>
       </ol>
       <p><button class="link link-inline" data-action="guide">Første gang? Se hvordan du åpner et lommeur</button></p>
       <p class="fineprint">Du kan rette opp det appen har lest før noe slås opp. Årstall og priser hentes fra tabeller, ikke fra gjetting.</p>
@@ -97,21 +97,25 @@
       <p class="lead">Sjekk mot uret og rett opp feil. Ett feil siffer kan flytte dateringen flere år.</p>
 
       <div id="confirm-notices"></div>
+      <section class="card found" aria-labelledby="found-title">
+        <h2 id="found-title">Funnet på uret <span class="chip" data-conf="numbers"></span></h2>
+        <div id="found"></div>
+      </section>
 
       <form id="confirm-form" novalidate>
         <div class="field">
-          <label for="f-brand">Merke <span class="chip" data-conf="brand_signed"></span></label>
+          <label for="f-brand">Merke eller navn <span class="chip" data-conf="brand_signed"></span></label>
           <input id="f-brand" name="brand" autocomplete="off" autocapitalize="words" placeholder="Usignert">
         </div>
         <div class="field">
-          <label for="f-movement">Verksnummer <span class="chip" data-conf="movement_serial"></span></label>
+          <label for="f-movement">Verksnummer</label>
           <input id="f-movement" name="movement_serial" inputmode="numeric" pattern="[0-9 ]*" autocomplete="off" placeholder="Ikke lest">
-          <small>Graveringen på selve urverket.</small>
+          <small>Nummer på selve urverket. Mange ur har ikke det.</small>
         </div>
         <div class="field">
-          <label for="f-case">Kassenummer <span class="chip" data-conf="case_number"></span></label>
+          <label for="f-case">Kassenummer</label>
           <input id="f-case" name="case_number" inputmode="numeric" pattern="[0-9 ]*" autocomplete="off" placeholder="Ikke lest">
-          <small>Stemplet inni kassen eller lokket.</small>
+          <small>Nummer i lokkene. Står det samme nummer flere steder, hører lokkene trolig sammen.</small>
         </div>
         <div class="field">
           <label for="f-escapement">Gangtype <span class="chip" data-conf="escapement"></span></label>
@@ -119,7 +123,16 @@
           <small id="escapement-evidence"></small>
         </div>
         <div class="field">
-          <label for="f-material">Kassemateriale <span class="chip" data-conf="case_stamps"></span></label>
+          <label for="f-winding">Oppstrekk <span class="chip" data-conf="winding"></span></label>
+          <select id="f-winding" name="winding"></select>
+          <small id="winding-evidence"></small>
+        </div>
+        <div class="field">
+          <label for="f-layout">Verktype</label>
+          <select id="f-layout" name="movement_layout"></select>
+        </div>
+        <div class="field">
+          <label for="f-material">Kassemateriale <span class="chip" data-conf="marks"></span></label>
           <select id="f-material" name="material"></select>
           <div class="stamps" id="stamps"></div>
         </div>
@@ -232,19 +245,21 @@
       <article class="guide-card" id="guide-caseback">
         <h2><span class="num">2</span> Ytre baklokk</h2>
         <p>Finn det lille neglesporet i kanten, ofte rett overfor hengselet, og lirk forsiktig. Noen lokk skrus av mot klokka i stedet.</p>
-        <p><strong>Fotografer innsiden av lokket.</strong> Her står ofte sølvstempelet (0.800, 0.875, 0.935), kontrollmerker som en bjørn, en tiur eller et ekorn, og kassenummeret.</p>
+        <p><strong>Fotografer innsiden av lokket.</strong> Her står ofte sølvstempelet (0.800, 0.875, 0.935), et lite merke fra kassemakeren, kontrollmerker som en bjørn, en tiur eller et ekorn, og kassenummeret.</p>
+        <p class="fineprint">Monogrammer og initialer er gravert for en eier. Små, ujevne riper med bokstaver og tall er ofte merker etter reparasjoner. Appen tar dem med, men bruker dem ikke som serienummer.</p>
       </article>
 
       <article class="guide-card" id="guide-cuvette">
         <h2><span class="num">3</span> Cuvetten (indre lokk)</h2>
-        <p>Under det ytre lokket ligger et tynnere støvlokk. <strong>Fotografer utsiden før du åpner det.</strong> Der er det ofte gravert tekst som merke, antall steiner, gangtype («Ancre», «Cylindre») og «Cuvette Métal».</p>
-        <p>Cuvetten er ofte i metall selv om kassen er av sølv. Derfor ber appen deg bekrefte materialet hvis den finner begge deler.</p>
+        <p>Under det ytre lokket ligger et tynnere støvlokk. <strong>Fotografer utsiden før du åpner det</strong>, og så innsiden. Utsiden har ofte gravert tekst som navn, antall steiner, gangtype («Echappement à cylindre», «Ancre») og et nummer. Innsiden kan ha egne stempler.</p>
+        <p>To hull i cuvetten betyr at uret trekkes opp med nøkkel: det ene er for oppstrekk, det andre for å stille viserne («Aiguilles»).</p>
+        <p>Cuvetten kan være av samme sølv som kassen, eller av metall («Cuvette Métal»). Står samme nummer i lokket og på cuvetten, hører de trolig sammen.</p>
         <p class="fineprint">Har uret ingen cuvette, hopper du over dette steget.</p>
       </article>
 
       <article class="guide-card" id="guide-movement">
         <h2><span class="num">4</span> Urverket</h2>
-        <p>Åpne cuvetten på samme måte. Verksnummeret er gravert på en av broene eller på platen, ofte nær kanten. Skrått lys får graveringen fram, og et ekstra nærbilde av nummeret hjelper mye.</p>
+        <p>Åpne cuvetten på samme måte. På mange ur står det lite eller ingenting på verket, og det er helt vanlig. Bildet viser likevel gangtypen, om uret har nøkkeloppstrekk (firkantede tapper) og hvordan verket er bygd. Står det et nummer, får skrått lys graveringen fram.</p>
         <p>Finner du ikke noe neglespor bak, kan uret være av typen som åpnes forfra: glassringen løftes av, og verket vippes ut. Da er det tryggest å la det være.</p>
       </article>
 

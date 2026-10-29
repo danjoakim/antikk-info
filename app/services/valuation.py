@@ -4,6 +4,7 @@ import sqlite3
 import statistics
 
 from app.models import ComparableSale, NormalizedFacts, Valuation
+from app.services.normalize import KNOWN_BRANDS
 
 # Fra mest til minst spesifikt. Merke slippes aldri: et signert ur sammenlignes ikke med usignerte.
 LEVELS: list[tuple[str, tuple[str, ...], str]] = [
@@ -19,13 +20,14 @@ BASE_CAVEATS = [
 ]
 
 
-def _fetch(conn: sqlite3.Connection, facts: NormalizedFacts, item_type: str, use: tuple[str, ...]) -> list[sqlite3.Row]:
+def _fetch(conn: sqlite3.Connection, facts: NormalizedFacts, item_type: str, use: tuple[str, ...],
+           brand: str | None) -> list[sqlite3.Row]:
     clauses, params = ["item_type = ?"], [item_type]
-    if facts.brand is None:
+    if brand is None:
         clauses.append("brand IS NULL")
     else:
         clauses.append("brand = ?")
-        params.append(facts.brand)
+        params.append(brand)
     for field in use:
         clauses.append(f"{field} = ?")
         params.append(getattr(facts, field))
@@ -36,10 +38,13 @@ def _fetch(conn: sqlite3.Connection, facts: NormalizedFacts, item_type: str, use
 def value_item(conn: sqlite3.Connection, facts: NormalizedFacts, item_type: str = "pocket_watch",
                min_sales: int = 5) -> Valuation | None:
     usable_levels = [lvl for lvl in LEVELS if all(_known(facts, f) for f in lvl[1])]
+    # Kjente merker prises bare mot seg selv. Mindre kjente navn (ofte forhandlere eller små
+    # fabrikanter) sammenlignes med usignerte ur, med en merknad om det.
+    brand = facts.brand if facts.brand in KNOWN_BRANDS else None
 
     fallback: tuple[tuple, list] | None = None
     for level in usable_levels:
-        rows = _fetch(conn, facts, item_type, level[1])
+        rows = _fetch(conn, facts, item_type, level[1], brand)
         if len(rows) >= min_sales:
             return _build(level, rows, facts, sufficient=True, min_sales=min_sales)
         if rows and fallback is None:
@@ -57,7 +62,11 @@ def _known(facts: NormalizedFacts, field: str) -> bool:
 def _build(level: tuple, rows: list[sqlite3.Row], facts: NormalizedFacts, sufficient: bool,
            min_sales: int) -> Valuation:
     key, used, label = level
-    label = label.format(who="Samme merke" if facts.brand else "Usignerte ur")
+    known = facts.brand in KNOWN_BRANDS
+    if known:
+        who = "Samme merke"
+    else:
+        who = "Usignerte og mindre kjente ur"
     prices = [r["price_nok"] for r in rows]
     years = sorted(r["sale_date"][:4] for r in rows)
     dropped = [CRITERIA_LABELS[f] for f in ("material", "escapement") if f not in used]
@@ -65,7 +74,11 @@ def _build(level: tuple, rows: list[sqlite3.Row], facts: NormalizedFacts, suffic
     unknown = [CRITERIA_LABELS[f] for f in ("material", "escapement") if not _known(facts, f)]
     widened = [d for d in dropped if d not in unknown]
 
+    label = label.format(who=who)
     caveats = list(BASE_CAVEATS)
+    if facts.brand and not known:
+        caveats.insert(0, f"«{facts.brand_display or facts.brand}» finnes ikke i merkelisten vår, så uret er sammenlignet "
+                          "med usignerte og mindre kjente ur.")
     if widened:
         caveats.insert(0, f"For få salg med nøyaktig samme egenskaper. Intervallet ser bort fra {' og '.join(widened)}.")
     if unknown:

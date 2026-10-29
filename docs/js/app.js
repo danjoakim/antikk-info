@@ -2,7 +2,7 @@
 // bildeanalysen mot Gemini med brukerens egen nøkkel (eller demoeksempler).
 
 import { dateItem } from "./dating.js";
-import { ESCAPEMENT_LABELS, MATERIAL_LABELS, normalize } from "./normalize.js";
+import { ESCAPEMENT_LABELS, LAYOUT_LABELS, LOCATION_LABELS, MATERIAL_LABELS, normalize, WINDING_LABELS } from "./normalize.js";
 import { clearSettings, isLive, loadSettings, saveSettings } from "./settings.js";
 import { valueItem } from "./valuation.js";
 import { analyzeWithGemini, mockFacts, testKey, VisionError } from "./vision.js";
@@ -11,6 +11,7 @@ import { analyzeWithGemini, mockFacts, testKey, VisionError } from "./vision.js"
 
 const MAX_EDGE = 2000;      // px, lengste side etter komprimering
 const JPEG_QUALITY = 0.85;
+const MAX_ORIGINAL_BYTES = 7 * 1024 * 1024; // Gemini tillater 20 MB per forespørsel totalt
 const REQUEST_TIMEOUT = 90_000;
 const MIN_SALES = 5;
 
@@ -20,16 +21,16 @@ const STEPS = [
     tips: ["Fotografer rett forfra.", "Få med hele skiven og eventuell tekst.", "Unngå blits; vipp litt bort fra lyset hvis glasset reflekterer."],
   },
   {
-    key: "caseback", title: "Ytre baklokk", closeup: "caseback_closeup", guide: "guide-caseback",
+    key: "caseback", title: "Ytre baklokk", closeup: "caseback_closeup", closeupLabel: "nærbilde", guide: "guide-caseback",
     tips: ["Åpne det ytre lokket med neglen i det lille sporet.", "Fotografer innsiden av lokket.", "Se etter stempler som 0.800 og små symboler (bjørn, tiur, ekorn).", "Få med kassenummeret."],
   },
   {
-    key: "cuvette", title: "Cuvetten (indre lokk)", guide: "guide-cuvette",
-    tips: ["Fotografer utsiden av det indre lokket før du åpner det.", "Her står ofte merke, gangtype («Ancre», «Cylindre») og «Cuvette Métal».", "Ingen cuvette? Hopp over steget."],
+    key: "cuvette", title: "Cuvetten (indre lokk)", closeup: "cuvette_inside", closeupLabel: "innsiden", guide: "guide-cuvette",
+    tips: ["Fotografer utsiden av det indre lokket før du åpner det.", "Her står ofte merke, gangtype («Ancre», «Cylindre») og nummer.", "Legg til et bilde av innsiden også: der kan det stå stempler og nummer.", "Ingen cuvette? Hopp over steget."],
   },
   {
-    key: "movement", title: "Urverket", closeup: "movement_closeup", guide: "guide-movement",
-    tips: ["Åpne cuvetten forsiktig, og ikke rør verket.", "Gå nært: verksnummeret er lite.", "Skrått lys får graveringene fram.", "Legg gjerne til et nærbilde av nummeret."],
+    key: "movement", title: "Urverket", closeup: "movement_closeup", closeupLabel: "nærbilde", guide: "guide-movement",
+    tips: ["Åpne cuvetten forsiktig, og ikke rør verket.", "Det kan stå lite eller ingenting på verket. Det er vanlig: bildet viser likevel gangtype og oppstrekk.", "Står det et nummer, gå nært og bruk skrått lys."],
   },
 ];
 
@@ -68,9 +69,9 @@ async function loadJson(name) {
 }
 
 async function loadData() {
-  const [serial_ranges, hallmarks, auction_results, contract] = await Promise.all(
-    ["serial_ranges", "hallmarks", "auction_results", "vision_contract"].map(loadJson));
-  return { serial_ranges, hallmarks, auction_results, contract };
+  const [serial_ranges, hallmarks, auction_results, period_rules, contract] = await Promise.all(
+    ["serial_ranges", "hallmarks", "auction_results", "period_rules", "vision_contract"].map(loadJson));
+  return { serial_ranges, hallmarks, auction_results, period_rules, contract };
 }
 
 // --- Bildebehandling i nettleseren -------------------------------------------------
@@ -97,6 +98,12 @@ async function compress(file) {
   try {
     source = await decodeImage(file);
   } catch {
+    // iPhone-bilder kan være HEIC. Gemini leser HEIC direkte, så originalen sendes når nettleseren ikke kan vise den.
+    if (/heic|heif/i.test(file.type) || /\.hei[cf]$/i.test(file.name ?? "")) {
+      const blob = file.type ? file : new Blob([file], { type: "image/heic" });
+      if (blob.size > MAX_ORIGINAL_BYTES) throw new Error("Bildet er for stort. Velg «Mest kompatibel» under Kamera › Formater, eller ta et nytt bilde.");
+      return { blob, url: null, size: blob.size, note: "HEIC – vises ikke her, men sendes til analysen" };
+    }
     throw new Error("Kunne ikke lese bildet. Ta bildet på nytt, eller velg et JPEG-bilde.");
   }
   const w = source.width, h = source.height;
@@ -112,7 +119,7 @@ async function compress(file) {
 }
 
 function setPhoto(role, photo) {
-  if (state.photos[role]) URL.revokeObjectURL(state.photos[role].url);
+  if (state.photos[role]?.url) URL.revokeObjectURL(state.photos[role].url);
   if (photo) state.photos[role] = photo; else delete state.photos[role];
 }
 
@@ -129,12 +136,12 @@ function renderStep() {
   renderSlot($("#photo-main"), main, step.title);
   const closeup = step.closeup && state.photos[step.closeup];
   $("#photo-closeup").hidden = !closeup;
-  if (closeup) renderSlot($("#photo-closeup"), closeup, "Nærbilde");
+  if (closeup) renderSlot($("#photo-closeup"), closeup, step.closeupLabel);
 
   $("#capture-buttons").hidden = !!main;
   $("#next-buttons").hidden = !main;
   $("#closeup-btn").hidden = !step.closeup;
-  $("#closeup-btn span").textContent = closeup ? "Nytt nærbilde" : "+ Nærbilde";
+  if (step.closeup) $("#closeup-btn span").textContent = closeup ? `Nytt bilde: ${step.closeupLabel}` : `+ ${capitalize(step.closeupLabel)}`;
   $("[data-action=next]").textContent = state.step === STEPS.length - 1 ? "Analyser" : "Neste";
   $("#skip-btn").textContent = main ? "Ta på nytt" : "Hopp over dette bildet";
   $("#skip-btn").dataset.action = main ? "retake-step" : "skip";
@@ -142,9 +149,10 @@ function renderStep() {
 }
 
 function renderSlot(el, photo, label) {
-  el.innerHTML = photo
-    ? `<img src="${photo.url}" alt="${esc(label)}"><span class="size">${Math.max(1, Math.round(photo.size / 1024))} kB</span>`
-    : PLACEHOLDER_SVG;
+  const size = photo ? `<span class="size">${Math.max(1, Math.round(photo.size / 1024))} kB</span>` : "";
+  el.innerHTML = !photo ? PLACEHOLDER_SVG
+    : photo.url ? `<img src="${photo.url}" alt="${esc(label)}">${size}`
+      : `${PLACEHOLDER_SVG}<p class="slot-note">${esc(photo.note)}</p>${size}`;
 }
 
 async function onPhotoPicked(input) {
@@ -223,33 +231,38 @@ function showLoadingError(message, retry) {
   $("#back-btn").onclick = () => (state.analysis ? show("confirm") : goToStep(STEPS.length - 1));
 }
 
-// Felt → bildesteget der det oftest står (0 urskive, 1 ytre lokk, 2 cuvette, 3 urverk).
-const FIELD_TO_STEP = { movement_serial: 3, escapement: 3, case_number: 1, case_stamps: 1, dial_text: 0, brand_signed: 0 };
+// Sted på uret → bildesteget (0 urskive, 1 ytre lokk, 2 cuvette, 3 urverk).
+const FIELD_TO_STEP = { dial: 0, outer_lid_outside: 1, outer_lid_inside: 1, case_rim: 1, cuvette_outside: 2, cuvette_inside: 2, movement: 3 };
 
 function renderConfirm() {
   const { facts, normalized } = state.analysis;
   const form = $("#confirm-form");
+  const options = (list) => list.map((e) => `<option value="${e.code}">${esc(e.label)}</option>`).join("");
 
-  form.brand.value = normalized.brand ? capitalize(normalized.brand) : (facts.brand_signed ?? "");
-  form.movement_serial.value = formatSerial(normalized.movement_serial ?? facts.movement_serial);
-  form.case_number.value = formatSerial(normalized.case_number ?? facts.case_number);
-  form.escapement.innerHTML = state.meta.escapements.map((e) => `<option value="${e.code}">${esc(e.label)}</option>`).join("");
+  form.brand.value = normalized.brand_display ?? "";
+  form.movement_serial.value = formatSerial(normalized.movement_serial);
+  form.case_number.value = formatSerial(normalized.case_number);
+  form.escapement.innerHTML = options(state.meta.escapements);
   form.escapement.value = normalized.escapement;
-  form.material.innerHTML = `<option value="">Ukjent</option>` +
-    state.meta.materials.map((m) => `<option value="${m.code}">${esc(m.label)}</option>`).join("");
+  form.winding.innerHTML = options(state.meta.windings);
+  form.winding.value = normalized.winding;
+  form.movement_layout.innerHTML = options(state.meta.layouts);
+  form.movement_layout.value = normalized.movement_layout;
+  form.material.innerHTML = `<option value="">Ukjent</option>` + options(state.meta.materials);
   form.material.value = normalized.material ?? "";
 
   $("#escapement-evidence").textContent = facts.escapement_evidence ?? "";
-  $("#stamps").innerHTML = facts.case_stamps.length
-    ? facts.case_stamps.map((s) => `<span class="stamp">${esc(s)}</span>`).join("")
+  $("#winding-evidence").textContent = facts.winding_evidence ?? "";
+  const fineness = facts.marks.filter((m) => ["fineness", "hallmark_symbol", "maker_mark"].includes(m.type));
+  $("#stamps").innerHTML = fineness.length
+    ? fineness.map((m) => `<span class="stamp">${esc(m.text)} <small>${esc(place(m.location))}</small></span>`).join("")
     : `<small>Ingen stempler lest.</small>`;
+  renderFound(normalized, facts);
 
   document.querySelectorAll("[data-conf]").forEach((chip) => {
-    const field = chip.dataset.conf;
-    const c = facts.confidence[field];
+    const c = facts.confidence[chip.dataset.conf];
     chip.className = "chip";
-    if (facts.unreadable.includes(field)) { chip.textContent = "Ikke lesbart"; chip.classList.add("low"); }
-    else if (c == null) chip.textContent = "";
+    if (c == null) chip.textContent = "";
     else if (c >= 0.85) { chip.textContent = "Sikker"; chip.classList.add("high"); }
     else if (c >= 0.6) { chip.textContent = "Sjekk"; chip.classList.add("mid"); }
     else { chip.textContent = "Usikker"; chip.classList.add("low"); }
@@ -267,6 +280,34 @@ function renderConfirm() {
   $("#confirm-notices").innerHTML = notices.join("");
 }
 
+function place(location) {
+  return state.meta.locations?.[location] ?? location;
+}
+
+/** Oversikt over nummer og merker appen fant, og hva den har sett bort fra. */
+function renderFound(normalized, facts) {
+  const rows = [];
+  for (const g of normalized.number_groups) {
+    const role = g.role === "movement" ? "verksnummer" : "kassenummer";
+    const match = g.role === "case" && g.locations.length > 1 ? ` <span class="chip high">Samme nummer ${g.locations.length} steder</span>` : "";
+    rows.push(`<li><strong class="num-value">${esc(formatSerial(g.value))}</strong> ${role}${match}
+      <br><small>${g.locations.map((l) => esc(place(l))).join(" · ")}</small></li>`);
+  }
+  const inscriptions = facts.marks.filter((m) => m.type === "inscription");
+  if (inscriptions.length) {
+    rows.push(`<li>Tekst: ${inscriptions.map((m) => `«${esc(m.text)}»`).join(", ")}</li>`);
+  }
+  const ignored = [
+    ...normalized.repair_marks.map((r) => `Reparasjonsmerke: ${r}`),
+    ...normalized.owner_engravings.map((r) => `Eiergravering: ${r}`),
+  ];
+  $("#found").innerHTML = rows.length || ignored.length
+    ? `<ul class="found-list">${rows.join("")}</ul>` +
+      (ignored.length ? `<details class="found-ignored"><summary>Brukes ikke i vurderingen (${ignored.length})</summary>
+        <ul>${ignored.map((t) => `<li>${esc(t)}</li>`).join("")}</ul></details>` : "")
+    : `<p class="meta">Fant ingen nummer eller tekst.</p>`;
+}
+
 function lookup(event) {
   event.preventDefault();
   const form = $("#confirm-form");
@@ -275,15 +316,17 @@ function lookup(event) {
     movement_serial: form.movement_serial.value.trim() || null,
     case_number: form.case_number.value.trim() || null,
     escapement: form.escapement.value,
+    winding: form.winding.value,
+    movement_layout: form.movement_layout.value,
     material: form.material.value || null,
-    case_stamps: state.analysis.facts.case_stamps,
+    case_stamps: state.analysis.normalized.case_stamps,
   };
-  const { serial_ranges, hallmarks, auction_results } = state.data;
+  const { serial_ranges, hallmarks, auction_results, period_rules } = state.data;
   const facts = normalize(hallmarks, state.confirmed, "confirmed");
   const valuation = valueItem(auction_results, facts, { minSales: MIN_SALES });
   const who = facts.brand ? `«${facts.brand}»` : "usignerte ur";
   renderResult({
-    dating: dateItem(serial_ranges, facts), valuation,
+    dating: dateItem(serial_ranges, facts, period_rules), valuation,
     valuation_message: valuation ? null : `Ingen sammenlignbare salg i databasen for ${who} ennå.`,
   });
   show("result");
@@ -304,8 +347,22 @@ function renderResult({ dating, valuation, valuation_message }) {
       <p>${esc(dating.method)}</p>
       <p class="meta">${esc(dating.message)}</p>
       <p class="meta">Kilde: ${esc(dating.source)}</p>`;
+  } else if (dating.period) {
+    const p = dating.period;
+    $("#dating-card").innerHTML = `
+      <h2>Grov periode ${p.is_demo ? demo : ""}</h2>
+      <p class="big">${esc(p.display)}</p>
+      <p class="meta">Ut fra ${esc(p.basis.join(", "))}. Ikke en datering etter serienummer.</p>
+      <p class="meta">${esc(dating.message)}</p>`;
   } else {
-    $("#dating-card").innerHTML = `<h2>Produksjonsår</h2><p class="big">Ikke datert</p><p>${esc(dating.message)}</p>`;
+    $("#dating-card").innerHTML = `<h2>Produksjonsår</h2><p class="big">Ikke datert</p><p>${esc(dating.message)}</p>
+      <p class="meta">Oppgi oppstrekk og gangtype for å få en grov periode.</p>`;
+  }
+  const n = state.analysis?.normalized;
+  const match = n?.number_groups.find((g) => g.role === "case" && g.locations.length > 1);
+  if (match) {
+    $("#dating-card").insertAdjacentHTML("beforeend", `<p class="meta good">Nummeret ${esc(formatSerial(match.value))} står på
+      ${match.locations.map((l) => esc(place(l))).join(", ")}. Lokkene hører trolig sammen.</p>`);
   }
 
   if (!valuation) {
@@ -458,7 +515,7 @@ function applyMode() {
   info.textContent = live ? `Bildeanalyse: Google Gemini (${state.settings.model})` : "";
 }
 
-const MOCK_LABELS = { omega_silver: "Omega i sølv med ankergang", cylinder_metal: "Usignert sylinderur i metall", unreadable: "Uleselige bilder" };
+const MOCK_LABELS = { monard_key_wind: "Ekte ur: G. Monard, nøkkeloppstrekk", omega_silver: "Omega i sølv med ankergang", cylinder_metal: "Usignert sylinderur i metall", unreadable: "Uleselige bilder" };
 
 async function init() {
   try {
@@ -470,6 +527,9 @@ async function init() {
   state.meta = {
     materials: Object.entries(MATERIAL_LABELS).map(([code, label]) => ({ code, label })),
     escapements: Object.entries(ESCAPEMENT_LABELS).map(([code, label]) => ({ code, label })),
+    windings: Object.entries(WINDING_LABELS).map(([code, label]) => ({ code, label })),
+    layouts: Object.entries(LAYOUT_LABELS).map(([code, label]) => ({ code, label })),
+    locations: LOCATION_LABELS,
   };
   $("#mock-scenario").innerHTML = Object.keys(state.data.contract.mock_scenarios)
     .map((s) => `<option value="${s}">${esc(MOCK_LABELS[s] ?? s)}</option>`).join("");

@@ -1,5 +1,5 @@
 {
- "system_prompt": "You are a careful horological observer. You only REPORT what is visible in the photos of an antique pocket watch. You never estimate age, production year, value or price, and you never guess.\n\nRules:\n- Copy text, numbers and stamps verbatim as they appear (keep commas, dots and spacing).\n- If a digit or character is not clearly legible, set the field to null and list the field name in `unreadable`. A wrong digit is worse than a missing one.\n- Pocket watches usually have two back covers: an outer case back and an inner dust cover (cuvette). Report marks from both in case_stamps, and prefix marks from the inner cover with \"Cuvette: \" (e.g. \"Cuvette: Métal\"). Engravings on the cuvette often name the brand, jewels and escapement; use them as evidence.\n- Keep the MOVEMENT serial (engraved on a bridge or plate of the movement) separate from the CASE number (stamped inside the case or lid). Never copy one into the other. Caliber or reference numbers are neither; ignore them.\n- Escapement: report \"lever\" only if a pallet fork/anchor is visible or the movement is marked e.g. \"Ancre\", \"Anker\", \"Lever\"; \"cylinder\" only if marked e.g. \"Cylindre\", \"Cylinder\", \"Zylinder\" or the cylinder escapement is clearly visible; \"verge\" for a fusee/verge with crown wheel. Otherwise \"unknown\". Describe what you saw in `escapement_evidence`.\n- case_stamps: every mark inside the case/lids verbatim, e.g. \"0,800\", \"Argentan\", \"Métal\", \"Cuvette métal\". Describe pictorial hallmarks in words (e.g. \"bear hallmark\", \"grouse hallmark\", \"Helvetia head\").\n- confidence: a number 0–1 for each field you filled in, null for fields you left empty.\n- retake_hints: short, practical photo advice in Norwegian for anything you could not read (e.g. \"Ta et nærbilde av verket i skrått lys\").\n- Every key in the schema must be present; use null or an empty list when you have nothing.",
+ "system_prompt": "You are a careful horological observer. You only REPORT what is visible in the photos of an antique pocket watch. You never estimate age, production year, value or price, and you never guess.\n\nEach photo is labelled with the part of the watch it shows. Use that label as the `location` of what you find in it.\n\nNumbers (`numbers`):\n- Report EVERY number you can read, each as its own entry, with where it is (`location`), how it was made (`method`) and any text right before it (`prefix`, e.g. \"No\", \"N°\").\n- method \"stamped\" = struck with a punch (even, sharp digits); \"engraved\" = cut with a graver as part of the decoration or lettering; \"scratched\" = thin, uneven, hand-scratched marks. Watchmakers scratched repair codes and dates inside lids and on movement bridges; those are \"scratched\".\n- The same number often appears on several parts (outer lid, cuvette, movement). Report each occurrence separately.\n- Do not report hour or minute numerals on the dial, jewel counts, or fineness marks (0.800 etc.) as numbers.\n- If a digit is not clearly legible, leave that number out and add its location to `unreadable`. A wrong digit is worse than a missing one.\n\nMarks (`marks`), each with `location` and `type`:\n- \"fineness\": silver/gold fineness, verbatim (e.g. \"0.800\", \"0,935\", \"14K\").\n- \"hallmark_symbol\": pictorial control marks, described in words (e.g. \"bear hallmark\", \"grouse hallmark\", \"squirrel hallmark\", \"Helvetia head\").\n- \"maker_mark\": small punched initials or symbols of the case maker.\n- \"inscription\": stamped or engraved text such as \"Echappement à cylindre\", \"8 Rubis\", \"Ancre\", \"Métal\", \"Argentan\", maker or retailer names, \"Genève\", \"Aiguilles\".\n- \"owner_engraving\": monograms, initials or dedications engraved for an owner.\n- \"repair_mark\": scratched watchmaker marks that are not numbers.\n\nPocket watches usually have an outer case back and an inner dust cover (cuvette). Text may be on both sides of the cuvette. The movement may carry no name or number at all; that is normal.\n\nOther fields:\n- brand_signed: the maker or retailer name as written anywhere on the watch (dial, cuvette or movement), or null.\n- escapement: \"lever\" if a pallet fork is visible or text says e.g. \"Ancre\", \"Anker\", \"Lever\"; \"cylinder\" if text says e.g. \"Cylindre\", \"Cylinder\", \"Zylinder\" or the cylinder escapement is clearly visible; \"verge\" for a verge/fusee. Otherwise \"unknown\". Explain in `escapement_evidence`.\n- winding: \"key\" if there are winding holes for a key in the cuvette or dial, square winding arbors on the movement, or no winding crown on the pendant; \"stem\" if there is a winding crown; otherwise \"unknown\". Explain in `winding_evidence`.\n- movement_layout: \"bar\" for separate parallel bridges (Lépine/bar calibre), \"three_quarter_plate\", \"full_plate\", or \"unknown\".\n- jewels: only if marked (e.g. \"8 Rubis\" → 8).\n- confidence: a number 0–1 for each field you filled in, null for fields you left empty.\n- retake_hints: short, practical photo advice in Norwegian for anything you could not read.\n- Every key in the schema must be present; use null or an empty list when you have nothing.",
  "user_instruction": "Registrer observasjonene fra bildene over i henhold til skjemaet.",
  "schema": {
   "type": "object",
@@ -16,21 +16,98 @@
      "string",
      "null"
     ],
-    "description": "Brand name as written on dial or movement"
+    "description": "Maker or retailer name as written on the watch"
    },
-   "movement_serial": {
-    "type": [
-     "string",
-     "null"
-    ],
-    "description": "Serial engraved on the movement, verbatim"
+   "numbers": {
+    "type": "array",
+    "items": {
+     "type": "object",
+     "properties": {
+      "value": {
+       "type": "string",
+       "description": "The number, verbatim"
+      },
+      "location": {
+       "type": "string",
+       "enum": [
+        "dial",
+        "outer_lid_outside",
+        "outer_lid_inside",
+        "cuvette_outside",
+        "cuvette_inside",
+        "movement",
+        "case_rim",
+        "unknown"
+       ]
+      },
+      "method": {
+       "type": "string",
+       "enum": [
+        "stamped",
+        "engraved",
+        "scratched",
+        "unknown"
+       ]
+      },
+      "prefix": {
+       "type": [
+        "string",
+        "null"
+       ],
+       "description": "Text right before the number, e.g. 'No'"
+      }
+     },
+     "required": [
+      "value",
+      "location",
+      "method",
+      "prefix"
+     ],
+     "additionalProperties": false
+    }
    },
-   "case_number": {
-    "type": [
-     "string",
-     "null"
-    ],
-    "description": "Number stamped inside the case, verbatim"
+   "marks": {
+    "type": "array",
+    "items": {
+     "type": "object",
+     "properties": {
+      "text": {
+       "type": "string",
+       "description": "The mark verbatim, or a symbol described in words"
+      },
+      "location": {
+       "type": "string",
+       "enum": [
+        "dial",
+        "outer_lid_outside",
+        "outer_lid_inside",
+        "cuvette_outside",
+        "cuvette_inside",
+        "movement",
+        "case_rim",
+        "unknown"
+       ]
+      },
+      "type": {
+       "type": "string",
+       "enum": [
+        "fineness",
+        "hallmark_symbol",
+        "maker_mark",
+        "inscription",
+        "owner_engraving",
+        "repair_mark",
+        "other"
+       ]
+      }
+     },
+     "required": [
+      "text",
+      "location",
+      "type"
+     ],
+     "additionalProperties": false
+    }
    },
    "escapement": {
     "type": "string",
@@ -45,34 +122,41 @@
     "type": [
      "string",
      "null"
-    ],
-    "description": "What in the photo shows the escapement"
+    ]
    },
-   "case_stamps": {
-    "type": "array",
-    "items": {
-     "type": "string"
-    },
-    "description": "All case marks, verbatim"
+   "winding": {
+    "type": "string",
+    "enum": [
+     "key",
+     "stem",
+     "unknown"
+    ]
+   },
+   "winding_evidence": {
+    "type": [
+     "string",
+     "null"
+    ]
+   },
+   "movement_layout": {
+    "type": "string",
+    "enum": [
+     "bar",
+     "three_quarter_plate",
+     "full_plate",
+     "unknown"
+    ]
    },
    "jewels": {
     "type": [
      "integer",
      "null"
     ],
-    "description": "Jewel count only if marked, e.g. '15 Rubis'"
+    "description": "Jewel count only if marked, e.g. '8 Rubis'"
    },
    "confidence": {
     "type": "object",
     "properties": {
-     "dial_text": {
-      "type": [
-       "number",
-       "null"
-      ],
-      "minimum": 0,
-      "maximum": 1
-     },
      "brand_signed": {
       "type": [
        "number",
@@ -81,7 +165,7 @@
       "minimum": 0,
       "maximum": 1
      },
-     "movement_serial": {
+     "numbers": {
       "type": [
        "number",
        "null"
@@ -89,7 +173,7 @@
       "minimum": 0,
       "maximum": 1
      },
-     "case_number": {
+     "marks": {
       "type": [
        "number",
        "null"
@@ -105,7 +189,7 @@
       "minimum": 0,
       "maximum": 1
      },
-     "case_stamps": {
+     "winding": {
       "type": [
        "number",
        "null"
@@ -115,12 +199,11 @@
      }
     },
     "required": [
-     "dial_text",
      "brand_signed",
-     "movement_serial",
-     "case_number",
+     "numbers",
+     "marks",
      "escapement",
-     "case_stamps"
+     "winding"
     ],
     "additionalProperties": false
    },
@@ -137,49 +220,220 @@
     }
    }
   },
-  "additionalProperties": false,
   "required": [
    "dial_text",
    "brand_signed",
-   "movement_serial",
-   "case_number",
+   "numbers",
+   "marks",
    "escapement",
    "escapement_evidence",
-   "case_stamps",
+   "winding",
+   "winding_evidence",
+   "movement_layout",
    "jewels",
    "confidence",
    "unreadable",
    "retake_hints"
-  ]
+  ],
+  "additionalProperties": false
  },
  "role_labels": {
   "dial": "Urskiven (forsiden)",
-  "caseback": "Ytre baklokk, innsiden (stempler og kassenummer)",
-  "cuvette": "Cuvetten, det indre støvlokket (gravert tekst på utsiden)",
+  "caseback": "Ytre baklokk, innsiden",
+  "caseback_closeup": "Nærbilde fra det ytre lokket",
+  "cuvette": "Cuvetten (det indre lokket), utsiden",
+  "cuvette_inside": "Cuvetten (det indre lokket), innsiden",
   "movement": "Urverket (begge lokk åpnet)",
-  "caseback_closeup": "Nærbilde av stempler i det ytre lokket",
   "movement_closeup": "Nærbilde av urverket"
  },
+ "labels": {
+  "locations": {
+   "dial": "urskiven",
+   "outer_lid_outside": "ytre lokk, utsiden",
+   "outer_lid_inside": "ytre lokk, innsiden",
+   "cuvette_outside": "cuvetten, utsiden",
+   "cuvette_inside": "cuvetten, innsiden",
+   "movement": "urverket",
+   "case_rim": "kassekanten",
+   "unknown": "ukjent sted"
+  },
+  "windings": {
+   "key": "Nøkkeloppstrekk",
+   "stem": "Krone (remontoir)",
+   "unknown": "Ukjent"
+  },
+  "layouts": {
+   "bar": "Broer (Lépine)",
+   "three_quarter_plate": "Trekvart plate",
+   "full_plate": "Hel plate",
+   "unknown": "Ukjent"
+  }
+ },
  "mock_scenarios": {
+  "monard_key_wind": {
+   "dial_text": null,
+   "brand_signed": "G. Monard, Genève",
+   "numbers": [
+    {
+     "value": "101954",
+     "location": "outer_lid_inside",
+     "method": "stamped",
+     "prefix": null
+    },
+    {
+     "value": "K9341",
+     "location": "outer_lid_inside",
+     "method": "scratched",
+     "prefix": null
+    },
+    {
+     "value": "101954",
+     "location": "cuvette_outside",
+     "method": "engraved",
+     "prefix": "No"
+    },
+    {
+     "value": "101954",
+     "location": "cuvette_inside",
+     "method": "stamped",
+     "prefix": null
+    }
+   ],
+   "marks": [
+    {
+     "text": "0.800",
+     "location": "outer_lid_inside",
+     "type": "fineness"
+    },
+    {
+     "text": "Sammenslyngede initialer i skrift",
+     "location": "outer_lid_inside",
+     "type": "maker_mark"
+    },
+    {
+     "text": "Gravert monogram",
+     "location": "outer_lid_inside",
+     "type": "owner_engraving"
+    },
+    {
+     "text": "Graverte initialer",
+     "location": "outer_lid_outside",
+     "type": "owner_engraving"
+    },
+    {
+     "text": "Echappement à cylindre",
+     "location": "cuvette_outside",
+     "type": "inscription"
+    },
+    {
+     "text": "8 Rubis",
+     "location": "cuvette_outside",
+     "type": "inscription"
+    },
+    {
+     "text": "Aiguilles",
+     "location": "cuvette_outside",
+     "type": "inscription"
+    },
+    {
+     "text": "G. Monard",
+     "location": "cuvette_outside",
+     "type": "inscription"
+    },
+    {
+     "text": "Genève",
+     "location": "cuvette_outside",
+     "type": "inscription"
+    },
+    {
+     "text": "0.800",
+     "location": "cuvette_inside",
+     "type": "fineness"
+    },
+    {
+     "text": "Sammenslyngede initialer i skrift",
+     "location": "cuvette_inside",
+     "type": "maker_mark"
+    },
+    {
+     "text": "Innrissede streker og tegn på balansebroen",
+     "location": "movement",
+     "type": "repair_mark"
+    }
+   ],
+   "escapement": "cylinder",
+   "escapement_evidence": "Cuvetten er gravert «Echappement à cylindre».",
+   "winding": "key",
+   "winding_evidence": "To nøkkelhull i cuvetten (det ene merket «Aiguilles»), firkanttapper på verket og ingen krone på pendanten.",
+   "movement_layout": "bar",
+   "jewels": 8,
+   "confidence": {
+    "brand_signed": 0.9,
+    "numbers": 0.85,
+    "marks": 0.85,
+    "escapement": 0.95,
+    "winding": 0.95
+   },
+   "unreadable": [],
+   "retake_hints": []
+  },
   "omega_silver": {
    "dial_text": "OMEGA",
    "brand_signed": "Omega",
-   "movement_serial": "2 345 678",
-   "case_number": "6 012 345",
-   "escapement": "lever",
-   "escapement_evidence": "Cuvetten er gravert «Ancre 15 Rubis», og ankergaffelen er synlig i verket.",
-   "case_stamps": [
-    "0,800",
-    "Tiur-stempel (grouse hallmark)",
-    "Cuvette: Métal"
+   "numbers": [
+    {
+     "value": "2 345 678",
+     "location": "movement",
+     "method": "engraved",
+     "prefix": null
+    },
+    {
+     "value": "6 012 345",
+     "location": "outer_lid_inside",
+     "method": "stamped",
+     "prefix": null
+    },
+    {
+     "value": "6 012 345",
+     "location": "cuvette_inside",
+     "method": "stamped",
+     "prefix": null
+    }
    ],
+   "marks": [
+    {
+     "text": "0,800",
+     "location": "outer_lid_inside",
+     "type": "fineness"
+    },
+    {
+     "text": "grouse hallmark",
+     "location": "outer_lid_inside",
+     "type": "hallmark_symbol"
+    },
+    {
+     "text": "Métal",
+     "location": "cuvette_outside",
+     "type": "inscription"
+    },
+    {
+     "text": "Ancre 15 Rubis",
+     "location": "cuvette_outside",
+     "type": "inscription"
+    }
+   ],
+   "escapement": "lever",
+   "escapement_evidence": "Cuvetten er gravert «Ancre 15 Rubis», og ankergaffelen er synlig.",
+   "winding": "stem",
+   "winding_evidence": "Krone på pendanten.",
+   "movement_layout": "three_quarter_plate",
    "jewels": 15,
    "confidence": {
     "brand_signed": 0.97,
-    "movement_serial": 0.86,
-    "case_number": 0.74,
+    "numbers": 0.8,
+    "marks": 0.88,
     "escapement": 0.9,
-    "case_stamps": 0.88
+    "winding": 0.9
    },
    "unreadable": [],
    "retake_hints": []
@@ -187,42 +441,57 @@
   "cylinder_metal": {
    "dial_text": "Remontoir Cylindre 10 Rubis",
    "brand_signed": null,
-   "movement_serial": null,
-   "case_number": "48213",
-   "escapement": "cylinder",
-   "escapement_evidence": "Urskiven og verket er merket «Cylindre».",
-   "case_stamps": [
-    "ARGENTAN"
+   "numbers": [
+    {
+     "value": "48213",
+     "location": "outer_lid_inside",
+     "method": "stamped",
+     "prefix": null
+    }
    ],
+   "marks": [
+    {
+     "text": "ARGENTAN",
+     "location": "outer_lid_inside",
+     "type": "inscription"
+    }
+   ],
+   "escapement": "cylinder",
+   "escapement_evidence": "Urskiven er merket «Cylindre».",
+   "winding": "stem",
+   "winding_evidence": "Urskiven er merket «Remontoir», og pendanten har krone.",
+   "movement_layout": "bar",
    "jewels": 10,
    "confidence": {
-    "case_number": 0.8,
+    "numbers": 0.8,
+    "marks": 0.95,
     "escapement": 0.92,
-    "case_stamps": 0.95
+    "winding": 0.85
    },
    "unreadable": [
-    "movement_serial"
+    "movement"
    ],
    "retake_hints": [
-    "Fant ikke verksnummer. Ta et nærbilde av broene på verket i skrått lys."
+    "Fant ingen tekst på verket. Det er vanlig, men ta gjerne et nærbilde i skrått lys."
    ]
   },
   "unreadable": {
    "dial_text": null,
    "brand_signed": null,
-   "movement_serial": null,
-   "case_number": null,
+   "numbers": [],
+   "marks": [],
    "escapement": "unknown",
    "escapement_evidence": null,
-   "case_stamps": [],
+   "winding": "unknown",
+   "winding_evidence": null,
+   "movement_layout": "unknown",
    "jewels": null,
    "confidence": {},
    "unreadable": [
-    "dial_text",
-    "movement_serial",
-    "case_number",
-    "case_stamps",
-    "escapement"
+    "dial",
+    "outer_lid_inside",
+    "cuvette_outside",
+    "movement"
    ],
    "retake_hints": [
     "Bildene er for uskarpe. Hold telefonen stødig og gå nærmere.",

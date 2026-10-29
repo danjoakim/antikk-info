@@ -98,26 +98,93 @@ export function detectMaterial(hallmarks, stamps) {
   return { material: matches[0].material, matches: unique, warnings };
 }
 
+export const WINDING_LABELS = { key: "Nøkkeloppstrekk", stem: "Krone (remontoir)", unknown: "Ukjent" };
+export const LAYOUT_LABELS = { bar: "Broer (Lépine)", three_quarter_plate: "Trekvart plate", full_plate: "Hel plate", unknown: "Ukjent" };
+export const LOCATION_LABELS = {
+  dial: "urskiven", outer_lid_outside: "ytre lokk, utsiden", outer_lid_inside: "ytre lokk, innsiden",
+  cuvette_outside: "cuvetten, utsiden", cuvette_inside: "cuvetten, innsiden", movement: "urverket",
+  case_rim: "kassekanten", unknown: "ukjent sted",
+};
+// Merketyper som kan si noe om kassematerialet. Eiergravering, reparasjoner og kassemakermerker gjør ikke det.
+const MATERIAL_MARK_TYPES = new Set(["fineness", "hallmark_symbol", "inscription", "other"]);
+const CITY_SUFFIX = /[,\s]*(à\s+|a\s+)?(gen[eèé]ve|geneva|genf|la chaux-de-fonds|le locle|bienne|biel|suisse|switzerland|swiss made|schweiz)\s*$/i;
+const where = (loc) => LOCATION_LABELS[loc] ?? loc;
+
+export const isKnownBrand = (brand) => KNOWN_BRANDS.has(brand);
+
+/** [kanonisk nøkkel, visningsnavn, kjent merke]. Bynavn som «Genève» tas ikke med i nøkkelen. */
+export function brandInfo(raw) {
+  const display = String(raw ?? "").trim();
+  if (UNSIGNED.has(display.toLowerCase())) return [null, null, false];
+  const stripped = display.replace(CITY_SUFFIX, "").replace(/^[\s,]+|[\s,]+$/g, "");
+  const canonical = normalizeBrand(stripped || display);
+  return [canonical, display, KNOWN_BRANDS.has(canonical)];
+}
+
+/** Merker fra cuvetten får prefikset «Cuvette:», slik at metallmerket der ikke avgjør kassematerialet. */
+const stampText = (m) => (m.location?.startsWith("cuvette") ? `Cuvette: ${m.text}` : m.text);
+
+/** Grupperer like nummer på tvers av deler. Innrissede nummer regnes som reparasjonsmerker. */
+function analyseNumbers(numbers) {
+  const groups = new Map();
+  const repairs = [];
+  const warnings = [];
+  for (const n of numbers ?? []) {
+    if (n.method === "scratched") { repairs.push(`${n.value} (${where(n.location)})`); continue; }
+    const [value] = cleanSerial(n.value, "Nummer");
+    if (value == null) {
+      warnings.push(`Så bort fra «${n.value}» (${where(n.location)}): ikke et rent nummer, kanskje et reparasjonsmerke.`);
+      continue;
+    }
+    const locs = groups.get(value) ?? [];
+    if (!locs.includes(n.location)) locs.push(n.location);
+    groups.set(value, locs);
+  }
+  const result = [...groups].map(([value, locations]) => ({ value, locations, role: locations.includes("movement") ? "movement" : "case" }));
+  result.sort((a, b) => b.locations.length - a.locations.length);
+  const caseGroups = result.filter((g) => g.role === "case");
+  if (caseGroups.length > 1) {
+    warnings.push(`Ulike nummer i kassen (${caseGroups.map((g) => g.value).join(", ")}). Lokkene kan være satt sammen ` +
+      "av forskjellige ur, eller ett av numrene betyr noe annet.");
+  }
+  return { groups: result, repairs, warnings };
+}
+
 /**
  * facts: enten observasjoner fra bildeanalysen (source "vision") eller brukerbekreftede verdier (source "confirmed").
+ * Samme regler som app/services/normalize.py.
  */
 export function normalize(hallmarks, facts, source) {
   const warnings = [];
-  let brand;
-  let explicitMaterial = null;
+  let groups = [], repairs = [], owner = [], stamps, movement, caseNo, explicitMaterial = null;
+  let [brand, display, known] = source === "vision" ? brandInfo(facts.brand_signed) : brandInfo(facts.brand);
+
   if (source === "vision") {
-    brand = normalizeBrand(facts.brand_signed);
-    if (!brand && facts.dial_text && KNOWN_BRANDS.has(normalizeBrand(facts.dial_text))) brand = normalizeBrand(facts.dial_text);
+    if (!known) { // et kjent merke et annet sted på uret slår et ukjent navn
+      const others = [...(facts.marks ?? []).filter((m) => m.type === "inscription").map((m) => m.text), facts.dial_text];
+      for (const text of others) {
+        const info = brandInfo(text);
+        if (info[2]) { [brand, display, known] = info; break; }
+      }
+    }
+    const a = analyseNumbers(facts.numbers);
+    groups = a.groups;
+    warnings.push(...a.warnings);
+    repairs = [...a.repairs, ...(facts.marks ?? []).filter((m) => m.type === "repair_mark").map((m) => `${m.text} (${where(m.location)})`)];
+    owner = (facts.marks ?? []).filter((m) => m.type === "owner_engraving").map((m) => `${m.text} (${where(m.location)})`);
+    stamps = (facts.marks ?? []).filter((m) => MATERIAL_MARK_TYPES.has(m.type)).map(stampText);
+    movement = groups.find((g) => g.role === "movement")?.value ?? null;
+    caseNo = groups.find((g) => g.role === "case")?.value ?? null;
   } else {
-    brand = normalizeBrand(facts.brand);
+    const [m, w1] = cleanSerial(facts.movement_serial, "Verksnummer");
+    const [c, w2] = cleanSerial(facts.case_number, "Kassenummer");
+    movement = m; caseNo = c;
+    warnings.push(...w1, ...w2);
+    stamps = [...(facts.case_stamps ?? [])];
     explicitMaterial = facts.material || null;
   }
 
-  const [movement, w1] = cleanSerial(facts.movement_serial, "Verksnummer");
-  const [caseNo, w2] = cleanSerial(facts.case_number, "Kassenummer");
-  warnings.push(...w1, ...w2);
-
-  const detected = detectMaterial(hallmarks, facts.case_stamps);
+  const detected = detectMaterial(hallmarks, stamps);
   let material;
   if (explicitMaterial) {
     if (MATERIAL_LABELS[explicitMaterial]) material = explicitMaterial;
@@ -126,10 +193,14 @@ export function normalize(hallmarks, facts, source) {
     material = detected.material;
     warnings.push(...detected.warnings);
   }
-
+  const caseGroup = groups.find((g) => g.role === "case");
   return {
-    brand, movement_serial: movement, case_number: caseNo,
-    escapement: facts.escapement || "unknown", material,
-    material_matches: detected.matches, warnings,
+    brand, brand_display: display, known_brand: known,
+    movement_serial: movement, case_number: caseNo,
+    number_groups: groups, numbers_match: !!caseGroup && caseGroup.locations.length > 1,
+    repair_marks: repairs, owner_engravings: owner,
+    escapement: facts.escapement || "unknown", winding: facts.winding || "unknown",
+    movement_layout: facts.movement_layout || "unknown",
+    material, material_matches: detected.matches, case_stamps: stamps, warnings,
   };
 }

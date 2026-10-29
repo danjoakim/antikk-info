@@ -13,6 +13,11 @@ export class VisionError extends Error {}
 const str = (v) => (typeof v === "string" && v.trim() ? v : null);
 const strList = (v) => (Array.isArray(v) ? v.filter((x) => typeof x === "string" && x.trim()) : []);
 
+const pick = (v, allowed, fallback = "unknown") => (allowed.includes(v) ? v : fallback);
+const LOCATIONS = ["dial", "outer_lid_outside", "outer_lid_inside", "cuvette_outside", "cuvette_inside", "movement", "case_rim", "unknown"];
+const METHODS = ["stamped", "engraved", "scratched", "unknown"];
+const MARK_TYPES = ["fineness", "hallmark_symbol", "maker_mark", "inscription", "owner_engraving", "repair_mark", "other"];
+
 export function toFacts(raw) {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
     throw new VisionError("Bildeanalysen ga ikke noe strukturert svar. Prøv igjen.");
@@ -23,11 +28,18 @@ export function toFacts(raw) {
   for (const [k, v] of Object.entries(raw.confidence ?? {})) {
     if (typeof v === "number" && v >= 0 && v <= 1) confidence[k] = v;
   }
+  const list = (v) => (Array.isArray(v) ? v.filter((x) => x && typeof x === "object") : []);
   return {
     dial_text: str(raw.dial_text), brand_signed: str(raw.brand_signed),
-    movement_serial: str(raw.movement_serial), case_number: str(raw.case_number),
+    numbers: list(raw.numbers).filter((n) => str(n.value)).map((n) => ({
+      value: String(n.value).trim(), location: pick(n.location, LOCATIONS), method: pick(n.method, METHODS), prefix: str(n.prefix),
+    })),
+    marks: list(raw.marks).filter((m) => str(m.text)).map((m) => ({
+      text: String(m.text).trim(), location: pick(m.location, LOCATIONS), type: pick(m.type, MARK_TYPES, "other"),
+    })),
     escapement, escapement_evidence: str(raw.escapement_evidence),
-    case_stamps: strList(raw.case_stamps),
+    winding: pick(raw.winding, ["key", "stem", "unknown"]), winding_evidence: str(raw.winding_evidence),
+    movement_layout: pick(raw.movement_layout, ["bar", "three_quarter_plate", "full_plate", "unknown"]),
     jewels: Number.isInteger(raw.jewels) ? raw.jewels : null,
     confidence, unreadable: strList(raw.unreadable), retake_hints: strList(raw.retake_hints),
   };
@@ -146,5 +158,5 @@ export async function testKey(key, model = DEFAULT_MODEL) {
 
 export function mockFacts(contract, scenario) {
   const all = contract.mock_scenarios;
-  return structuredClone(all[scenario] ?? all.omega_silver);
+  return structuredClone(all[scenario] ?? all.monard_key_wind);
 }

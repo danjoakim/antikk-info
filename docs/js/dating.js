@@ -31,18 +31,49 @@ export function dateBySerial(ranges, brand, serial, numberType) {
   };
 }
 
+const FEATURE_LABELS = {
+  "winding:key": "nøkkeloppstrekk", "winding:stem": "kroneoppstrekk",
+  "escapement:verge": "spindelgang", "escapement:cylinder": "sylindergang", "escapement:lever": "ankergang",
+  "movement_layout:bar": "verk med broer", "movement_layout:three_quarter_plate": "trekvart plate",
+  "movement_layout:full_plate": "hel plate",
+};
+
+/** Snitter periodene for kjente kjennetegn. Gir et intervall, aldri et årstall. */
+export function estimatePeriod(rules, facts) {
+  const rows = ["winding", "escapement", "movement_layout"]
+    .map((f) => [f, facts[f]])
+    .filter(([, v]) => v && v !== "unknown")
+    .map(([f, v]) => rules.find((r) => r.feature === f && r.value === v))
+    .filter(Boolean);
+  if (!rows.length) return null;
+  const yearFrom = Math.max(...rows.map((r) => r.year_from));
+  const yearTo = Math.min(...rows.map((r) => r.year_to));
+  if (yearFrom > yearTo) return null;
+  return {
+    year_from: yearFrom, year_to: yearTo,
+    basis: rows.map((r) => FEATURE_LABELS[`${r.feature}:${r.value}`] ?? r.value),
+    display: `ca. ${yearFrom}–${yearTo}`, is_demo: rows.some((r) => r.is_demo),
+  };
+}
+
+/** Serienummer først; ellers en grov periode ut fra kjennetegn. */
+export function dateItem(ranges, facts, rules = []) {
+  const result = dateByNumber(ranges, facts);
+  if (result.status !== "dated") result.period = estimatePeriod(rules, facts);
+  return result;
+}
+
 /** Prøver verksnummer først, deretter kassenummer. */
-export function dateItem(ranges, facts) {
+function dateByNumber(ranges, facts) {
   const candidates = [[facts.movement_serial, "movement"], [facts.case_number, "case"]].filter(([n]) => n);
   if (!candidates.length) {
-    return { status: "no_serial", message: "Ingen lesbare serienumre. Ta et nærbilde av urverket." };
+    return { status: "no_serial", message: "Fant ikke noe nummer å datere etter." };
   }
   if (!facts.brand) {
-    return { status: "unknown_brand", message: "Usignerte ur kan ikke dateres etter serienummer. " +
-      "Stempler og gangtype gir bare en grov periode." };
+    return { status: "unknown_brand", message: "Usignerte ur kan ikke dateres etter serienummer." };
   }
   if (!ranges.some((r) => r.brand === facts.brand)) {
-    return { status: "unknown_brand", message: `Vi har ingen serienummertabell for «${facts.brand}» ennå.` };
+    return { status: "unknown_brand", message: `Vi har ingen serienummertabell for «${facts.brand_display || facts.brand}».` };
   }
   for (const [serial, type] of candidates) {
     const result = dateBySerial(ranges, facts.brand, serial, type);

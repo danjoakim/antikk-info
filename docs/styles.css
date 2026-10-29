@@ -212,3 +212,16 @@ summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; al
 .guide-card p, .guide-card li { margin: 0 0 8px; }
 .guide-card ul { padding-left: 1.2em; margin: 0; }
 .guide-card .num { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--brass); color: var(--brass-ink); font: 700 .9rem var(--sans); flex: none; }
+
+/* Funnet på uret */
+.found h2 { margin-bottom: 8px; }
+.found-list { list-style: none; padding: 0; margin: 0; }
+.found-list li { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.found-list li:last-child { border-bottom: 0; }
+.found-list small { color: var(--muted); }
+.num-value { font-variant-numeric: tabular-nums; letter-spacing: .03em; }
+.found-ignored { margin-top: 6px; }
+.found-ignored ul { margin: 6px 0 0; padding-left: 1.1em; color: var(--muted); font-size: .9rem; }
+.stamp small { color: var(--muted); font-size: .75rem; }
+.meta.good { color: var(--ok); }
+.slot-note { position: absolute; bottom: 36px; left: 0; right: 0; text-align: center; font-size: .85rem; margin: 0; padding: 0 12px; }

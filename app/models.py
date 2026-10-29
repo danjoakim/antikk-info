@@ -5,19 +5,55 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 Escapement = Literal["cylinder", "lever", "verge", "unknown"]
-ImageRole = Literal["dial", "caseback", "cuvette", "movement", "movement_closeup", "caseback_closeup"]
+Winding = Literal["key", "stem", "unknown"]          # nøkkeloppstrekk / krone (remontoir)
+MovementLayout = Literal["bar", "three_quarter_plate", "full_plate", "unknown"]
+ImageRole = Literal["dial", "caseback", "caseback_closeup", "cuvette", "cuvette_inside",
+                    "movement", "movement_closeup"]
+
+# Hvor på uret et nummer eller merke ble funnet.
+Location = Literal["dial", "outer_lid_outside", "outer_lid_inside", "cuvette_outside", "cuvette_inside",
+                   "movement", "case_rim", "unknown"]
+NumberMethod = Literal["stamped", "engraved", "scratched", "unknown"]
+MarkType = Literal["fineness", "hallmark_symbol", "maker_mark", "inscription", "owner_engraving",
+                   "repair_mark", "other"]
+
+LOCATION_LABELS: dict[str, str] = {
+    "dial": "urskiven",
+    "outer_lid_outside": "ytre lokk, utsiden",
+    "outer_lid_inside": "ytre lokk, innsiden",
+    "cuvette_outside": "cuvetten, utsiden",
+    "cuvette_inside": "cuvetten, innsiden",
+    "movement": "urverket",
+    "case_rim": "kassekanten",
+    "unknown": "ukjent sted",
+}
 
 
 # --- Det vision-modellen ser (aldri år eller pris) ---------------------------
 
+class NumberObservation(BaseModel):
+    value: str = Field(description="Nummeret ordrett")
+    location: Location = "unknown"
+    method: NumberMethod = "unknown"
+    prefix: str | None = Field(None, description="Tekst rett foran nummeret, f.eks. «No»")
+
+
+class MarkObservation(BaseModel):
+    text: str = Field(description="Merket ordrett, eller beskrevet med ord om det er et symbol")
+    location: Location = "unknown"
+    type: MarkType = "other"
+
+
 class VisionFacts(BaseModel):
     dial_text: str | None = Field(None, description="Tekst på urskiven, ordrett")
-    brand_signed: str | None = Field(None, description="Merkenavn slik det står på ur eller verk")
-    movement_serial: str | None = Field(None, description="Nummer gravert på urverket, ordrett")
-    case_number: str | None = Field(None, description="Nummer stemplet i kassen, ordrett")
+    brand_signed: str | None = Field(None, description="Merke- eller produsentnavn slik det står på uret")
+    numbers: list[NumberObservation] = Field(default_factory=list)
+    marks: list[MarkObservation] = Field(default_factory=list)
     escapement: Escapement = "unknown"
-    escapement_evidence: str | None = Field(None, description="Hva i bildet som viser gangtypen")
-    case_stamps: list[str] = Field(default_factory=list, description="Stempler ordrett")
+    escapement_evidence: str | None = None
+    winding: Winding = "unknown"
+    winding_evidence: str | None = None
+    movement_layout: MovementLayout = "unknown"
     jewels: int | None = None
     confidence: dict[str, float] = Field(default_factory=dict)
     unreadable: list[str] = Field(default_factory=list)
@@ -32,13 +68,29 @@ class MaterialMatch(BaseModel):
     label: str
 
 
+class NumberGroup(BaseModel):
+    """Samme nummer funnet ett eller flere steder."""
+    value: int
+    locations: list[str]
+    role: Literal["movement", "case"]
+
+
 class NormalizedFacts(BaseModel):
     brand: str | None = None               # kanonisk: 'omega', None = usignert
+    brand_display: str | None = None       # slik navnet står på uret
+    known_brand: bool = False              # finnes i merkelisten vår
     movement_serial: int | None = None
     case_number: int | None = None
+    number_groups: list[NumberGroup] = Field(default_factory=list)
+    numbers_match: bool = False            # samme kassenummer på flere deler
+    repair_marks: list[str] = Field(default_factory=list)
+    owner_engravings: list[str] = Field(default_factory=list)
     escapement: Escapement = "unknown"
+    winding: Winding = "unknown"
+    movement_layout: MovementLayout = "unknown"
     material: str | None = None
     material_matches: list[MaterialMatch] = Field(default_factory=list)
+    case_stamps: list[str] = Field(default_factory=list)   # merker som teller for materialet
     warnings: list[str] = Field(default_factory=list)
 
 
@@ -49,6 +101,8 @@ class ConfirmedFacts(BaseModel):
     movement_serial: str | None = None
     case_number: str | None = None
     escapement: Escapement = "unknown"
+    winding: Winding = "unknown"
+    movement_layout: MovementLayout = "unknown"
     material: str | None = Field(None, description="Kanonisk materialkode; utledes av stempler hvis tom")
     case_stamps: list[str] = Field(default_factory=list)
     item_type: str = "pocket_watch"
@@ -57,6 +111,15 @@ class ConfirmedFacts(BaseModel):
 # --- Resultater fra databasen ------------------------------------------------
 
 DatingStatus = Literal["dated", "no_serial", "unknown_brand", "out_of_range"]
+
+
+class PeriodEstimate(BaseModel):
+    """Grov periode ut fra kjennetegn (oppstrekk, gang, verktype) når serienummer ikke kan brukes."""
+    year_from: int
+    year_to: int
+    basis: list[str]
+    display: str
+    is_demo: bool
 
 
 class DatingResult(BaseModel):
@@ -71,6 +134,7 @@ class DatingResult(BaseModel):
     method: str | None = None
     source: str | None = None
     is_demo: bool = False
+    period: PeriodEstimate | None = None
 
 
 class ComparableSale(BaseModel):

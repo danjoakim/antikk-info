@@ -10,7 +10,8 @@ from app.config import Settings
 from app.db.database import connection_dependency
 from app.models import AnalyzeResponse, ConfirmedFacts, LookupResponse
 from app.services.dating import date_item
-from app.services.normalize import ESCAPEMENT_LABELS, MATERIAL_LABELS, normalize
+from app.models import LOCATION_LABELS
+from app.services.normalize import ESCAPEMENT_LABELS, LAYOUT_LABELS, MATERIAL_LABELS, WINDING_LABELS, normalize
 from app.services.valuation import value_item
 from app.services.vision import MOCK_SCENARIOS, ImageInput, VisionError, extract_facts
 
@@ -42,6 +43,9 @@ def meta(settings: Settings = Depends(get_settings)) -> dict:
         "min_sales": settings.min_sales,
         "materials": [{"code": c, "label": l} for c, l in MATERIAL_LABELS.items()],
         "escapements": [{"code": c, "label": l} for c, l in ESCAPEMENT_LABELS.items()],
+        "windings": [{"code": c, "label": l} for c, l in WINDING_LABELS.items()],
+        "layouts": [{"code": c, "label": l} for c, l in LAYOUT_LABELS.items()],
+        "locations": LOCATION_LABELS,
         "mock_scenarios": list(MOCK_SCENARIOS) if settings.vision_mode == "mock" else [],
     }
 
@@ -65,6 +69,7 @@ async def analyze(
     movement: UploadFile | None = File(None),
     caseback: UploadFile | None = File(None),
     cuvette: UploadFile | None = File(None),
+    cuvette_inside: UploadFile | None = File(None),
     movement_closeup: UploadFile | None = File(None),
     caseback_closeup: UploadFile | None = File(None),
     mock_scenario: str | None = Form(None),
@@ -72,7 +77,7 @@ async def analyze(
     conn: sqlite3.Connection = Depends(get_conn),
 ) -> AnalyzeResponse:
     """Steg 1: vision trekker ut fakta. Ingen datering eller pris her."""
-    uploads = {"dial": dial, "caseback": caseback, "cuvette": cuvette, "movement": movement,
+    uploads = {"dial": dial, "caseback": caseback, "cuvette": cuvette, "cuvette_inside": cuvette_inside, "movement": movement,
                "movement_closeup": movement_closeup, "caseback_closeup": caseback_closeup}
     present = {role: up for role, up in uploads.items() if up is not None and up.filename}
     if not present:

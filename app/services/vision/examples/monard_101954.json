@@ -1,5 +1,5 @@
 {
- "_beskrivelse": "Fasit for et ekte ur (fotografert 29.10.2026): sveitsisk lommeur med nøkkeloppstrekk i sølv 0.800, sylindergang, 8 steiner, signert G. Monard, Genève på cuvetten. Avlest manuelt fra brukerens bilder; bildene er ikke lagret i repoet.",
+ "_beskrivelse": "Fasit for et ekte ur (fotografert 29.10.2026): sveitsisk lommeur med nøkkeloppstrekk i sølv 0.800, sylindergang, 8 steiner, signert G. Monard, Genève på cuvetten. Avlest manuelt fra brukerens bilder og bekreftet av eieren (G.S ved 0.800); bildene er ikke lagret i repoet.",
  "dial_text": null,
  "brand_signed": "G. Monard, Genève",
  "numbers": [
@@ -10,7 +10,7 @@
  ],
  "marks": [
   {"text": "0.800", "location": "outer_lid_inside", "type": "fineness"},
-  {"text": "Sammenslyngede initialer i skrift", "location": "outer_lid_inside", "type": "maker_mark"},
+  {"text": "G.S (skriftbokstaver, punslet ved 0.800)", "location": "outer_lid_inside", "type": "maker_mark"},
   {"text": "Gravert monogram", "location": "outer_lid_inside", "type": "owner_engraving"},
   {"text": "Graverte initialer", "location": "outer_lid_outside", "type": "owner_engraving"},
   {"text": "Echappement à cylindre", "location": "cuvette_outside", "type": "inscription"},
@@ -19,7 +19,7 @@
   {"text": "G. Monard", "location": "cuvette_outside", "type": "inscription"},
   {"text": "Genève", "location": "cuvette_outside", "type": "inscription"},
   {"text": "0.800", "location": "cuvette_inside", "type": "fineness"},
-  {"text": "Sammenslyngede initialer i skrift", "location": "cuvette_inside", "type": "maker_mark"},
+  {"text": "G.S (skriftbokstaver, punslet ved 0.800)", "location": "cuvette_inside", "type": "maker_mark"},
   {"text": "Innrissede streker og tegn på balansebroen", "location": "movement", "type": "repair_mark"}
  ],
  "escapement": "cylinder",

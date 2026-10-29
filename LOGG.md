@@ -129,11 +129,21 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 2. **Omega «Extract from the Archives»** er ifølge Omega Forums avviklet i 2023. Bekreft hos Omega.
 3. **Demodata** for serienumre, stempler og priser må verifiseres mot minst to kilder før `is_demo` settes til 0. Gjelder også de sveitsiske kontrollmerkene (bjørn, tiur, ekorn, Helvetia).
 4. **HEIC fra iPhone:** Safari dekoder HEIC og konverterer til JPEG før opplasting, men dette er ikke testet på ekte enhet.
+6. **Monard-uret – kontrollmerke:** Gemini meldte en tiur (sveitsisk kontrollmerke for 0.800). Et innslått merke i ramme finnes ved kassenummeret i lokket og i cuvetten, men figuren er ikke lesbar i bildene. Avklares med lupe. Bekreftet tiur ville gitt periode fra 1880-tallet.
+7. **Monard-uret – G.S og monogram:** «G.S» ved 0.800 i lokk og cuvette er trolig kassemakerens punselmerke (slås opp i Mikrolisk / registre over kassemakere). Bokstavene i det graverte monogrammet er ikke lest sikkert; kan være eier, giver eller unntaksvis produsent.
 5. **Leverandørkall er ikke kjørt live.** Koden følger leverandørenes dokumentasjon, men første ekte kall per leverandør kan avdekke detaljer (f.eks. skjemastøtte i Gemini eller lokale modeller).
 
 ---
 
 ## Øktlogg
+
+### 2026-10-29 – Økt 8: Kontrollmerke, monogram og G.S
+**Gjort:** Gjennomgått nytt nærbilde av ytre lokk. Funnet innslått merke i ramme ved kassenummeret (lokk og cuvette), som jeg overså i første avlesning; Gemini hadde sett det og kalt det tiur, men figuren kan ikke bekreftes. Eieren leste «G.S» ved sølvstempelet; fasiten oppdatert (kassemakermerke i lokk og cuvette). Drøftet monogrammets betydning: proveniens og historie, ikke materiale eller datering.
+
+**Foreslått, ikke bygget ennå:** (1) instruks: navngi kontrollmerkets figur bare når den er tydelig, (2) avkrysning «jeg har sett merket selv», (3) kontrollmerke snevrer inn perioden bare når bekreftet, (4) boks «Gravering og historie» med bokstaver og brukerens egne opplysninger, (5) merknad i verdikortet om eiergravering.
+
+**Filer:** `app/services/vision/examples/monard_101954.json`, `docs/data/vision_contract.json`, `LOGG.md`.
+**Tester:** Python 44, JavaScript 18 bestått.
 
 ### 2026-10-29 – Økt 7: Lært av et ekte ur (G. Monard, Genève)
 **Bakgrunn:** Brukeren fotograferte et ekte lommeur (6 HEIC-bilder). Det avvek fra antakelsene: nummeret sto på lokkene og ikke på verket, cuvetten hadde stempler på begge sider, verket og urskiven hadde nesten ingen merker.

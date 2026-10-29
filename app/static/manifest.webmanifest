@@ -1,7 +1,7 @@
 {
-  "name": "Lommeur-sjekk",
-  "short_name": "Lommeur",
-  "description": "Identifiser, dater og finn prisintervall for gamle lommeur.",
+  "name": "InformAntique",
+  "short_name": "InformAntique",
+  "description": "Informasjon om antikviteter og gamle ting, rett fra mobilen. Først ut: lommeur.",
   "lang": "no",
   "start_url": "/",
   "scope": "/",

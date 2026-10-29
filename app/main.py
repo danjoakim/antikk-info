@@ -21,7 +21,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         init_db(settings.db_path)
         yield
 
-    app = FastAPI(title="Lommeur-appen", version="0.1.0", lifespan=lifespan)
+    app = FastAPI(title="InformAntique", version="0.1.0", lifespan=lifespan)
     app.state.settings = settings
     app.include_router(router)
     # Monteres sist, så /api-rutene vinner.

@@ -1,4 +1,4 @@
-# Prosjektlogg – Lommeur-/antikvitetsappen (MVP)
+# Prosjektlogg – InformAntique (MVP)
 
 Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
@@ -127,6 +127,8 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-10-29 | Forslag til neste bilde regnes ut med regler (`suggest.py` / `suggest.js`) ut fra hva som mangler og hva som er fotografert; høyst to forslag, ingen når det holder | Appen skal ikke presse fram svar på alt, men si ærlig hva som ville hjulpet |
 | 2026-10-29 | Produsentkunnskap i egen tabell (`makers`) med kilder; tolkning i egen kolonne og merket «Ikke verifisert» | Brukeren vil ha bakgrunn om navnet; det som ikke er dokumentert, skal ikke se ut som fakta |
 | 2026-10-29 | Leverandørnavnet vises bare i innstillingene, ikke i flyten eller feilmeldingene | Brukeren: hvilken modell som gjør jobben, betyr lite for den som bruker appen |
+| 2026-10-29 | Appen heter **InformAntique** | Brukerens valg: en app som gir informasjon om antikviteter, f.eks. på loppemarked. Lommeur er første kategori |
+| 2026-10-29 | Lagringsnøkkelen i nettleseren (`lommeur.settings.v1`) beholdes | Endring ville slettet brukerens lagrede nøkkel |
 | 2026-10-29 | Standardmodeller: `gpt-6-astra` (OpenAIs anbefalte), `gemini-3.8-flash` (Googles anbefalte stabile Flash) | Hentet fra leverandørenes modelloversikter 29.10.2026; overstyres med `VISION_MODEL` |
 
 ---
@@ -144,6 +146,10 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-10-29 – Økt 13: Nytt navn: InformAntique
+**Gjort:** Navnet byttet i sidetittel, toppfelt, PWA-manifest (navn og kortnavn), hjemskjermtittel for iPhone, sidebeskrivelse, FastAPI-tittel, README og logg. Repoet heter fortsatt `antikk-info`.
+**Filer:** `app/main.py`, `app/static/{index.html,manifest.webmanifest}`, `docs/{index.html,manifest.webmanifest}`, `README.md`, `LOGG.md`.
 
 ### 2026-10-29 – Økt 12: Steampunk-venteskjerm
 **Gjort:** Venteskjermen i viktoriansk steampunk-stil: messing- og kobbertannhjul som går i hverandre bak uret (motsatt vei, fart etter antall tenner), rifflet kasse, romertall, Breguet-visere, åpent vindu der uroen svinger, og en messinglupe som glir over skiven. Teksten i kursiv antikva med ❦-ornamenter og tidstypiske formuleringer («Studerer bildene …», «Tyder gravering og tekst …», «Blar i protokollene …»). Fungerer i lys og mørk modus; står stille ved «redusert bevegelse». Vinduet med uroen krympet så det ikke dekker romertallet VI.

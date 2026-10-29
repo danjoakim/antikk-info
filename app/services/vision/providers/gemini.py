@@ -10,7 +10,7 @@ from app.services.vision.core import OBSERVATION_SCHEMA, SYSTEM_PROMPT, USER_INS
 def build_contents(images: list[ImageInput], types: Any) -> list[Any]:
     parts: list[Any] = []
     for i, img in enumerate(images, start=1):
-        parts.append(f"Bilde {i}: {img.label}")
+        parts.append(f"Bilde {i}: {img.label}" if img.label else f"Bilde {i}")
         parts.append(types.Part.from_bytes(data=img.data, mime_type=img.media_type))
     parts.append(USER_INSTRUCTION)
     return parts

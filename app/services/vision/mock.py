@@ -17,6 +17,7 @@ MOCK_SCENARIOS: dict[str, VisionFacts] = {
     # Ekte ur, avlest manuelt fra brukerens bilder.
     "monard_key_wind": _example("monard_101954"),
     "omega_silver": VisionFacts(
+        photos=[{"index": 1, "shows": "dial"}, {"index": 2, "shows": "outer_lid_inside"}],
         dial_text="OMEGA", brand_signed="Omega",
         numbers=[{"value": "2 345 678", "location": "movement", "method": "engraved"},
                  {"value": "6 012 345", "location": "outer_lid_inside", "method": "stamped"},
@@ -30,6 +31,7 @@ MOCK_SCENARIOS: dict[str, VisionFacts] = {
         confidence={"brand_signed": 0.97, "numbers": 0.8, "marks": 0.88, "escapement": 0.9, "winding": 0.9},
     ),
     "cylinder_metal": VisionFacts(
+        photos=[{"index": 1, "shows": "dial"}, {"index": 2, "shows": "outer_lid_inside"}],
         dial_text="Remontoir Cylindre 10 Rubis",
         numbers=[{"value": "48213", "location": "outer_lid_inside", "method": "stamped"}],
         marks=[{"text": "ARGENTAN", "location": "outer_lid_inside", "type": "inscription"}],

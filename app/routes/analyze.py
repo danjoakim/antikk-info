@@ -10,6 +10,7 @@ from app.config import Settings
 from app.db.database import connection_dependency
 from app.models import AnalyzeResponse, ConfirmedFacts, LookupResponse
 from app.services.dating import date_item
+from app.services.suggest import suggest_photos
 from app.models import LOCATION_LABELS
 from app.services.normalize import ESCAPEMENT_LABELS, LAYOUT_LABELS, MATERIAL_LABELS, WINDING_LABELS, normalize
 from app.services.valuation import value_item
@@ -65,6 +66,7 @@ async def _read_image(role: str, upload: UploadFile, settings: Settings) -> Imag
 
 @router.post("/analyze", response_model=AnalyzeResponse)
 async def analyze(
+    photos: list[UploadFile] | None = File(None),
     dial: UploadFile | None = File(None),
     movement: UploadFile | None = File(None),
     caseback: UploadFile | None = File(None),
@@ -79,19 +81,23 @@ async def analyze(
     """Steg 1: vision trekker ut fakta. Ingen datering eller pris her."""
     uploads = {"dial": dial, "caseback": caseback, "cuvette": cuvette, "cuvette_inside": cuvette_inside, "movement": movement,
                "movement_closeup": movement_closeup, "caseback_closeup": caseback_closeup}
-    present = {role: up for role, up in uploads.items() if up is not None and up.filename}
+    # Umerkede bilder («photos») er normalen; modellen avgjør hva hvert bilde viser.
+    present = [("photo", up) for up in photos or [] if up.filename]
+    present += [(role, up) for role, up in uploads.items() if up is not None and up.filename]
     if not present:
         raise HTTPException(400, "Last opp minst ett bilde.")
     if len(present) > settings.max_images:
         raise HTTPException(400, f"For mange bilder (maks {settings.max_images}).")
 
-    images = [await _read_image(role, up, settings) for role, up in present.items()]
+    images = [await _read_image(role, up, settings) for role, up in present]
     try:
         facts = await run_in_threadpool(extract_facts, images, settings, mock_scenario)
     except VisionError as exc:
         raise HTTPException(502, str(exc)) from exc
 
-    return AnalyzeResponse(mode=settings.vision_mode, facts=facts, normalized=normalize(conn, facts))
+    normalized = normalize(conn, facts)
+    return AnalyzeResponse(mode=settings.vision_mode, facts=facts, normalized=normalized,
+                           suggestions=suggest_photos(conn, facts, normalized))
 
 
 @router.post("/lookup", response_model=LookupResponse)

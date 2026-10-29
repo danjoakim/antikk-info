@@ -56,6 +56,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 - [ ] Skru på Pages: *Settings → Pages*, gren `main`, mappe `/docs`
 - [ ] Første ekte test med Gemini-nøkkel på telefonen
 - [x] Fire bildesteg i åpningsrekkefølge (urskive → ytre lokk → cuvette → urverk) og illustrert veiledning
+- [x] Fri bildeopplasting: legg inn det du har, modellen avgjør hva hvert bilde viser, appen foreslår høyst to bilder som vil hjelpe
 - [x] Lært av ekte ur (G. Monard): nummer og merker med plassering, oppstrekk, verktype, reparasjons- og eiermerker, grov periode, ukjente navn mot usignerte, HEIC
 
 ### Neste
@@ -119,6 +120,8 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-10-29 | Navn som ikke er i merkelisten, sammenlignes med usignerte ur, med merknad; kjente merker bare med seg selv | Forhandler- og fabrikantnavn som «G. Monard, Genève» ga ellers ingen pris |
 | 2026-10-29 | Ekte ur lagres som tekstlig fasit (`app/services/vision/examples/`), ikke som bilder | Repoet er offentlig, og bildene viser personlige graveringer |
 | 2026-10-29 | HEIC som nettleseren ikke kan lese, sendes uendret til Gemini | Gemini leser HEIC; iPhone-bilder skal fungere uten omvei |
+| 2026-10-29 | Fri bildeopplasting i stedet for faste steg; modellen klassifiserer hvert bilde (`photos[].shows`) | Brukerens prinsipp: det finnes mange måter å identifisere et ur på, og ikke alle trengs. Ett godt bilde kan være nok |
+| 2026-10-29 | Forslag til neste bilde regnes ut med regler (`suggest.py` / `suggest.js`) ut fra hva som mangler og hva som er fotografert; høyst to forslag, ingen når det holder | Appen skal ikke presse fram svar på alt, men si ærlig hva som ville hjulpet |
 | 2026-10-29 | Standardmodeller: `gpt-6-astra` (OpenAIs anbefalte), `gemini-3.8-flash` (Googles anbefalte stabile Flash) | Hentet fra leverandørenes modelloversikter 29.10.2026; overstyres med `VISION_MODEL` |
 
 ---
@@ -136,6 +139,22 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-10-29 – Økt 9: Legg inn bildene du har
+**Bakgrunn:** Brukeren påpekte at et ur kan identifiseres på mange måter, og at alle kjennetegn ikke alltid trengs. Forslag fra brukeren: legg inn bilder av det du har.
+
+**Gjort:**
+- De faste fire stegene er erstattet av ett bildeskjermbilde: ta bilde eller velg flere fra galleriet (høyst 8), fjern enkeltbilder, analyser når du vil.
+- Modellen får bildene umerket og i vilkårlig rekkefølge, og rapporterer hva hvert bilde viser (`photos`). Miniatyrene viser dette etter analysen.
+- Nye regler for forslag (`app/services/suggest.py`, `docs/js/suggest.js`): verket når merket har serienummertabell og verksnummer mangler, lokket når materialet mangler, cuvetten når navn eller gangtype mangler, osv. Deler som allerede er fotografert og lest, foreslås ikke på nytt. Monard-uret får ingen forslag.
+- Bekreftelsesskjermen viser «Ett bilde til kan hjelpe» med knapp tilbake til bildene; alle bilder beholdes og analyseres på nytt.
+- API-et tar imot `photos` som liste. Begge frontender oppdatert.
+
+**Filer:** `app/models.py`, `app/services/vision/{core,mock}.py`, `app/services/vision/providers/*.py`, `app/services/vision/examples/monard_101954.json`, `app/services/suggest.py` (ny), `app/routes/analyze.py`, `app/config.py`, `app/static/*`, `docs/index.html`, `docs/styles.css`, `docs/js/{app,vision,suggest}.js`, `docs/data/vision_contract.json`, `tests/*`, `tests_web/core.test.mjs`, `.env.example`, `README.md`, `LOGG.md`.
+
+**Tester:** Python 49 bestått, JavaScript 19 bestått. Mobilnettleser: fem Monard-bilder valgt fra galleriet på én gang i tilfeldig rekkefølge og sendt umerket; ingen forslag. Bare urskiven på et Omega-ur ga forslag om verket og lokket; legge til og fjerne bilder virker. Ingen JavaScript-feil.
+
+**Neste:** Ekte Gemini-test med fri opplasting.
 
 ### 2026-10-29 – Økt 8: Kontrollmerke, monogram og G.S
 **Gjort:** Gjennomgått nytt nærbilde av ytre lokk. Funnet innslått merke i ramme ved kassenummeret (lokk og cuvette), som jeg overså i første avlesning; Gemini hadde sett det og kalt det tiur, men figuren kan ikke bekreftes. Eieren leste «G.S» ved sølvstempelet; fasiten oppdatert (kassemakermerke i lokk og cuvette). Drøftet monogrammets betydning: proveniens og historie, ikke materiale eller datering.

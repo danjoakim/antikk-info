@@ -6,32 +6,14 @@ const MAX_EDGE = 2000;      // px, lengste side etter komprimering
 const JPEG_QUALITY = 0.85;
 const REQUEST_TIMEOUT = 90_000;
 
-const STEPS = [
-  {
-    key: "dial", title: "Urskiven", guide: "guide-dial",
-    tips: ["Fotografer rett forfra.", "Få med hele skiven og eventuell tekst.", "Unngå blits; vipp litt bort fra lyset hvis glasset reflekterer."],
-  },
-  {
-    key: "caseback", title: "Ytre baklokk", closeup: "caseback_closeup", closeupLabel: "nærbilde", guide: "guide-caseback",
-    tips: ["Åpne det ytre lokket med neglen i det lille sporet.", "Fotografer innsiden av lokket.", "Se etter stempler som 0.800 og små symboler (bjørn, tiur, ekorn).", "Få med kassenummeret."],
-  },
-  {
-    key: "cuvette", title: "Cuvetten (indre lokk)", closeup: "cuvette_inside", closeupLabel: "innsiden", guide: "guide-cuvette",
-    tips: ["Fotografer utsiden av det indre lokket før du åpner det.", "Her står ofte merke, gangtype («Ancre», «Cylindre») og nummer.", "Legg til et bilde av innsiden også: der kan det stå stempler og nummer.", "Ingen cuvette? Hopp over steget."],
-  },
-  {
-    key: "movement", title: "Urverket", closeup: "movement_closeup", closeupLabel: "nærbilde", guide: "guide-movement",
-    tips: ["Åpne cuvetten forsiktig, og ikke rør verket.", "Det kan stå lite eller ingenting på verket. Det er vanlig: bildet viser likevel gangtype og oppstrekk.", "Står det et nummer, gå nært og bruk skrått lys."],
-  },
-];
+const MAX_PHOTOS = 8;
 
 const PLACEHOLDER_SVG = `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
   <circle cx="32" cy="36" r="20"/><path d="M32 8v8M27 10h10M32 36V24M32 36l8 5"/></svg>`;
 
 const state = {
   meta: null,
-  step: 0,
-  photos: {},       // rolle → { blob, url, size }
+  photos: [],       // [{ blob, url, size, note? }] i den rekkefølgen de ble lagt inn
   analysis: null,
   confirmed: null,
 };
@@ -106,86 +88,80 @@ async function compress(file) {
   return { blob, url: URL.createObjectURL(blob), size: blob.size };
 }
 
-function setPhoto(role, photo) {
-  if (state.photos[role]) URL.revokeObjectURL(state.photos[role].url);
-  if (photo) state.photos[role] = photo; else delete state.photos[role];
+function addPhoto(photo) {
+  state.photos.push(photo);
 }
 
-// --- Bildesteg -----------------------------------------------------------------
-
-function renderStep() {
-  const step = STEPS[state.step];
-  $("#step-count").textContent = `Steg ${state.step + 1} av ${STEPS.length}`;
-  $("#step-title").textContent = step.title;
-  $("#step-tips").innerHTML = step.tips.map((t) => `<li>${esc(t)}</li>`).join("");
-  $(".progress").innerHTML = STEPS.map((_, i) => `<span class="${i <= state.step ? "done" : ""}"></span>`).join("");
-
-  const main = state.photos[step.key];
-  renderSlot($("#photo-main"), main, step.title);
-  const closeup = step.closeup && state.photos[step.closeup];
-  $("#photo-closeup").hidden = !closeup;
-  if (closeup) renderSlot($("#photo-closeup"), closeup, step.closeupLabel);
-
-  $("#capture-buttons").hidden = !!main;
-  $("#next-buttons").hidden = !main;
-  $("#closeup-btn").hidden = !step.closeup;
-  if (step.closeup) $("#closeup-btn span").textContent = closeup ? `Nytt bilde: ${step.closeupLabel}` : `+ ${capitalize(step.closeupLabel)}`;
-  $("[data-action=next]").textContent = state.step === STEPS.length - 1 ? "Analyser" : "Neste";
-  $("#skip-btn").textContent = main ? "Ta på nytt" : "Hopp over dette bildet";
-  $("#skip-btn").dataset.action = main ? "retake-step" : "skip";
-  $("#capture-error").hidden = true;
+function removePhoto(index) {
+  const [photo] = state.photos.splice(index, 1);
+  if (photo?.url) URL.revokeObjectURL(photo.url);
+  state.analysis = null; // bildene er endret; ny analyse trengs
 }
 
-function renderSlot(el, photo, label) {
-  el.innerHTML = photo
-    ? `<img src="${photo.url}" alt="${esc(label)}"><span class="size">${Math.max(1, Math.round(photo.size / 1024))} kB</span>`
-    : PLACEHOLDER_SVG;
+// --- Bilder --------------------------------------------------------------------
+
+/** Hva modellen mente hvert bilde viste ved forrige analyse. */
+function photoLabel(i) {
+  const shows = state.analysis?.facts.photos?.find((p) => p.index === i + 1)?.shows;
+  return shows && shows !== "unknown" ? place(shows) : "";
+}
+
+function renderPhotos() {
+  const grid = $("#photo-grid");
+  grid.innerHTML = state.photos.map((p, i) => `
+    <figure class="thumb">
+      ${p.url ? `<img src="${p.url}" alt="Bilde ${i + 1}">` : `${PLACEHOLDER_SVG}<span class="thumb-note">${esc(p.note)}</span>`}
+      <figcaption>${esc(capitalize(photoLabel(i) || `Bilde ${i + 1}`))}</figcaption>
+      <button class="thumb-remove" data-remove="${i}" aria-label="Fjern bilde ${i + 1}">×</button>
+    </figure>`).join("") +
+    (state.photos.length ? "" : `<div class="photo-empty">${PLACEHOLDER_SVG}<p>Ingen bilder ennå</p></div>`);
+  const n = state.photos.length;
+  const btn = $("#analyze-btn");
+  btn.disabled = n === 0;
+  btn.textContent = n ? `Analyser ${n} ${n === 1 ? "bilde" : "bilder"}` : "Analyser";
+  const box = $("#suggest-box");
+  const suggestions = state.analysis?.suggestions ?? [];
+  box.hidden = !suggestions.length;
+  box.innerHTML = suggestions.length
+    ? `<p><strong>Dette vil hjelpe mest:</strong></p>${suggestions.map((s) => `<p>${esc(capitalize(s.label))}: ${esc(s.reason)}</p>`).join("")}`
+    : "";
 }
 
 async function onPhotoPicked(input) {
-  const file = input.files?.[0];
+  const files = [...(input.files ?? [])];
   input.value = "";       // samme fil kan velges igjen
-  if (!file) return;
-  const step = STEPS[state.step];
-  const role = input.dataset.input === "closeup" ? step.closeup : step.key;
-  try {
-    setPhoto(role, await compress(file));
-    renderStep();
-  } catch (err) {
-    const box = $("#capture-error");
-    box.textContent = err.message;
+  if (!files.length) return;
+  const box = $("#capture-error");
+  box.hidden = true;
+  const room = MAX_PHOTOS - state.photos.length;
+  if (files.length > room) {
+    box.textContent = `Appen tar høyst ${MAX_PHOTOS} bilder. ${room ? `Bare de ${room} første ble lagt til.` : "Fjern et bilde først."}`;
     box.hidden = false;
   }
-}
-
-function nextStep() {
-  if (state.step < STEPS.length - 1) {
-    state.step += 1;
-    renderStep();
-  } else {
-    analyze();
+  for (const file of files.slice(0, Math.max(0, room))) {
+    try {
+      addPhoto(await compress(file));
+    } catch (err) {
+      box.textContent = err.message;
+      box.hidden = false;
+    }
   }
+  renderPhotos();
 }
 
-function goToStep(index) {
-  state.step = index;
-  renderStep();
+function openCapture() {
+  renderPhotos();
+  $("#capture-error").hidden = true;
   show("capture");
 }
 
 // --- Analyse og bekreftelse ------------------------------------------------------
 
 async function analyze() {
-  if (!Object.keys(state.photos).length) {
-    goToStep(0);
-    const box = $("#capture-error");
-    box.textContent = "Ta minst ett bilde før analysen.";
-    box.hidden = false;
-    return;
-  }
+  if (!state.photos.length) return openCapture();
   showLoading("Leser bildene …");
   const form = new FormData();
-  for (const [role, photo] of Object.entries(state.photos)) form.append(role, photo.blob, `${role}.jpg`);
+  state.photos.forEach((photo, i) => form.append("photos", photo.blob, `bilde-${i + 1}.jpg`));
   const scenario = $("#mock-scenario").value;
   if (state.meta?.mode === "mock" && scenario) form.append("mock_scenario", scenario);
 
@@ -210,11 +186,8 @@ function showLoadingError(message, retry) {
     <div class="actions" style="width:100%"><button class="btn btn-primary" id="retry-btn">Prøv igjen</button>
     <button class="link" id="back-btn">Tilbake</button></div>`;
   $("#retry-btn").onclick = retry;
-  $("#back-btn").onclick = () => (state.analysis ? show("confirm") : goToStep(STEPS.length - 1));
+  $("#back-btn").onclick = () => (state.analysis ? show("confirm") : openCapture());
 }
-
-// Sted på uret → bildesteget (0 urskive, 1 ytre lokk, 2 cuvette, 3 urverk).
-const FIELD_TO_STEP = { dial: 0, outer_lid_outside: 1, outer_lid_inside: 1, case_rim: 1, cuvette_outside: 2, cuvette_inside: 2, movement: 3 };
 
 function renderConfirm() {
   const { facts, normalized } = state.analysis;
@@ -254,10 +227,14 @@ function renderConfirm() {
   if (normalized.warnings.length) {
     notices.push(`<div class="notice notice-warn">${normalized.warnings.map((w) => `<p>${esc(w)}</p>`).join("")}</div>`);
   }
-  if (facts.retake_hints.length) {
-    const step = facts.unreadable.map((f) => FIELD_TO_STEP[f]).find((s) => s != null) ?? 3;
+  const suggestions = state.analysis.suggestions ?? [];
+  if (suggestions.length) {
+    notices.push(`<div class="notice notice-hint"><p><strong>Ett bilde til kan hjelpe</strong></p>
+      ${suggestions.map((s) => `<p>${esc(capitalize(s.label))}: ${esc(s.reason)}</p>`).join("")}
+      <button class="link" type="button" data-action="add-photo">Legg til bilde</button></div>`);
+  } else if (facts.retake_hints.length) {
     notices.push(`<div class="notice notice-hint">${facts.retake_hints.map((h) => `<p>${esc(h)}</p>`).join("")}
-      <button class="link" type="button" data-goto-step="${step}">Ta «${esc(STEPS[step].title.toLowerCase())}» på nytt</button></div>`);
+      <button class="link" type="button" data-action="add-photo">Legg til eller bytt bilder</button></div>`);
   }
   $("#confirm-notices").innerHTML = notices.join("");
 }
@@ -386,9 +363,8 @@ function formatSerial(value) {
 function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
 function restart() {
-  Object.keys(state.photos).forEach((role) => setPhoto(role, null));
+  while (state.photos.length) removePhoto(0);
   state.analysis = state.confirmed = null;
-  state.step = 0;
   show("intro");
 }
 
@@ -410,21 +386,18 @@ document.addEventListener("change", (e) => {
 });
 
 document.addEventListener("click", (e) => {
-  const goto = e.target.closest("[data-goto-step]");
-  if (goto) return goToStep(Number(goto.dataset.gotoStep));
+  const remove = e.target.closest("[data-remove]");
+  if (remove) { removePhoto(Number(remove.dataset.remove)); return renderPhotos(); }
   const action = e.target.closest("[data-action]")?.dataset.action;
   if (!action) return;
-  const step = STEPS[state.step];
   ({
-    start: () => goToStep(0),
-    next: nextStep,
-    skip: nextStep,
-    back: () => (state.step === 0 ? show("intro") : goToStep(state.step - 1)),
-    "retake-step": () => { setPhoto(step.key, null); if (step.closeup) setPhoto(step.closeup, null); renderStep(); },
-    retake: () => goToStep(0),
+    start: openCapture,
+    analyze,
+    "add-photo": openCapture,
+    back: () => show("intro"),
+    retake: openCapture,
     edit: () => show("confirm"),
     guide: () => openGuide(),
-    "guide-step": () => openGuide(step.guide),
     "close-guide": () => show(guideReturn),
     restart,
   })[action]?.();

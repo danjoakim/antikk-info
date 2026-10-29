@@ -7,7 +7,8 @@ from pydantic import BaseModel, Field
 Escapement = Literal["cylinder", "lever", "verge", "unknown"]
 Winding = Literal["key", "stem", "unknown"]          # nøkkeloppstrekk / krone (remontoir)
 MovementLayout = Literal["bar", "three_quarter_plate", "full_plate", "unknown"]
-ImageRole = Literal["dial", "caseback", "caseback_closeup", "cuvette", "cuvette_inside",
+# «photo» = bildet er ikke merket; modellen avgjør selv hva det viser.
+ImageRole = Literal["photo", "dial", "caseback", "caseback_closeup", "cuvette", "cuvette_inside",
                     "movement", "movement_closeup"]
 
 # Hvor på uret et nummer eller merke ble funnet.
@@ -44,7 +45,13 @@ class MarkObservation(BaseModel):
     type: MarkType = "other"
 
 
+class PhotoObservation(BaseModel):
+    index: int = Field(description="Bildets nummer, fra 1")
+    shows: Location = "unknown"
+
+
 class VisionFacts(BaseModel):
+    photos: list[PhotoObservation] = Field(default_factory=list, description="Hva hvert bilde viser")
     dial_text: str | None = Field(None, description="Tekst på urskiven, ordrett")
     brand_signed: str | None = Field(None, description="Merke- eller produsentnavn slik det står på uret")
     numbers: list[NumberObservation] = Field(default_factory=list)
@@ -162,10 +169,18 @@ class Valuation(BaseModel):
     is_demo: bool
 
 
+class Suggestion(BaseModel):
+    """Et bilde som trolig vil gi mer, og hvorfor."""
+    location: str
+    label: str
+    reason: str
+
+
 class AnalyzeResponse(BaseModel):
     mode: Literal["mock", "live"]
     facts: VisionFacts
     normalized: NormalizedFacts
+    suggestions: list[Suggestion] = Field(default_factory=list)
 
 
 class LookupResponse(BaseModel):

@@ -18,7 +18,7 @@ def build_content(images: list[ImageInput]) -> list[dict[str, Any]]:
     """Merket bilde for bilde (bilder før tekst), deretter instruksjonen."""
     content: list[dict[str, Any]] = []
     for i, img in enumerate(images, start=1):
-        content.append({"type": "text", "text": f"Bilde {i}: {img.label}"})
+        content.append({"type": "text", "text": f"Bilde {i}: {img.label}" if img.label else f"Bilde {i}"})
         content.append({"type": "image", "source": {
             "type": "base64", "media_type": img.media_type,
             "data": base64.standard_b64encode(img.data).decode("ascii")}})

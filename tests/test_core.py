@@ -195,3 +195,36 @@ def test_contradictory_features_give_no_period(conn):
     assert date_item(conn, NF(winding="key", escapement="unknown", movement_layout="unknown")).period.year_to == 1890
     # spindelgang (–1870) og kroneoppstrekk (1860–) overlapper; nøkkel + hel plate gir bredt intervall
     assert date_item(conn, NF(escapement="verge", winding="stem")).period.display == "ca. 1860–1870"
+
+
+# --- Forslag til neste bilde -------------------------------------------------------
+
+from app.services.suggest import suggest_photos  # noqa: E402
+
+
+def _suggest(conn, facts):
+    return [s.location for s in suggest_photos(conn, facts, normalize(conn, facts))]
+
+
+def test_monard_needs_no_more_photos(conn):
+    assert _suggest(conn, MONARD) == []
+
+
+def test_known_brand_without_serial_asks_for_movement(conn):
+    facts = VisionFacts(photos=[{"index": 1, "shows": "dial"}], dial_text="OMEGA", brand_signed="Omega",
+                        marks=[{"text": "0.800", "location": "outer_lid_inside", "type": "fineness"}],
+                        escapement="lever", winding="stem")
+    assert _suggest(conn, facts)[0] == "movement"
+
+
+def test_nothing_readable_suggests_lids_first(conn):
+    facts = VisionFacts(photos=[{"index": 1, "shows": "dial"}], unreadable=["dial"])
+    assert _suggest(conn, facts) == ["outer_lid_inside", "cuvette_outside"]
+
+
+def test_missing_material_points_to_lid_but_not_if_already_seen(conn):
+    facts = VisionFacts(photos=[{"index": 1, "shows": "outer_lid_inside"}], escapement="cylinder", winding="key",
+                        marks=[{"text": "G. Monard", "location": "cuvette_outside", "type": "inscription"}])
+    assert "outer_lid_inside" not in _suggest(conn, facts)
+    assert _suggest(conn, facts)[0] == "cuvette_inside"
+    assert len(_suggest(conn, facts)) <= 2

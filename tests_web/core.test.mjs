@@ -136,3 +136,20 @@ test("ulike kassenummer gir advarsel; motstridende perioder gir intervall", () =
   assert.ok(n.warnings.some((w) => w.includes("satt sammen")));
   assert.equal(dateItem(ranges, facts({ escapement: "verge", winding: "stem" }), rules).period.display, "ca. 1860–1870");
 });
+
+// --- Forslag til neste bilde ---------------------------------------------------------
+
+import { suggestPhotos } from "../docs/js/suggest.js";
+
+const suggest = (f) => suggestPhotos(ranges, f, normalize(hallmarks, f, "vision")).map((s) => s.location);
+
+test("forslag: Monard trenger ikke flere bilder, kjent merke uten verksnummer ber om verket", () => {
+  assert.deepEqual(suggest(MONARD), []);
+  assert.equal(suggest({ photos: [{ index: 1, shows: "dial" }], dial_text: "OMEGA", brand_signed: "Omega", escapement: "lever", winding: "stem",
+    marks: [{ text: "0.800", location: "outer_lid_inside", type: "fineness" }] })[0], "movement");
+  assert.deepEqual(suggest({ photos: [{ index: 1, shows: "dial" }], unreadable: ["dial"] }), ["outer_lid_inside", "cuvette_outside"]);
+  const s = suggest({ photos: [{ index: 1, shows: "outer_lid_inside" }], escapement: "cylinder", winding: "key",
+    marks: [{ text: "G. Monard", location: "cuvette_outside", type: "inscription" }] });
+  assert.ok(!s.includes("outer_lid_inside"));
+  assert.equal(s[0], "cuvette_inside");
+});

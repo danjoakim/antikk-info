@@ -30,6 +30,7 @@ export function toFacts(raw) {
   }
   const list = (v) => (Array.isArray(v) ? v.filter((x) => x && typeof x === "object") : []);
   return {
+    photos: list(raw.photos).filter((p) => Number.isInteger(p.index)).map((p) => ({ index: p.index, shows: pick(p.shows, LOCATIONS) })),
     dial_text: str(raw.dial_text), brand_signed: str(raw.brand_signed),
     numbers: list(raw.numbers).filter((n) => str(n.value)).map((n) => ({
       value: String(n.value).trim(), location: pick(n.location, LOCATIONS), method: pick(n.method, METHODS), prefix: str(n.prefix),
@@ -76,7 +77,8 @@ export function toOpenApiSchema(node) {
 export async function buildRequest(images, contract, { legacySchema = false } = {}) {
   const parts = [];
   for (const [i, img] of images.entries()) {
-    parts.push({ text: `Bilde ${i + 1}: ${contract.role_labels[img.role] ?? img.role}` });
+    const label = contract.role_labels[img.role] ?? img.role ?? "";
+    parts.push({ text: label ? `Bilde ${i + 1}: ${label}` : `Bilde ${i + 1}` });
     parts.push({ inline_data: { mime_type: img.blob.type || "image/jpeg", data: await toBase64(img.blob) } });
   }
   parts.push({ text: contract.user_instruction });

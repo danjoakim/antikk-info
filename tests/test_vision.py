@@ -127,6 +127,12 @@ def test_dispatch_uses_provider_and_validates(env, monkeypatch):
 
 # --- Anthropic -------------------------------------------------------------------
 
+def test_unlabelled_photos_get_only_a_number():
+    content = anthropic_p.build_content([ImageInput("photo", b"a", "image/jpeg")])
+    assert content[0]["text"] == "Bilde 1"
+    assert "photos" in OBSERVATION_SCHEMA["properties"]
+
+
 def test_anthropic_content_and_parse():
     content = anthropic_p.build_content(IMAGES)
     assert [c["type"] for c in content] == ["text", "image", "text", "image", "text"]

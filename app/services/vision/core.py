@@ -14,6 +14,7 @@ from app.models import (ImageRole, Location, MarkType, MovementLayout, NumberMet
                         Winding)
 
 ROLE_LABELS: dict[str, str] = {
+    "photo": "",
     "dial": "Urskiven (forsiden)",
     "caseback": "Ytre baklokk, innsiden",
     "caseback_closeup": "Nærbilde fra det ytre lokket",
@@ -25,7 +26,7 @@ ROLE_LABELS: dict[str, str] = {
 
 SYSTEM_PROMPT = """You are a careful horological observer. You only REPORT what is visible in the photos of an antique pocket watch. You never estimate age, production year, value or price, and you never guess.
 
-Each photo is labelled with the part of the watch it shows. Use that label as the `location` of what you find in it.
+The photos come in any order, and the user sends whatever they have: one photo or several, of any part. Some photos may carry a label saying what they show. For each photo, first decide which part of the watch it shows and record it in `photos` (index from 1). Use that as the `location` of what you find in it. If several photos show the same part, combine what you read in them.
 
 Numbers (`numbers`):
 - Report EVERY number you can read, each as its own entry, with where it is (`location`), how it was made (`method`) and any text right before it (`prefix`, e.g. "No", "N°").
@@ -74,6 +75,10 @@ def _strict_object(properties: dict[str, Any]) -> dict[str, Any]:
 # Strengt skjema som fungerer hos alle leverandørene: alle felt påkrevd, ingen ekstra felt,
 # null uttrykt som typeliste. (OpenAI strict mode krever dette; de andre godtar det.)
 OBSERVATION_SCHEMA: dict[str, Any] = _strict_object({
+    "photos": {"type": "array", "items": _strict_object({
+        "index": {"type": "integer", "description": "Photo number, starting at 1"},
+        "shows": _enum(Location),
+    })},
     "dial_text": _nullable("string", description="Text on the dial, verbatim"),
     "brand_signed": _nullable("string", description="Maker or retailer name as written on the watch"),
     "numbers": {"type": "array", "items": _strict_object({
@@ -130,6 +135,7 @@ def to_facts(raw: Any) -> VisionFacts:
     data = dict(raw)
     conf = data.get("confidence") or {}
     data["confidence"] = {k: float(v) for k, v in conf.items() if isinstance(v, (int, float))}
+    data["photos"] = [p for p in (data.get("photos") or []) if isinstance(p, dict) and isinstance(p.get("index"), int)]
     data["numbers"] = _clean_list(data.get("numbers"), ("value", "location", "method", "prefix"))
     data["marks"] = _clean_list(data.get("marks"), ("text", "location", "type"))
     for key in ("unreadable", "retake_hints"):

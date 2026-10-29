@@ -24,13 +24,8 @@
     <!-- 1. Start -->
     <section id="screen-intro" class="screen">
       <h1>Hva er lommeuret verdt?</h1>
-      <p class="lead">Ta fire bilder, i samme rekkefølge som du åpner uret. Appen leser av nummer og stempler, og slår opp alder og reelle salgspriser.</p>
-      <ol class="howto">
-        <li><strong>Urskiven</strong> forfra</li>
-        <li><strong>Ytre baklokk</strong>, innsiden, med stempler</li>
-        <li><strong>Cuvetten</strong>, det indre lokket, på begge sider</li>
-        <li><strong>Urverket</strong>, selv om det står lite der</li>
-      </ol>
+      <p class="lead">Legg inn bildene du har av uret, i hvilken rekkefølge du vil. Ett godt bilde kan være nok. Appen finner selv ut hva bildene viser, leser nummer og stempler, og sier fra hvis ett bilde til vil hjelpe.</p>
+      <p>Mest får appen ut av <strong>innsiden av lokkene</strong>, <strong>cuvetten</strong> og <strong>urskiven</strong>. Urverket hjelper når merket er kjent.</p>
       <p><button class="link link-inline" data-action="guide">Første gang? Se hvordan du åpner et lommeur</button></p>
       <p class="fineprint">Du kan rette opp det appen har lest før noe slås opp. Årstall og priser hentes fra tabeller, ikke fra gjetting.</p>
       <p class="fineprint" id="provider-info" hidden></p>
@@ -44,40 +39,34 @@
       </div>
     </section>
 
-    <!-- 2. Bildesteg -->
+    <!-- 2. Bilder -->
     <section id="screen-capture" class="screen" hidden>
-      <div class="progress" aria-hidden="true"></div>
-      <p class="step-count" id="step-count"></p>
-      <h1 id="step-title"></h1>
-      <ul class="tips" id="step-tips"></ul>
-      <p class="guide-link"><button class="link link-inline" data-action="guide-step">Slik åpner du dette</button></p>
+      <h1>Bilder av uret</h1>
+      <ul class="tips">
+        <li>Ta med det du ser best: urskive, innsiden av lokkene, cuvetten eller verket.</li>
+        <li>Gå nært på nummer og stempler, og la lyset falle skrått.</li>
+        <li>Flere bilder av samme del er greit.</li>
+      </ul>
+      <p class="guide-link"><button class="link link-inline" data-action="guide">Slik åpner du et lommeur</button></p>
 
-      <div class="photo-slot" id="photo-main"></div>
-      <div class="photo-slot photo-slot-small" id="photo-closeup" hidden></div>
-
+      <div id="suggest-box" class="notice notice-hint" hidden></div>
+      <div class="photo-grid" id="photo-grid"></div>
       <p class="error" id="capture-error" role="alert" hidden></p>
 
       <div class="actions">
-        <div class="row" id="capture-buttons">
-          <label class="btn btn-primary">
-            <input type="file" accept="image/*" capture="environment" data-input="main" hidden>
-            <span data-label="camera">Ta bilde</span>
+        <div class="row">
+          <label class="btn btn-secondary">
+            <input type="file" accept="image/*" capture="environment" data-input="camera" hidden>
+            Ta bilde
           </label>
           <label class="btn btn-secondary">
-            <input type="file" accept="image/*" data-input="main" hidden>
-            Galleri
+            <input type="file" accept="image/*" multiple data-input="gallery" hidden>
+            Velg bilder
           </label>
         </div>
-        <div class="row" id="next-buttons" hidden>
-          <label class="btn btn-secondary" id="closeup-btn" hidden>
-            <input type="file" accept="image/*" capture="environment" data-input="closeup" hidden>
-            <span>+ Nærbilde</span>
-          </label>
-          <button class="btn btn-primary" data-action="next">Neste</button>
-        </div>
+        <button class="btn btn-primary" data-action="analyze" id="analyze-btn" disabled>Analyser</button>
         <div class="row row-links">
           <button class="link" data-action="back">Tilbake</button>
-          <button class="link" data-action="skip" id="skip-btn">Hopp over dette bildet</button>
         </div>
       </div>
     </section>
@@ -189,7 +178,7 @@
             <line x1="25" y1="104" x2="40" y2="190" /><text x="44" y="194">Hengsel</text>
           </g>
         </svg>
-        <figcaption>Ytre lokk og cuvette er vanligvis hengslet på samme side. Tallene viser rekkefølgen på bildene.</figcaption>
+        <figcaption>Ytre lokk og cuvette er vanligvis hengslet på samme side. Tallene viser rekkefølgen du åpner uret i.</figcaption>
       </figure>
 
       <article class="guide-card" id="guide-before">

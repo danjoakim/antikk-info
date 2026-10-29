@@ -21,7 +21,7 @@ def build_messages(images: list[ImageInput]) -> list[dict[str, Any]]:
     content: list[dict[str, Any]] = []
     for i, img in enumerate(images, start=1):
         data_url = f"data:{img.media_type};base64,{base64.standard_b64encode(img.data).decode('ascii')}"
-        content.append({"type": "text", "text": f"Bilde {i}: {img.label}"})
+        content.append({"type": "text", "text": f"Bilde {i}: {img.label}" if img.label else f"Bilde {i}"})
         content.append({"type": "image_url", "image_url": {"url": data_url, "detail": "high"}})
     content.append({"type": "text", "text": USER_INSTRUCTION})
     return [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": content}]

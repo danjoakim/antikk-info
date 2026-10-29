@@ -183,8 +183,23 @@ class AnalyzeResponse(BaseModel):
     suggestions: list[Suggestion] = Field(default_factory=list)
 
 
+class SourceLink(BaseModel):
+    title: str
+    url: str
+
+
+class MakerInfo(BaseModel):
+    display_name: str
+    summary: str
+    interpretation: str | None = None
+    number_note: str | None = None
+    sources: list[SourceLink] = Field(default_factory=list)
+    is_verified: bool = False
+
+
 class LookupResponse(BaseModel):
     normalized: NormalizedFacts
     dating: DatingResult
     valuation: Valuation | None
     valuation_message: str | None = None
+    maker: MakerInfo | None = None

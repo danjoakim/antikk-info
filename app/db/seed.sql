@@ -76,3 +76,12 @@ INSERT INTO period_rules (feature, value, year_from, year_to, note, source, is_d
   ('movement_layout', 'bar',                 1830, 1940, 'Verk med separate broer (Lépine-kaliber).', 'DEMO: generell urhistorie, ikke verifisert', 1),
   ('movement_layout', 'three_quarter_plate', 1850, 1950, 'Trekvart plate.', 'DEMO: generell urhistorie, ikke verifisert', 1),
   ('movement_layout', 'full_plate',          1650, 1900, 'Hel plate, vanlig på eldre engelske og tidlige ur.', 'DEMO: generell urhistorie, ikke verifisert', 1);
+
+-- Produsentnavn. Første oppføring bygger på søk 29.10.2026; ikke verifisert mot faglitteratur.
+INSERT INTO makers (brand, display_name, summary, interpretation, number_note, sources, is_verified) VALUES
+  ('g. monard', 'G. Monard, Genève',
+   'Navnet står på mange sveitsiske lommeur fra 1800-tallet, ofte gravert på cuvetten sammen med et nummer. Eksempler i handelen spenner fra ur i uedelt metall med usignert verk til sølv- og gullur, mange med nøkkeloppstrekk. Kildene vi har funnet, sier lite om hvem G. Monard var. En Jules Monard i Genève laget fine komplikasjonsur rundt 1900.',
+   'Bredden i kvalitet, og at verkene ofte er usignerte, tyder på at navnet ble brukt av en etablisseur (som kjøpte verk og kasser fra ulike leverandører og satte dem sammen) eller som handelsnavn. Det er en tolkning, ikke dokumentert. Om G. Monard og Jules Monard hører sammen, vet vi ikke.',
+   'Nummeret etter «No» på cuvetten er urets eget nummer i produsentens serie. Samme nummer i kassen viser at delene hører sammen. Vi har ingen tabell som kan datere Monard-nummer.',
+   '[{"title": "Proantic: G. Monard à Genève, savonnette, 1800-tallet", "url": "https://proantic.com/en/1514320-pocket-watch-full-hunter-monard-a-geneve-xix-century.html"}, {"title": "Fellows 2017: G. Monard, kasse nr. 70958, usignert verk", "url": "https://www.fellows.co.uk/bidding/1962-watches-watch-parts-648/359-a-full-hunter-pocket-watch-by-g-monard-together-with-a-white-metal-full-huter-fob-watch-188730"}, {"title": "Antiquorum 2016: Jules Monard, Genève, nr. 24964, ca. 1900", "url": "https://catalog.antiquorum.swiss/en/lots/jules-monard-lot-299-293"}]',
+   0);

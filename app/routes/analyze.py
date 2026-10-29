@@ -10,6 +10,7 @@ from app.config import Settings
 from app.db.database import connection_dependency
 from app.models import AnalyzeResponse, ConfirmedFacts, LookupResponse
 from app.services.dating import date_item
+from app.services.makers import maker_info
 from app.services.suggest import suggest_photos
 from app.models import LOCATION_LABELS
 from app.services.normalize import ESCAPEMENT_LABELS, LAYOUT_LABELS, MATERIAL_LABELS, WINDING_LABELS, normalize
@@ -114,4 +115,4 @@ def lookup(
         who = f"«{facts.brand}»" if facts.brand else "usignerte ur"
         message = f"Ingen sammenlignbare salg i databasen for {who} ennå."
     return LookupResponse(normalized=facts, dating=date_item(conn, facts), valuation=valuation,
-                          valuation_message=message)
+                          valuation_message=message, maker=maker_info(conn, facts))

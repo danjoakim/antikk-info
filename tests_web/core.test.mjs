@@ -153,3 +153,12 @@ test("forslag: Monard trenger ikke flere bilder, kjent merke uten verksnummer be
   assert.ok(!s.includes("outer_lid_inside"));
   assert.equal(s[0], "cuvette_inside");
 });
+
+test("Om navnet: Monard finnes i makers.json med kilder", () => {
+  const makers = load("makers");
+  const n = normalize(hallmarks, MONARD, "vision");
+  const m = makers.find((x) => x.brand === n.brand);
+  assert.equal(m.display_name, "G. Monard, Genève");
+  assert.ok(Array.isArray(m.sources) && m.sources.length >= 2);
+  assert.equal(m.is_verified, false);
+});

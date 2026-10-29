@@ -56,6 +56,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 - [ ] Skru på Pages: *Settings → Pages*, gren `main`, mappe `/docs`
 - [ ] Første ekte test med Gemini-nøkkel på telefonen
 - [x] Fire bildesteg i åpningsrekkefølge (urskive → ytre lokk → cuvette → urverk) og illustrert veiledning
+- [x] «Om navnet»: tabell `makers` med kort omtale, tolkning merket som tolkning, forklaring av nummeret og kilder
 - [x] Fri bildeopplasting: legg inn det du har, modellen avgjør hva hvert bilde viser, appen foreslår høyst to bilder som vil hjelpe
 - [x] Lært av ekte ur (G. Monard): nummer og merker med plassering, oppstrekk, verktype, reparasjons- og eiermerker, grov periode, ukjente navn mot usignerte, HEIC
 
@@ -66,6 +67,8 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 - [ ] Teste på ekte telefon via HTTPS-tunnel (iPhone/HEIC og Android)
 - [ ] Verifisere Omega-tabellen og avklare verks- vs. kassenummer (åpent spørsmål 1)
 - [ ] Erstatte fiktive salg med kuraterte, lenkede salg
+- [ ] Bygge ut `makers` med flere navn, og verifisere Monard-oppføringen (f.eks. Pritchard: *Swiss Timepiece Makers 1775–1975*)
+- [ ] Samle observasjoner av merke + nummer + kjennetegn fra ekte ur; med nok punkter kan de bli en grov nummertabell
 - [ ] Verifisere periodereglene (`period_rules`) mot faglitteratur
 - [ ] Legge til salgsdata for nøkkeloppstrekk vs. kroneoppstrekk (påvirker prisen)
 
@@ -122,6 +125,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-10-29 | HEIC som nettleseren ikke kan lese, sendes uendret til Gemini | Gemini leser HEIC; iPhone-bilder skal fungere uten omvei |
 | 2026-10-29 | Fri bildeopplasting i stedet for faste steg; modellen klassifiserer hvert bilde (`photos[].shows`) | Brukerens prinsipp: det finnes mange måter å identifisere et ur på, og ikke alle trengs. Ett godt bilde kan være nok |
 | 2026-10-29 | Forslag til neste bilde regnes ut med regler (`suggest.py` / `suggest.js`) ut fra hva som mangler og hva som er fotografert; høyst to forslag, ingen når det holder | Appen skal ikke presse fram svar på alt, men si ærlig hva som ville hjulpet |
+| 2026-10-29 | Produsentkunnskap i egen tabell (`makers`) med kilder; tolkning i egen kolonne og merket «Ikke verifisert» | Brukeren vil ha bakgrunn om navnet; det som ikke er dokumentert, skal ikke se ut som fakta |
 | 2026-10-29 | Standardmodeller: `gpt-6-astra` (OpenAIs anbefalte), `gemini-3.8-flash` (Googles anbefalte stabile Flash) | Hentet fra leverandørenes modelloversikter 29.10.2026; overstyres med `VISION_MODEL` |
 
 ---
@@ -139,6 +143,12 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-10-29 – Økt 10: Hvem er G. Monard? («Om navnet»)
+**Søk:** «G. Monard, Genève» finnes på mange lommeur i handelen: sølv-savonnette med nøkkeloppstrekk, 13 steiner, nummerert cuvette (Proantic); kasse i uedelt metall nr. 70958 med usignert sveitsisk verk, vurdert til £60–90 (Fellows 2017); gullur med ankergang (forumtråder). Jules Monard, Genève, laget fine minuttrepetisjonsur rundt 1900 (Antiquorum, nr. 24964 og 25261). Flere forumtråder (NAWCC, watch.ru) spør hvem G. Monard var; innholdet kunne ikke leses herfra. Ingen biografi funnet.
+**Gjort:** Ny tabell `makers` og kort «Om navnet» på resultatsiden (begge versjoner), med omtale, tolkning (etablisseur eller handelsnavn, merket som tolkning), forklaring av nummeret og kilder. Merket «Ikke verifisert». Ukjente navn får «Vi har ingen opplysninger om … ennå».
+**Filer:** `app/db/{schema,seed,database}`, `app/models.py`, `app/services/makers.py` (ny), `app/routes/analyze.py`, `tools/export_data.py`, `docs/data/makers.json` (ny), `app/static/*`, `docs/{index.html,styles.css}`, `docs/js/app.js`, `tests/test_core.py`, `tests_web/core.test.mjs`, `LOGG.md`.
+**Tester:** Python 50, JavaScript 20 bestått. Kortet kontrollert i mobilnettleser.
 
 ### 2026-10-29 – Første ekte Gemini-test med fri opplasting
 **Gjort:** Brukeren kjørte Monard-uret gjennom den publiserte appen med egen Gemini-nøkkel. Resultatet var det samme som ved forrige ekte kjøring, altså stabilt mellom to kjøringer. Detaljert sammenligning mot fasiten er ikke gjort ennå.

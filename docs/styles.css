@@ -238,3 +238,9 @@ summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; al
 .photo-empty svg { width: 64px; opacity: .5; }
 .photo-empty p { margin: 6px 0 0; }
 #suggest-box { margin-bottom: 12px; }
+
+/* Om navnet */
+.maker-name { font-family: var(--serif); font-size: 1.3rem; font-weight: 600; margin: 0 0 6px; }
+.sources { padding-left: 1.1em; margin: 6px 0 0; font-size: .9rem; }
+.sources li { margin: 4px 0; }
+.sources a { color: var(--ink); }

@@ -228,3 +228,15 @@ def test_missing_material_points_to_lid_but_not_if_already_seen(conn):
     assert "outer_lid_inside" not in _suggest(conn, facts)
     assert _suggest(conn, facts)[0] == "cuvette_inside"
     assert len(_suggest(conn, facts)) <= 2
+
+
+# --- Om navnet ------------------------------------------------------------------------
+
+from app.services.makers import maker_info  # noqa: E402
+
+
+def test_maker_info_for_monard(conn):
+    m = maker_info(conn, normalize(conn, MONARD))
+    assert m.display_name == "G. Monard, Genève" and not m.is_verified
+    assert "tolkning" in m.interpretation.lower() and m.sources
+    assert maker_info(conn, normalize(conn, VisionFacts())) is None

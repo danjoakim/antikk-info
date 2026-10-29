@@ -28,6 +28,7 @@ TABLES = {
     "auction_results": "SELECT item_type, brand, material, escapement, condition, price_nok, price_basis, sale_date, "
                        "auction_house, source_url, notes, is_demo FROM auction_results ORDER BY sale_date DESC",
     "period_rules": "SELECT feature, value, year_from, year_to, note, source, is_demo FROM period_rules ORDER BY feature, value",
+    "makers": "SELECT brand, display_name, summary, interpretation, number_note, sources, is_verified FROM makers ORDER BY brand",
 }
 
 
@@ -40,7 +41,12 @@ def main() -> None:
         for name, sql in TABLES.items():
             rows = [dict(r) for r in conn.execute(sql)]
             for r in rows:
-                r["is_demo"] = bool(r["is_demo"])
+                if "is_demo" in r:
+                    r["is_demo"] = bool(r["is_demo"])
+                if "is_verified" in r:
+                    r["is_verified"] = bool(r["is_verified"])
+                if name == "makers":
+                    r["sources"] = json.loads(r["sources"])
             (OUT / f"{name}.json").write_text(json.dumps(rows, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
             print(f"{name}: {len(rows)} rader")
     db.unlink(missing_ok=True)

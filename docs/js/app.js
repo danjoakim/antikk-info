@@ -52,9 +52,9 @@ async function loadJson(name) {
 }
 
 async function loadData() {
-  const [serial_ranges, hallmarks, auction_results, period_rules, contract] = await Promise.all(
-    ["serial_ranges", "hallmarks", "auction_results", "period_rules", "vision_contract"].map(loadJson));
-  return { serial_ranges, hallmarks, auction_results, period_rules, contract };
+  const [serial_ranges, hallmarks, auction_results, period_rules, makers, contract] = await Promise.all(
+    ["serial_ranges", "hallmarks", "auction_results", "period_rules", "makers", "vision_contract"].map(loadJson));
+  return { serial_ranges, hallmarks, auction_results, period_rules, makers, contract };
 }
 
 // --- Bildebehandling i nettleseren -------------------------------------------------
@@ -300,12 +300,13 @@ function lookup(event) {
     material: form.material.value || null,
     case_stamps: state.analysis.normalized.case_stamps,
   };
-  const { serial_ranges, hallmarks, auction_results, period_rules } = state.data;
+  const { serial_ranges, hallmarks, auction_results, period_rules, makers } = state.data;
   const facts = normalize(hallmarks, state.confirmed, "confirmed");
   const valuation = valueItem(auction_results, facts, { minSales: MIN_SALES });
   const who = facts.brand ? `«${facts.brand}»` : "usignerte ur";
   renderResult({
     dating: dateItem(serial_ranges, facts, period_rules), valuation,
+    maker: facts.brand ? makers.find((m) => m.brand === facts.brand) ?? null : null,
     valuation_message: valuation ? null : `Ingen sammenlignbare salg i databasen for ${who} ennå.`,
   });
   show("result");
@@ -313,7 +314,8 @@ function lookup(event) {
 
 // --- Resultat ------------------------------------------------------------------
 
-function renderResult({ dating, valuation, valuation_message }) {
+function renderResult({ dating, valuation, valuation_message, maker }) {
+  renderMaker(maker);
   const demo = `<span class="badge badge-demo">Demodata</span>`;
 
   if (dating.status === "dated") {
@@ -368,6 +370,24 @@ function renderResult({ dating, valuation, valuation_message }) {
     <p class="meta">${valuation.n_sales} salg, ${esc(valuation.period)} · ${esc(valuation.match_label)}</p>
     <ul class="caveats">${valuation.caveats.map((c) => `<li class="${c.startsWith("DEMODATA") ? "demo" : ""}">${esc(c)}</li>`).join("")}</ul>
     <details><summary>Se salgene (${valuation.comparables.length})</summary><ul class="sales">${sales}</ul></details>`;
+}
+
+function renderMaker(maker) {
+  const card = $("#maker-card");
+  const name = state.confirmed?.brand;
+  card.hidden = !maker && !name;
+  if (!maker) {
+    card.innerHTML = name ? `<h2>Om navnet</h2><p>Vi har ingen opplysninger om «${esc(name)}» ennå.</p>` : "";
+    return;
+  }
+  const sources = maker.sources.map((s) => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title)}</a></li>`).join("");
+  card.innerHTML = `
+    <h2>Om navnet ${maker.is_verified ? "" : `<span class="badge badge-demo">Ikke verifisert</span>`}</h2>
+    <p class="maker-name">${esc(maker.display_name)}</p>
+    <p>${esc(maker.summary)}</p>
+    ${maker.interpretation ? `<p class="meta"><strong>Tolkning:</strong> ${esc(maker.interpretation)}</p>` : ""}
+    ${maker.number_note ? `<p class="meta"><strong>Nummeret:</strong> ${esc(maker.number_note)}</p>` : ""}
+    ${sources ? `<details><summary>Kilder (${maker.sources.length})</summary><ul class="sources">${sources}</ul></details>` : ""}`;
 }
 
 // --- Hjelpere ------------------------------------------------------------------

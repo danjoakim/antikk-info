@@ -97,8 +97,8 @@ function errorFor(status, message, model) {
   if (status === 403) return "Google avviste nøkkelen. Sjekk at API-begrensningen tillater Generative Language API " +
     "og at nettstedsbegrensningen gjelder denne adressen.";
   if (status === 404) return `Modellen «${model}» finnes ikke eller er utgått. Bytt modell i innstillingene.`;
-  if (status === 429) return "Kvoten hos Gemini er brukt opp, eller det sendes for fort. Vent litt og prøv igjen.";
-  if (status >= 500) return "Gemini har problemer akkurat nå. Prøv igjen om litt.";
+  if (status === 429) return "Kvoten for bildeanalysen er brukt opp, eller det sendes for fort. Vent litt og prøv igjen.";
+  if (status >= 500) return "Bildeanalysen har problemer akkurat nå. Prøv igjen om litt.";
   return `Bildeanalysen feilet (HTTP ${status}).`;
 }
 
@@ -112,25 +112,25 @@ async function post(url, key, body, signal) {
     });
   } catch (err) {
     if (err.name === "AbortError") throw new VisionError("Det tok for lang tid. Sjekk nettet og prøv igjen.");
-    throw new VisionError("Fikk ikke kontakt med Gemini. Sjekk nettforbindelsen.");
+    throw new VisionError("Fikk ikke kontakt med bildeanalysen. Sjekk nettforbindelsen.");
   }
   const data = await res.json().catch(() => ({}));
   return { status: res.status, ok: res.ok, data, message: data?.error?.message ?? "" };
 }
 
 export function parseGemini(data) {
-  if (data?.promptFeedback?.blockReason) throw new VisionError("Gemini avviste å analysere bildene.");
+  if (data?.promptFeedback?.blockReason) throw new VisionError("Bildeanalysen avviste bildene.");
   const candidate = data?.candidates?.[0];
   const text = (candidate?.content?.parts ?? []).map((p) => p.text ?? "").join("").trim();
   if (!text) {
     if (candidate?.finishReason === "MAX_TOKENS") throw new VisionError("Svaret ble kuttet. Prøv igjen.");
-    throw new VisionError("Gemini ga ikke noe svar. Prøv igjen.");
+    throw new VisionError("Bildeanalysen ga ikke noe svar. Prøv igjen.");
   }
   try {
     return toFacts(JSON.parse(text.replace(/^```(json)?\s*|\s*```$/g, "")));
   } catch (err) {
     if (err instanceof VisionError) throw err;
-    throw new VisionError("Gemini ga ikke gyldig JSON. Prøv igjen.");
+    throw new VisionError("Bildeanalysen ga et ugyldig svar. Prøv igjen.");
   }
 }
 

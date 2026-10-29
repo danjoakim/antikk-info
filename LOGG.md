@@ -126,6 +126,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-10-29 | Fri bildeopplasting i stedet for faste steg; modellen klassifiserer hvert bilde (`photos[].shows`) | Brukerens prinsipp: det finnes mange måter å identifisere et ur på, og ikke alle trengs. Ett godt bilde kan være nok |
 | 2026-10-29 | Forslag til neste bilde regnes ut med regler (`suggest.py` / `suggest.js`) ut fra hva som mangler og hva som er fotografert; høyst to forslag, ingen når det holder | Appen skal ikke presse fram svar på alt, men si ærlig hva som ville hjulpet |
 | 2026-10-29 | Produsentkunnskap i egen tabell (`makers`) med kilder; tolkning i egen kolonne og merket «Ikke verifisert» | Brukeren vil ha bakgrunn om navnet; det som ikke er dokumentert, skal ikke se ut som fakta |
+| 2026-10-29 | Leverandørnavnet vises bare i innstillingene, ikke i flyten eller feilmeldingene | Brukeren: hvilken modell som gjør jobben, betyr lite for den som bruker appen |
 | 2026-10-29 | Standardmodeller: `gpt-6-astra` (OpenAIs anbefalte), `gemini-3.8-flash` (Googles anbefalte stabile Flash) | Hentet fra leverandørenes modelloversikter 29.10.2026; overstyres med `VISION_MODEL` |
 
 ---
@@ -143,6 +144,11 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-10-29 – Økt 11: Venteskjerm med animasjon
+**Gjort:** Spinneren og «Gemini leser bildene …» er byttet ut med en animasjon av et lommeur under lupe: sekundviseren tikker, lupen glir over urskiven. Teksten under skifter rolig: «Ser på bildene …», «Finner ut hva hvert bilde viser …», «Leter etter nummer og stempler …» osv., og blir stående på siste linje. Respekterer «redusert bevegelse». Leverandørnavnet er fjernet fra startsiden og feilmeldingene; det står bare i innstillingene. Begge versjoner.
+**Filer:** `app/static/{index.html,app.js,styles.css}`, `docs/{index.html,styles.css}`, `docs/js/{app,vision}.js`, `tests_web/vision.test.mjs`, `LOGG.md`.
+**Tester:** Python 50, JavaScript 20 bestått. Venteskjermen tatt opp i mobilnettleser.
 
 ### 2026-10-29 – Økt 10: Hvem er G. Monard? («Om navnet»)
 **Søk:** «G. Monard, Genève» finnes på mange lommeur i handelen: sølv-savonnette med nøkkeloppstrekk, 13 steiner, nummerert cuvette (Proantic); kasse i uedelt metall nr. 70958 med usignert sveitsisk verk, vurdert til £60–90 (Fellows 2017); gullur med ankergang (forumtråder). Jules Monard, Genève, laget fine minuttrepetisjonsur rundt 1900 (Antiquorum, nr. 24964 og 25261). Flere forumtråder (NAWCC, watch.ru) spør hvem G. Monard var; innholdet kunne ikke leses herfra. Ingen biografi funnet.

@@ -39,6 +39,7 @@ function esc(value) {
 }
 
 function show(screen) {
+  if (screen !== "loading") stopLoading();
   document.querySelectorAll(".screen").forEach((s) => { s.hidden = s.id !== `screen-${screen}`; });
   window.scrollTo({ top: 0 });
 }
@@ -168,12 +169,62 @@ function openCapture() {
   show("capture");
 }
 
+// --- Venteskjerm ---------------------------------------------------------------
+
+// Et lommeur som undersøkes med lupe: sekundviseren tikker, lupen glir over urskiven.
+const LOADER_SVG = `<svg class="loader" viewBox="0 0 160 160" aria-hidden="true">
+  <g class="ld-watch">
+    <path class="ld-bow" d="M68 30a12 12 0 0 1 24 0"/>
+    <rect class="ld-crown" x="73" y="30" width="14" height="10" rx="3"/>
+    <circle class="ld-case" cx="80" cy="88" r="46"/>
+    <circle class="ld-dial" cx="80" cy="88" r="39"/>
+    ${Array.from({ length: 12 }, (_, i) => `<line class="ld-tick" x1="80" y1="53" x2="80" y2="${i % 3 ? 57 : 60}" transform="rotate(${i * 30} 80 88)"/>`).join("")}
+    <circle class="ld-sub" cx="80" cy="106" r="9"/>
+    <line class="ld-hand ld-hour" x1="80" y1="88" x2="80" y2="68" transform="rotate(-60 80 88)"/>
+    <line class="ld-hand ld-minute" x1="80" y1="88" x2="80" y2="58" transform="rotate(50 80 88)"/>
+    <g class="ld-seconds"><line class="ld-hand ld-sec" x1="80" y1="110" x2="80" y2="99"/></g>
+    <circle class="ld-pin" cx="80" cy="88" r="3"/>
+  </g>
+  <g class="ld-lens">
+    <circle class="ld-glass" cx="0" cy="0" r="17"/>
+    <line class="ld-handle" x1="12" y1="12" x2="27" y2="27"/>
+  </g>
+</svg>`;
+
+const LOADING_STEPS = {
+  analyze: ["Ser på bildene …", "Finner ut hva hvert bilde viser …", "Leter etter nummer og stempler …",
+            "Leser gravering og tekst …", "Ser på gangtype og oppstrekk …"],
+  lookup: ["Slår opp i tabellene …", "Finner sammenlignbare salg …"],
+};
+let loadingTimer = null;
+
+function stopLoading() {
+  clearInterval(loadingTimer);
+  loadingTimer = null;
+}
+
+function showLoading(kind = "analyze") {
+  stopLoading();
+  const steps = LOADING_STEPS[kind] ?? LOADING_STEPS.analyze;
+  const screen = $("#screen-loading");
+  screen.innerHTML = `${LOADER_SVG}<p class="loading-text" aria-live="polite">${esc(steps[0])}</p>`;
+  show("loading");
+  let i = 0;
+  const text = $(".loading-text", screen);
+  loadingTimer = setInterval(() => {
+    i = Math.min(i + 1, steps.length - 1);   // blir stående på siste tekst
+    text.classList.add("fade");
+    setTimeout(() => { text.textContent = steps[i]; text.classList.remove("fade"); }, 250);
+    if (i === steps.length - 1) stopLoading();
+  }, 2600);
+}
+
 // --- Analyse og bekreftelse ------------------------------------------------------
 
 async function analyze() {
   if (!state.photos.length) return openCapture();
   const live = isLive(state.settings);
-  showLoading(live ? "Gemini leser bildene …" : "Leser bildene (demo) …");
+  showLoading("analyze");
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
   try {
@@ -194,13 +245,8 @@ async function analyze() {
   }
 }
 
-function showLoading(text) {
-  const screen = $("#screen-loading");
-  screen.innerHTML = `<div class="spinner" aria-hidden="true"></div><p>${esc(text)}</p>`;
-  show("loading");
-}
-
 function showLoadingError(message, retry) {
+  stopLoading();
   const screen = $("#screen-loading");
   screen.innerHTML = `<p class="error" role="alert">${esc(message)}</p>
     <div class="actions" style="width:100%"><button class="btn btn-primary" id="retry-btn">Prøv igjen</button>
@@ -505,9 +551,7 @@ function applyMode() {
   const live = isLive(state.settings);
   $("#mode-badge").hidden = live;
   $("#mock-panel").hidden = live;
-  const info = $("#provider-info");
-  info.hidden = !live;
-  info.textContent = live ? `Bildeanalyse: Google Gemini (${state.settings.model})` : "";
+
 }
 
 const MOCK_LABELS = { monard_key_wind: "Ekte ur: G. Monard, nøkkeloppstrekk", omega_silver: "Omega i sølv med ankergang", cylinder_metal: "Usignert sylinderur i metall", unreadable: "Uleselige bilder" };

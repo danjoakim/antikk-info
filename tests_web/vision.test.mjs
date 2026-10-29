@@ -36,7 +36,7 @@ test("svar fra Gemini tolkes, også i kodeblokk", () => {
   assert.equal(parseGemini(geminiReply(JSON.stringify(RAW))).brand_signed, "Omega");
   assert.equal(parseGemini(geminiReply("```json\n" + JSON.stringify(RAW) + "\n```")).escapement, "lever");
   assert.throws(() => parseGemini({ promptFeedback: { blockReason: "SAFETY" } }), /avviste/);
-  assert.throws(() => parseGemini(geminiReply("ikke json")), /gyldig JSON/);
+  assert.throws(() => parseGemini(geminiReply("ikke json")), /ugyldig svar/);
   assert.throws(() => parseGemini({ candidates: [{ finishReason: "MAX_TOKENS", content: { parts: [] } }] }), /kuttet/);
 });
 

@@ -142,7 +142,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 6. **Monard-uret – kontrollmerke:** Gemini meldte en tiur i én av to kjøringer (sveitsisk kontrollmerke for 0.800). Et innslått merke i ramme finnes ved kassenummeret i lokket og i cuvetten, men figuren er ikke lesbar i bildene. Avklares med lupe. Bekreftet tiur ville gitt periode fra 1880-tallet.
 7. **Monard-uret – G.S og monogram:** «G.S» ved 0.800 i lokk og cuvette er trolig kassemakerens punselmerke (slås opp i Mikrolisk / registre over kassemakere). Bokstavene i det graverte monogrammet er ikke lest sikkert; kan være eier, giver eller unntaksvis produsent.
 5. **Leverandørkall er ikke kjørt live.** Koden følger leverandørenes dokumentasjon, men første ekte kall per leverandør kan avdekke detaljer (f.eks. skjemastøtte i Gemini eller lokale modeller).
-8. **Navn: InformAntique eller InformAntikk?** Appen heter foreløpig InformAntique. InformAntikk er vurdert fordi appen skal være norsk. Ikke avgjort.
+8. **Navn: InformAntique eller InformAntikk?** Appen heter foreløpig InformAntique. InformAntikk er vurdert fordi appen skal være norsk. Ikke avgjort. Nettsøk 29.10.2026 (brukeren og Claude) fant ingen treff på verken InformAntikk eller InformAntique. Markedet har mange engelske «Antique Identifier»-apper, så et særpreget norsk navn skiller seg ut. Gjenstår: søk i Patentstyrets varemerkebase, Brønnøysundregistrene, domene (.no via Norid) og App Store / Google Play.
 
 ---
 

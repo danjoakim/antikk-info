@@ -140,6 +140,10 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ## Øktlogg
 
+### 2026-10-29 – Første ekte Gemini-test med fri opplasting
+**Gjort:** Brukeren kjørte Monard-uret gjennom den publiserte appen med egen Gemini-nøkkel. Resultatet var det samme som ved forrige ekte kjøring, altså stabilt mellom to kjøringer. Detaljert sammenligning mot fasiten er ikke gjort ennå.
+**Neste:** Sammenligne skjermbildet «Stemmer dette?» mot fasiten (nummer og steder, oppstrekk, gangtype, materiale, periode, eventuell tiur).
+
 ### 2026-10-29 – Økt 9: Legg inn bildene du har
 **Bakgrunn:** Brukeren påpekte at et ur kan identifiseres på mange måter, og at alle kjennetegn ikke alltid trengs. Forslag fra brukeren: legg inn bilder av det du har.
 

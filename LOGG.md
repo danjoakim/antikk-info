@@ -148,6 +148,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 3. **Demodata** for serienumre, stempler og priser må verifiseres mot minst to kilder før `is_demo` settes til 0. Gjelder også de sveitsiske kontrollmerkene (bjørn, tiur, ekorn, Helvetia).
 4. **HEIC fra iPhone:** Safari dekoder HEIC og konverterer til JPEG før opplasting, men dette er ikke testet på ekte enhet.
 6. **Monard-uret – kontrollmerke:** Gemini meldte en tiur i én av to kjøringer (sveitsisk kontrollmerke for 0.800). Et innslått merke i ramme finnes ved kassenummeret i lokket og i cuvetten, men figuren er ikke lesbar i bildene. Avklares med lupe. Bekreftet tiur ville gitt periode fra 1880-tallet.
+9. **Vacheron-uret:** Siste siffer i kassenummeret (233243 eller 233245) og teksten på balansebroen er ikke lest sikkert. Ikke avgjørende for dateringen, som går på verksnummeret.
 7. **Monard-uret – G.S og monogram:** «G.S» ved 0.800 i lokk og cuvette er trolig kassemakerens punselmerke (slås opp i Mikrolisk / registre over kassemakere). Bokstavene i det graverte monogrammet er ikke lest sikkert; kan være eier, giver eller unntaksvis produsent.
 5. **Leverandørkall er ikke kjørt live.** Koden følger leverandørenes dokumentasjon, men første ekte kall per leverandør kan avdekke detaljer (f.eks. skjemastøtte i Gemini eller lokale modeller).
 8. **Navn:** Avgjort: InformAntikk. Gjenstår å sjekke Patentstyret, Brønnøysundregistrene, Norid og appbutikkene før eventuell lansering.
@@ -155,6 +156,17 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-10-31 – Vacheron & Constantin: fasit fra ekte ur
+**Bakgrunn:** Brukeren lastet opp fem bilder av uret som avslørte at appen ikke kjente Vacheron Constantin (testet før økt 15).
+**Avlest manuelt:** Savonnette i 18 k gull («0,750» i ramme i begge lokk), kassenummer 233243 i frontlokket og i ytre baklokk (siste siffer 3 eller 5), «V&C» i ramme, «5» og malteserkors i baklokket. Cuvetten er gravert «Vacheron & Constantin», «Chronomètre» og «Genève» med malteserkors. Verket har broer, kroneoppstrekk, signatur «Vacheron & Constantin Genève» og verksnummer 377144. Ankergaffelen er ikke synlig. Prislappen «116…» ved siden av uret er ikke en del av uret.
+**Gjort:** Tekstlig fasit `app/services/vision/examples/vacheron_233243.json` og test i `tests/test_core.py`. Med dagens kode blir merket gjenkjent, nummerne skilt riktig (kasse og verk), materialet satt til 18 k gull, det gis ingen pris og vises råd for fremste klasse. Dateringen blir bare «ca. 1860–1940».
+**Funn:**
+- Skjemaet mangler plassering for **frontlokket** på savonnetter (lokket over skiven). Fasiten bruker «unknown».
+- Ingen serienummertabell for Vacheron Constantin. To nettkilder (forumtabell og Ashland-tall gjengitt av pocketwatchrepair.com) plasserer verksnummer 377144 mellom 1915 og 1920. Bonhams daterte verksnummer 330790 til ca. 1913. To andre nettsider oppgir tall som strider mot auksjonsdateringer og er forkastet.
+- Innskrifter på verket havner i listen over kassestempler (kosmetisk).
+**Tester:** Python 58 bestått.
+**Neste (venter på brukeren):** Frontlokk i skjemaet; tabell for Vacheron Constantin med kildene over.
 
 ### 2026-10-31 – Økt 16: Lagre bildene på telefonen
 **Bakgrunn:** Bilder tatt i appen ble ikke lagret i Bilder på telefonen. iOS lagrer ikke bilder fra en nettsides kamerafelt.

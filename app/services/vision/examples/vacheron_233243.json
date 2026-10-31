@@ -1,0 +1,117 @@
+{
+ "_beskrivelse": "Fasit for et ekte ur (fotografert av eieren, testet i appen 31.10.2026): savonnette (lokk over skiven) i 18 k gull 0,750, kroneoppstrekk, verk med broer, signert Vacheron & Constantin, Genève på skive, cuvette og verk; «Chronomètre» på cuvetten. Avlest manuelt fra fem bilder; bildene er ikke lagret i repoet. Kassenummeret står i begge lokk; siste siffer kan være 3 eller 5 (leses som 3). Frontlokket har foreløpig ingen egen plassering i skjemaet og står som «unknown». En prislapp («116…») ligger ved siden av uret på bildet av skiven og er ikke en del av uret. Ankergaffelen er ikke synlig, så gangen står som ukjent.",
+ "photos": [
+  {
+   "index": 1,
+   "shows": "dial"
+  },
+  {
+   "index": 2,
+   "shows": "unknown"
+  },
+  {
+   "index": 3,
+   "shows": "outer_lid_inside"
+  },
+  {
+   "index": 4,
+   "shows": "cuvette_outside"
+  },
+  {
+   "index": 5,
+   "shows": "movement"
+  }
+ ],
+ "dial_text": "Vacheron & Constantin Genève",
+ "brand_signed": "Vacheron & Constantin, Genève",
+ "numbers": [
+  {
+   "value": "233243",
+   "location": "unknown",
+   "method": "stamped",
+   "prefix": null
+  },
+  {
+   "value": "233243",
+   "location": "outer_lid_inside",
+   "method": "stamped",
+   "prefix": null
+  },
+  {
+   "value": "377144",
+   "location": "movement",
+   "method": "stamped",
+   "prefix": null
+  }
+ ],
+ "marks": [
+  {
+   "text": "0,750 (i rektangulær ramme)",
+   "location": "unknown",
+   "type": "fineness"
+  },
+  {
+   "text": "0,750 (i rektangulær ramme)",
+   "location": "outer_lid_inside",
+   "type": "fineness"
+  },
+  {
+   "text": "V&C (i ramme)",
+   "location": "outer_lid_inside",
+   "type": "maker_mark"
+  },
+  {
+   "text": "Malteserkors",
+   "location": "outer_lid_inside",
+   "type": "maker_mark"
+  },
+  {
+   "text": "5",
+   "location": "outer_lid_inside",
+   "type": "other"
+  },
+  {
+   "text": "Vacheron & Constantin (gotisk skrift)",
+   "location": "cuvette_outside",
+   "type": "inscription"
+  },
+  {
+   "text": "Chronomètre",
+   "location": "cuvette_outside",
+   "type": "inscription"
+  },
+  {
+   "text": "Genève",
+   "location": "cuvette_outside",
+   "type": "inscription"
+  },
+  {
+   "text": "Malteserkors",
+   "location": "cuvette_outside",
+   "type": "inscription"
+  },
+  {
+   "text": "Vacheron & Constantin Genève, med malteserkors",
+   "location": "movement",
+   "type": "inscription"
+  }
+ ],
+ "escapement": "unknown",
+ "escapement_evidence": "Ankergaffelen og gangen er ikke synlige på bildet av verket.",
+ "winding": "stem",
+ "winding_evidence": "Krone på pendanten og firkant på fjærhusakselen med sperrehjul; ingen nøkkelhull.",
+ "movement_layout": "bar",
+ "jewels": null,
+ "confidence": {
+  "brand_signed": 0.98,
+  "numbers": 0.8,
+  "marks": 0.85,
+  "escapement": 0.3,
+  "winding": 0.9
+ },
+ "unreadable": [
+  "Siste siffer i kassenummeret (3 eller 5)",
+  "Tekst på balansebroen"
+ ],
+ "retake_hints": []
+}

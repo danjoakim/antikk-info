@@ -279,3 +279,20 @@ def test_maker_on_cuvette_wins_over_retailer_on_dial(conn):
     facts = VisionFacts(brand_signed="J. Tostrup", marks=[{"text": "Vacheron & Constantin Genève", "location": "cuvette_outside", "type": "inscription"}])
     n = normalize(conn, facts)
     assert n.brand == "vacheron constantin" and n.retailer == "J. Tostrup"
+
+
+# --- Ekte ur: Vacheron & Constantin, savonnette i 18 k gull (fasit fra brukerens bilder) ---
+
+from app.services.vision.mock import _example  # noqa: E402
+
+VACHERON_REAL = _example("vacheron_233243")
+
+
+def test_vacheron_real_watch(conn):
+    n = normalize(conn, VACHERON_REAL)
+    assert n.brand == "vacheron constantin" and n.known_brand and n.retailer is None
+    assert (n.movement_serial, n.case_number) == (377144, 233243) and n.numbers_match
+    assert n.material == "gold_18k" and n.warnings == []
+    assert value_item(conn, n) is None                       # ingen egne salg: ingen pris
+    d = date_item(conn, n)
+    assert d.estimate is None and d.period.display == "ca. 1860–1940"   # bare grov periode uten tabell

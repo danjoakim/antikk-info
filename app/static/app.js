@@ -120,6 +120,7 @@ function renderPhotos() {
   const btn = $("#analyze-btn");
   btn.disabled = n === 0;
   btn.textContent = n ? `Analyser ${n} ${n === 1 ? "bilde" : "bilder"}` : "Analyser";
+  $("#save-photos-btn").hidden = n === 0;
   const box = $("#suggest-box");
   const suggestions = state.analysis?.suggestions ?? [];
   box.hidden = !suggestions.length;
@@ -141,7 +142,7 @@ async function onPhotoPicked(input) {
   }
   for (const file of files.slice(0, Math.max(0, room))) {
     try {
-      addPhoto(await compress(file));
+      addPhoto({ ...(await compress(file)), original: file });
     } catch (err) {
       box.textContent = err.message;
       box.hidden = false;
@@ -268,6 +269,41 @@ function showLoading(kind = "analyze") {
     setTimeout(() => { text.textContent = steps[i]; text.classList.remove("fade"); }, 250);
     if (i === steps.length - 1) stopLoading();
   }, 2600);
+}
+
+// --- Lagre bildene på telefonen --------------------------------------------------------
+// Bilder tatt med kameraknappen havner ikke i Bilder-appen. Her kan de deles eller lagres.
+
+function photoFiles() {
+  const stamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "");
+  return state.photos.map((p, i) => {
+    const src = p.original ?? p.blob;
+    const ext = /heic|heif/i.test(src.type) ? "heic" : /png/i.test(src.type) ? "png" : "jpg";
+    return new File([src], `informantikk-${stamp}-${i + 1}.${ext}`, { type: src.type || "image/jpeg" });
+  });
+}
+
+async function savePhotos() {
+  const box = $("#capture-error");
+  const files = photoFiles();
+  if (!files.length) return;
+  try {
+    if (navigator.canShare?.({ files })) {
+      await navigator.share({ files, title: "Bilder fra InformAntikk" });  // iPhone: velg «Arkiver bilder»
+      return;
+    }
+  } catch (err) {
+    if (err.name === "AbortError") return;  // brukeren lukket delingsarket
+  }
+  for (const f of files) {   // reserve: last ned filene
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(f);
+    a.download = f.name;
+    document.body.append(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+  box.hidden = true;
 }
 
 // --- Analyse og bekreftelse ------------------------------------------------------
@@ -567,6 +603,7 @@ document.addEventListener("click", (e) => {
     start: openCapture,
     analyze,
     "add-photo": openCapture,
+    "save-photos": savePhotos,
     back: () => show("intro"),
     retake: openCapture,
     edit: () => show("confirm"),

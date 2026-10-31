@@ -136,6 +136,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-10-31 | Produsentnavn et annet sted på uret slår en forhandlersignatur på skiven; forhandleren vises som «Solgt av» | Norske forhandlere (Tostrup, David-Andersen) signerte sveitsiske ur |
 | 2026-10-31 | Navn som ikke står i listen, slås opp i Wikipedia (norsk, så engelsk) fra nettleseren, med krav om at treffet handler om ur og at navnet står i tittelen | Gir nyttig omtale uten å skrape nettsider; Wikipedia har åpen lisens og et API for dette |
 | 2026-10-31 | Merker i fremste klasse får råd om å få uret vurdert og advarsel om forfalskninger | Høy verdi og mange forfalskede signaturer på eldre ur |
+| 2026-10-31 | Knappen «Lagre bildene på telefonen» deler originalbildene via delingsarket (Web Share), med nedlasting som reserve | iOS lagrer ikke bilder tatt med kameraet fra en nettside i Bilder-appen; brukeren mistet bildene av et testet ur |
 | 2026-10-29 | Standardmodeller: `gpt-6-astra` (OpenAIs anbefalte), `gemini-3.8-flash` (Googles anbefalte stabile Flash) | Hentet fra leverandørenes modelloversikter 29.10.2026; overstyres med `VISION_MODEL` |
 
 ---
@@ -154,6 +155,14 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-10-31 – Økt 16: Lagre bildene på telefonen
+**Bakgrunn:** Bilder tatt i appen ble ikke lagret i Bilder på telefonen. iOS lagrer ikke bilder fra en nettsides kamerafelt.
+**Gjort:** Lenkeknappen «Lagre bildene på telefonen» på bildeskjermen (vises når det finnes bilder). Den åpner delingsarket med originalfilene (før komprimering, HEIC beholdes), slik at «Arkiver bilder» legger dem i Bilder. Uten deling lastes filene ned én og én. Filnavn: `informantikk-ÅÅÅÅMMDDTTMM-n.jpg`.
+**Filer:** `docs/js/app.js`, `docs/index.html`, `app/static/app.js`, `app/static/index.html`, `LOGG.md`.
+**Tester:** Mobilnettleser: knappen skjult uten bilder, synlig med to bilder, nedlasting av begge (jpg og heic) uten feil.
+**Ikke testet:** Delingsarket på ekte iPhone.
+**Alternativ:** Ta bildene med Kamera-appen og bruk «Velg bilder» i appen.
 
 ### 2026-10-31 – Økt 15: Appen må kjenne de store merkene
 **Bakgrunn:** Brukeren testet flere ur. Appen kjente ikke Vacheron Constantin, og hadde i tillegg sammenlignet ukjente navn med usignerte ur.

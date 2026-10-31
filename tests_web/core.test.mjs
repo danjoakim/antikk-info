@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
 import { dateItem } from "../docs/js/dating.js";
-import { cleanSerial, detectMaterial, normalize, normalizeBrand } from "../docs/js/normalize.js";
+import { brandInfo, cleanSerial, detectMaterial, makerInfo, noSalesMessage, normalize, normalizeBrand, setMakers } from "../docs/js/normalize.js";
 import { valueItem } from "../docs/js/valuation.js";
 
 const load = (name) => JSON.parse(readFileSync(new URL(`../docs/data/${name}.json`, import.meta.url), "utf8"));
@@ -15,6 +15,7 @@ const hallmarks = load("hallmarks");
 const sales = load("auction_results");
 const rules = load("period_rules");
 const MONARD = load("vision_contract").mock_scenarios.monard_key_wind;
+setMakers(load("makers"));
 const facts = (f) => ({ brand: null, movement_serial: null, case_number: null, escapement: "unknown", material: null, ...f });
 
 test("serienumre renses", () => {
@@ -96,7 +97,7 @@ test("prisintervall", () => {
 
 test("Monard: nummer, merker og materiale", () => {
   const n = normalize(hallmarks, MONARD, "vision");
-  assert.deepEqual([n.brand, n.brand_display, n.known_brand], ["g. monard", "G. Monard, Genève", false]);
+  assert.deepEqual([n.brand, n.brand_display, n.known_brand], ["g. monard", "G. Monard, Genève", true]);
   assert.deepEqual([n.case_number, n.movement_serial, n.numbers_match], [101954, null, true]);
   assert.deepEqual(n.number_groups[0].locations, ["outer_lid_inside", "cuvette_outside", "cuvette_inside"]);
   assert.ok(n.repair_marks.some((r) => r.includes("K9341")));
@@ -114,7 +115,7 @@ test("Monard: grov periode og pris mot usignerte", () => {
   assert.deepEqual(d.period.basis, ["nøkkeloppstrekk", "sylindergang", "verk med broer"]);
   const v = valueItem(sales, n);
   assert.deepEqual([v.min, v.median, v.max, v.n_sales], [450, 625, 900, 6]);
-  assert.ok(v.caveats.some((c) => c.includes("G. Monard") && c.includes("merkelisten")));
+  assert.ok(v.caveats.some((c) => c.includes("G. Monard") && c.includes("ingen salg av")));
 });
 
 test("innrissede og blandede nummer blir aldri serienummer", () => {
@@ -155,10 +156,31 @@ test("forslag: Monard trenger ikke flere bilder, kjent merke uten verksnummer be
 });
 
 test("Om navnet: Monard finnes i makers.json med kilder", () => {
-  const makers = load("makers");
   const n = normalize(hallmarks, MONARD, "vision");
-  const m = makers.find((x) => x.brand === n.brand);
+  const m = makerInfo(n.brand);
   assert.equal(m.display_name, "G. Monard, Genève");
   assert.ok(Array.isArray(m.sources) && m.sources.length >= 2);
   assert.equal(m.is_verified, false);
+});
+
+test("merkelisten: Vacheron Constantin kjennes igjen og prises aldri som usignert", () => {
+  for (const w of ["Vacheron Constantin", "VACHERON & CONSTANTIN GENÈVE", "Vacheron et Constantin, Genève"]) {
+    assert.equal(brandInfo(w)[0], "vacheron constantin");
+  }
+  const f = normalize(hallmarks, { brand: "Vacheron Constantin", material: "silver_800", escapement: "cylinder" }, "confirmed");
+  assert.equal(valueItem(sales, f), null);
+  assert.match(noSalesMessage(f), /Vacheron Constantin/);
+  const m = makerInfo(f.brand);
+  assert.equal(m.tier, "haute"); assert.equal(m.founded, 1755); assert.match(m.advice, /forfalsket/);
+});
+
+test("merkelisten: ukjent navn gir ingen pris; Roskopf sammenlignes med usignerte; produsent slår forhandler", () => {
+  const u = normalize(hallmarks, { brand: "Hans Hansen, Bergen", material: "silver_800", escapement: "cylinder" }, "confirmed");
+  assert.equal(valueItem(sales, u), null);
+  assert.match(noSalesMessage(u), /kjenner ikke navnet/);
+  const r = normalize(hallmarks, { brand: "Roskopf", material: "base_metal", escapement: "cylinder" }, "confirmed");
+  assert.match(valueItem(sales, r).match_label, /^Usignerte og mindre kjente ur/);
+  const t = normalize(hallmarks, { brand_signed: "J. Tostrup",
+    marks: [{ text: "Vacheron & Constantin Genève", location: "cuvette_outside", type: "inscription" }] }, "vision");
+  assert.deepEqual([t.brand, t.retailer], ["vacheron constantin", "J. Tostrup"]);
 });

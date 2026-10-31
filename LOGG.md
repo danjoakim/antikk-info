@@ -131,6 +131,11 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-10-29 | Appen heter **InformAntikk** | Appen skal være norsk. Nettsøk fant ingen andre med navnet |
 | 2026-10-29 | Gjennomført viktoriansk steampunk-stil i hele appen | Brukerens ønske. Uttrykk: urmakerverksted i 1890-årene – hovedbokpapir, valnøtt, messing, verdigris og oksblod; IM Fell English til overskrifter, Libre Caslon Text til brødtekst; knapper som graverte messingplater med nagler, kort som etiketter i et kuriositetskabinett. Tall med jevnhøye sifre for lesbarhet |
 | 2026-10-29 | Lagringsnøkkelen i nettleseren (`lommeur.settings.v1`) beholdes | Endring ville slettet brukerens lagrede nøkkel |
+| 2026-10-31 | Merkekunnskapen ligger i `app/data/makers.json` (79 navn med navnevarianter, land, grunnlagt, nivå og kort omtale) | Appen kjente ikke Vacheron Constantin. Én fil deles av begge versjoner |
+| 2026-10-31 | Ukjente navn prises aldri som usignerte; bare nivåene «handelsnavn» og «rimelig masseproduksjon» sammenlignes med usignerte ur | Et Vacheron Constantin ble ellers priset mot billige sylinderur |
+| 2026-10-31 | Produsentnavn et annet sted på uret slår en forhandlersignatur på skiven; forhandleren vises som «Solgt av» | Norske forhandlere (Tostrup, David-Andersen) signerte sveitsiske ur |
+| 2026-10-31 | Navn som ikke står i listen, slås opp i Wikipedia (norsk, så engelsk) fra nettleseren, med krav om at treffet handler om ur og at navnet står i tittelen | Gir nyttig omtale uten å skrape nettsider; Wikipedia har åpen lisens og et API for dette |
+| 2026-10-31 | Merker i fremste klasse får råd om å få uret vurdert og advarsel om forfalskninger | Høy verdi og mange forfalskede signaturer på eldre ur |
 | 2026-10-29 | Standardmodeller: `gpt-6-astra` (OpenAIs anbefalte), `gemini-3.8-flash` (Googles anbefalte stabile Flash) | Hentet fra leverandørenes modelloversikter 29.10.2026; overstyres med `VISION_MODEL` |
 
 ---
@@ -149,6 +154,18 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-10-31 – Økt 15: Appen må kjenne de store merkene
+**Bakgrunn:** Brukeren testet flere ur. Appen kjente ikke Vacheron Constantin, og hadde i tillegg sammenlignet ukjente navn med usignerte ur.
+**Gjort:**
+- `app/data/makers.json`: 79 urmakere og forhandlere (Sveits, Tyskland, USA, Storbritannia, Frankrike, Norden, Russland, Japan) med navnevarianter (f.eks. «Vacheron & Constantin», «Jules Jürgensen», «Paul Buhré»), land og sted, grunnleggelsesår, nivå (fremste klasse, kvalitetsmerke, stor produksjon, masseproduksjon, forhandler, verkprodusent, handelsnavn), kort norsk omtale og Wikipedia-lenke. Monard flyttet hit fra databasen.
+- Normalisering bruker listen; lengste navnevariant vinner; bynavn som «Genève» tas bort. Produsent på cuvetten slår forhandler på skiven.
+- Pris: kjente merker prises bare mot egne salg; ukjente navn får ingen pris og en forklaring; Roskopf, Ingersoll o.l. og handelsnavn sammenlignes med usignerte.
+- «Om navnet»: sted, land, år, nivå, «Solgt av», råd for fremste klasse. Ukjente navn slås opp i Wikipedia med lenke og lisens; uten treff pekes det til Mikrolisk.
+**Filer:** `app/data/makers.json` (ny), `app/services/{makers,normalize,valuation}.py`, `app/models.py`, `app/routes/analyze.py`, `app/db/{schema,seed,database}`, `tools/export_data.py`, `docs/data/makers.json`, `docs/js/{normalize,valuation,app}.js`, `app/static/app.js`, `tests/test_core.py`, `tests_web/core.test.mjs`, `README.md`, `LOGG.md`.
+**Tester:** Python 57, JavaScript 22 bestått. Mobilnettleser: Vacheron Constantin (navnevariant med «&» og «Genève») gjenkjent, ingen pris, råd og advarsel vist; ukjent navn «Zentra» uten pris og med simulert Wikipedia-treff.
+**Ikke testet:** Ekte Wikipedia-kall (sperret i byggemiljøet).
+**Neste:** Ekte salgsdata; serienummertabeller for flere merker (Longines, Waltham, Elgin m.fl.).
 
 ### 2026-10-29 – Økt 14: InformAntikk i viktoriansk steampunk-stil
 **Gjort:**

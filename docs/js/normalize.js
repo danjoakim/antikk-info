@@ -21,12 +21,43 @@ export const ESCAPEMENT_LABELS = {
   unknown: "Ukjent",
 };
 
-const BRAND_ALIASES = {
-  omega: "omega", "Ω": "omega", longines: "longines", zenith: "zenith", tissot: "tissot",
-  iwc: "iwc", "international watch": "iwc", doxa: "doxa", cortebert: "cortebert",
-  tavannes: "tavannes", cyma: "cyma", moeris: "moeris", roskopf: "roskopf",
-};
-const KNOWN_BRANDS = new Set(Object.values(BRAND_ALIASES));
+// Merkekunnskapen (data/makers.json) settes inn ved oppstart med setMakers().
+let BRAND_ALIASES = { "Ω": "omega" };
+let KNOWN_BRANDS = new Set(["omega"]);
+let MAKERS = {};
+let TIERS = {};
+const COMPARABLE_WITH_UNSIGNED = new Set(["trade_name", "mass"]);
+export const HAUTE_NOTE = "Ur fra dette merket kan være svært verdifulle, og navnet ble også forfalsket på enklere ur. " +
+  "Få uret vurdert av en urmaker eller et auksjonshus før du kjøper eller selger.";
+
+export function setMakers(data) {
+  MAKERS = Object.fromEntries(data.makers.map((m) => [m.brand, m]));
+  TIERS = data.tiers;
+  const pairs = data.makers.flatMap((m) => [m.brand, ...m.aliases].map((a) => [a, m.brand]));
+  pairs.sort((a, b) => b[0].length - a[0].length);   // lengste variant først
+  BRAND_ALIASES = { "Ω": "omega", ...Object.fromEntries(pairs) };
+  KNOWN_BRANDS = new Set(Object.keys(MAKERS));
+}
+
+export const tierOf = (brand) => (brand ? MAKERS[brand]?.tier ?? null : null);
+export const unsignedLike = (facts) => !facts.brand || COMPARABLE_WITH_UNSIGNED.has(tierOf(facts.brand));
+
+/** Det appen vet om navnet, eller null. */
+export function makerInfo(brand) {
+  const m = brand ? MAKERS[brand] : null;
+  if (!m) return null;
+  return { ...m, tier_label: TIERS[m.tier] ?? null, advice: m.tier === "haute" ? HAUTE_NOTE : null };
+}
+
+export function noSalesMessage(facts) {
+  if (!facts.brand) return "Vi har ingen sammenlignbare salg av usignerte ur med disse egenskapene ennå.";
+  const name = facts.brand_display || facts.brand;
+  if (!tierOf(facts.brand)) {
+    return `Vi har ingen salg av «${name}» og kjenner ikke navnet godt nok til å sammenligne med andre ur. ` +
+      "Et ukjent navn kan være alt fra et lite forhandlernavn til et fint merke.";
+  }
+  return `Vi har ingen registrerte salg av ${MAKERS[facts.brand]?.display_name ?? name} ennå.`;
+}
 const UNSIGNED = new Set(["", "usignert", "unsigned", "ukjent", "unknown", "none", "null", "-", "ingen"]);
 const NON_PRECIOUS = new Set(["base_metal", "steel"]);
 const isPrecious = (m) => m.startsWith("silver_") || m === "gold_18k" || m === "gold_14k";
@@ -156,15 +187,20 @@ function analyseNumbers(numbers) {
  */
 export function normalize(hallmarks, facts, source) {
   const warnings = [];
-  let groups = [], repairs = [], owner = [], stamps, movement, caseNo, explicitMaterial = null;
+  let groups = [], repairs = [], owner = [], stamps, movement, caseNo, explicitMaterial = null, retailer = null;
   let [brand, display, known] = source === "vision" ? brandInfo(facts.brand_signed) : brandInfo(facts.brand);
 
   if (source === "vision") {
-    if (!known) { // et kjent merke et annet sted på uret slår et ukjent navn
+    // Et kjent produsentnavn et annet sted på uret slår et ukjent navn og en forhandlersignatur.
+    if (!known || tierOf(brand) === "retailer") {
       const others = [...(facts.marks ?? []).filter((m) => m.type === "inscription").map((m) => m.text), facts.dial_text];
       for (const text of others) {
         const info = brandInfo(text);
-        if (info[2]) { [brand, display, known] = info; break; }
+        if (info[2] && info[0] !== brand && tierOf(info[0]) !== "retailer") {
+          if (known) retailer = display;
+          [brand, display, known] = info;
+          break;
+        }
       }
     }
     const a = analyseNumbers(facts.numbers);
@@ -195,7 +231,7 @@ export function normalize(hallmarks, facts, source) {
   }
   const caseGroup = groups.find((g) => g.role === "case");
   return {
-    brand, brand_display: display, known_brand: known,
+    brand, brand_display: display, known_brand: known, retailer,
     movement_serial: movement, case_number: caseNo,
     number_groups: groups, numbers_match: !!caseGroup && caseGroup.locations.length > 1,
     repair_marks: repairs, owner_engravings: owner,

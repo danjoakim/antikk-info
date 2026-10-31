@@ -86,6 +86,7 @@ class NormalizedFacts(BaseModel):
     brand: str | None = None               # kanonisk: 'omega', None = usignert
     brand_display: str | None = None       # slik navnet står på uret
     known_brand: bool = False              # finnes i merkelisten vår
+    retailer: str | None = None            # forhandlersignatur når produsenten er en annen
     movement_serial: int | None = None
     case_number: int | None = None
     number_groups: list[NumberGroup] = Field(default_factory=list)
@@ -191,6 +192,12 @@ class SourceLink(BaseModel):
 class MakerInfo(BaseModel):
     display_name: str
     summary: str
+    country: str | None = None
+    place: str | None = None
+    founded: int | None = None
+    tier: str | None = None
+    tier_label: str | None = None
+    advice: str | None = None
     interpretation: str | None = None
     number_note: str | None = None
     sources: list[SourceLink] = Field(default_factory=list)

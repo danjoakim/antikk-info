@@ -6,6 +6,7 @@ Ingen modell her: samme input gir alltid samme output, og alt kan testes.
 import re
 import sqlite3
 
+from app.services.makers import ALIASES, MAKERS, tier_of
 from app.models import (LOCATION_LABELS, ConfirmedFacts, MarkObservation, MaterialMatch, NormalizedFacts, NumberGroup,
                         NumberObservation, VisionFacts)
 
@@ -29,23 +30,9 @@ ESCAPEMENT_LABELS: dict[str, str] = {
     "unknown": "Ukjent",
 }
 
-# Merkenavn slik de kan stå på ur → kanonisk nøkkel i databasen.
-BRAND_ALIASES: dict[str, str] = {
-    "omega": "omega",
-    "Ω": "omega",
-    "longines": "longines",
-    "zenith": "zenith",
-    "tissot": "tissot",
-    "iwc": "iwc",
-    "international watch": "iwc",
-    "doxa": "doxa",
-    "cortebert": "cortebert",
-    "tavannes": "tavannes",
-    "cyma": "cyma",
-    "moeris": "moeris",
-    "roskopf": "roskopf",
-}
-KNOWN_BRANDS = set(BRAND_ALIASES.values())
+# Merkenavn slik de kan stå på ur → kanonisk nøkkel. Hentes fra app/data/makers.json.
+BRAND_ALIASES: dict[str, str] = {"Ω": "omega", **ALIASES}
+KNOWN_BRANDS = set(MAKERS)
 
 WINDING_LABELS: dict[str, str] = {"key": "Nøkkeloppstrekk", "stem": "Krone (remontoir)", "unknown": "Ukjent"}
 LAYOUT_LABELS: dict[str, str] = {
@@ -186,6 +173,7 @@ def _analyse_numbers(numbers: list[NumberObservation]) -> tuple[list[NumberGroup
 
 def normalize(conn: sqlite3.Connection, facts: VisionFacts | ConfirmedFacts) -> NormalizedFacts:
     warnings: list[str] = []
+    retailer: str | None = None
     groups: list[NumberGroup] = []
     repairs: list[str] = []
     owner: list[str] = []
@@ -193,10 +181,13 @@ def normalize(conn: sqlite3.Connection, facts: VisionFacts | ConfirmedFacts) -> 
     if isinstance(facts, VisionFacts):
         candidates = [facts.brand_signed] + [m.text for m in facts.marks if m.type == "inscription"] + [facts.dial_text]
         brand, display, known = brand_info(facts.brand_signed)
-        if not known:  # et kjent merke et annet sted på uret slår et ukjent navn
+        # Et kjent produsentnavn et annet sted på uret slår et ukjent navn og en forhandlersignatur.
+        if not known or tier_of(brand) == "retailer":
             for text in candidates[1:]:
                 b, d, k = brand_info(text)
-                if k:
+                if k and b != brand and tier_of(b) != "retailer":
+                    if known:
+                        retailer = display
                     brand, display, known = b, d, k
                     break
         groups, repairs, w = _analyse_numbers(facts.numbers)
@@ -231,7 +222,7 @@ def normalize(conn: sqlite3.Connection, facts: VisionFacts | ConfirmedFacts) -> 
 
     case_group = next((g for g in groups if g.role == "case"), None)
     return NormalizedFacts(
-        brand=brand, brand_display=display, known_brand=known,
+        brand=brand, brand_display=display, known_brand=known, retailer=retailer,
         movement_serial=movement, case_number=case,
         number_groups=groups, numbers_match=bool(case_group and len(case_group.locations) > 1),
         repair_marks=repairs, owner_engravings=owner,

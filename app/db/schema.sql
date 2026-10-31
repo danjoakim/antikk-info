@@ -65,16 +65,3 @@ CREATE TABLE IF NOT EXISTS period_rules (
     CHECK (year_to >= year_from),
     UNIQUE (feature, value)
 );
-
--- Kort kunnskap om produsent- og forhandlernavn, med kilder. Det som er tolkning, står
--- i egen kolonne, slik at appen aldri framstiller det som fakta.
-CREATE TABLE IF NOT EXISTS makers (
-    id             INTEGER PRIMARY KEY,
-    brand          TEXT    NOT NULL UNIQUE,   -- kanonisk nøkkel, som i normalize.py
-    display_name   TEXT    NOT NULL,
-    summary        TEXT    NOT NULL,          -- hva kildene viser
-    interpretation TEXT,                      -- vår tolkning, merket som det
-    number_note    TEXT,                      -- hva nummeret på uret betyr
-    sources        TEXT    NOT NULL,          -- JSON-liste med {title, url}
-    is_verified    INTEGER NOT NULL DEFAULT 0
-);

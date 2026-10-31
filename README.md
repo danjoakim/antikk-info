@@ -26,7 +26,7 @@ Prosjektet har to versjoner som deler data, regler og grensesnitt:
 
 Uten nøkkel kjører nettversjonen i demomodus med faste eksempler.
 
-**Endre data:** rediger `app/db/seed.sql` (eneste kilde), kjør `python tools/export_data.py` og commit. Instruks og skjema for bildeanalysen eksporteres samtidig fra `app/services/vision/`, så begge versjonene alltid bruker det samme.
+**Endre data:** oppslagstabellene står i `app/db/seed.sql`, merkekunnskapen (navnevarianter, nivå, omtale) i `app/data/makers.json`. Kjør `python tools/export_data.py` og commit. Instruks og skjema for bildeanalysen eksporteres samtidig fra `app/services/vision/`, så begge versjonene alltid bruker det samme.
 
 **Tester for nettversjonen:** `node --test tests_web/*.test.mjs` (Node 20+).
 

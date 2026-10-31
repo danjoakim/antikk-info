@@ -27,7 +27,7 @@ def init_db(db_path: Path | str, seed: bool = True) -> None:
 
 
 def _is_empty(conn: sqlite3.Connection) -> bool:
-    tables = ("serial_ranges", "hallmarks", "auction_results", "period_rules", "makers")
+    tables = ("serial_ranges", "hallmarks", "auction_results", "period_rules")
     return all(conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0] == 0 for t in tables)
 
 

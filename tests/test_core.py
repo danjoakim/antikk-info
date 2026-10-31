@@ -1,3 +1,4 @@
+import pytest
 """Tester for kjernen: normalisering, datering og verdivurdering mot demodataene."""
 
 from app.db.database import init_db
@@ -150,7 +151,7 @@ MONARD = MOCK_SCENARIOS["monard_key_wind"]
 
 def test_monard_numbers_and_marks(conn):
     n = normalize(conn, MONARD)
-    assert n.brand == "g. monard" and n.brand_display == "G. Monard, Genève" and not n.known_brand
+    assert n.brand == "g. monard" and n.brand_display == "G. Monard, Genève" and n.known_brand
     assert n.case_number == 101954 and n.movement_serial is None
     assert n.numbers_match
     assert n.number_groups[0].locations == ["outer_lid_inside", "cuvette_outside", "cuvette_inside"]
@@ -172,7 +173,7 @@ def test_monard_valued_against_unsigned(conn):
     v = value_item(conn, normalize(conn, MONARD))
     assert v.match_level == "brand+material+escapement"
     assert (v.min, v.median, v.max, v.n_sales) == (450, 625, 900, 6)
-    assert any("G. Monard" in c and "merkelisten" in c for c in v.caveats)
+    assert any("G. Monard" in c and "ingen salg av" in c for c in v.caveats)
 
 
 def test_scratched_or_lettered_numbers_never_become_serials(conn):
@@ -236,7 +237,45 @@ from app.services.makers import maker_info  # noqa: E402
 
 
 def test_maker_info_for_monard(conn):
-    m = maker_info(conn, normalize(conn, MONARD))
+    m = maker_info(normalize(conn, MONARD))
     assert m.display_name == "G. Monard, Genève" and not m.is_verified
     assert "tolkning" in m.interpretation.lower() and m.sources
-    assert maker_info(conn, normalize(conn, VisionFacts())) is None
+    assert maker_info(normalize(conn, VisionFacts())) is None
+
+
+# --- Merkelisten: kjente merker, navnevarianter og ukjente navn ---------------------------
+
+from app.services.normalize import brand_info  # noqa: E402
+from app.services.valuation import no_sales_message  # noqa: E402
+
+
+@pytest.mark.parametrize("written", ["Vacheron Constantin", "VACHERON & CONSTANTIN GENÈVE", "Vacheron et Constantin, Genève"])
+def test_vacheron_variants_are_recognised(written):
+    brand, display, known = brand_info(written)
+    assert brand == "vacheron constantin" and known and display == written
+
+
+def test_famous_brand_is_never_priced_as_unsigned(conn):
+    facts = normalize(conn, ConfirmedFacts(brand="Vacheron Constantin", material="silver_800", escapement="cylinder"))
+    assert value_item(conn, facts) is None
+    assert "Vacheron Constantin" in no_sales_message(facts)
+    m = maker_info(facts)
+    assert m.tier == "haute" and m.founded == 1755 and "forfalsket" in m.advice
+
+
+def test_unknown_name_is_not_priced_and_says_why(conn):
+    facts = normalize(conn, ConfirmedFacts(brand="Hans Hansen, Bergen", material="silver_800", escapement="cylinder"))
+    assert not facts.known_brand and value_item(conn, facts) is None
+    assert "kjenner ikke navnet" in no_sales_message(facts) and maker_info(facts) is None
+
+
+def test_mass_brand_compared_with_unsigned(conn):
+    facts = normalize(conn, ConfirmedFacts(brand="Roskopf", material="base_metal", escapement="cylinder"))
+    v = value_item(conn, facts)
+    assert v is not None and v.match_label.startswith("Usignerte og mindre kjente ur")
+
+
+def test_maker_on_cuvette_wins_over_retailer_on_dial(conn):
+    facts = VisionFacts(brand_signed="J. Tostrup", marks=[{"text": "Vacheron & Constantin Genève", "location": "cuvette_outside", "type": "inscription"}])
+    n = normalize(conn, facts)
+    assert n.brand == "vacheron constantin" and n.retailer == "J. Tostrup"

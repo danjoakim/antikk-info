@@ -465,19 +465,63 @@ function renderResult({ dating, valuation, valuation_message, maker }) {
 function renderMaker(maker) {
   const card = $("#maker-card");
   const name = state.confirmed?.brand;
+  const retailer = state.analysis?.normalized?.retailer;
   card.hidden = !maker && !name;
   if (!maker) {
-    card.innerHTML = name ? `<h2>Om navnet</h2><p>Vi har ingen opplysninger om «${esc(name)}» ennå.</p>` : "";
+    if (!name) { card.innerHTML = ""; return; }
+    card.innerHTML = `<h2>Om navnet</h2><p class="maker-name">${esc(name)}</p>
+      <p class="meta wiki-status">Navnet står ikke i listen vår. Slår opp i Wikipedia …</p>`;
+    lookupWikipedia(name).then((hit) => {
+      if ($("#maker-card") !== card || state.confirmed?.brand !== name) return;
+      $(".wiki-status", card).outerHTML = hit
+        ? `<p>${esc(hit.extract)}</p>
+           <p class="meta">Hentet automatisk fra <a href="${esc(hit.url)}" target="_blank" rel="noopener">Wikipedia: ${esc(hit.title)}</a>
+           (CC BY-SA). Sjekk at det er riktig merke.</p>`
+        : `<p class="meta">Vi fant ingenting om «${esc(name)}». Det kan være et lite forhandler- eller handelsnavn.
+           <a href="https://www.mikrolisk.de/" target="_blank" rel="noopener">Mikrolisk</a> har et stort register over urmerker.</p>`;
+    });
     return;
   }
-  const sources = maker.sources.map((s) => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title)}</a></li>`).join("");
+  const facts = [maker.place, maker.country !== maker.place ? maker.country : null].filter(Boolean).join(", ");
+  const sources = (maker.sources ?? []).map((s) => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title)}</a></li>`).join("");
   card.innerHTML = `
     <h2>Om navnet ${maker.is_verified ? "" : `<span class="badge badge-demo">Ikke verifisert</span>`}</h2>
     <p class="maker-name">${esc(maker.display_name)}</p>
+    <p class="meta">${esc(facts)}${maker.founded ? ` · grunnlagt ${esc(maker.founded)}` : ""}${maker.tier_label ? `<br>${esc(maker.tier_label)}` : ""}</p>
+    ${retailer ? `<p class="meta">Solgt av: ${esc(retailer)}</p>` : ""}
     <p>${esc(maker.summary)}</p>
+    ${maker.advice ? `<div class="notice notice-warn"><p>${esc(maker.advice)}</p></div>` : ""}
     ${maker.interpretation ? `<p class="meta"><strong>Tolkning:</strong> ${esc(maker.interpretation)}</p>` : ""}
     ${maker.number_note ? `<p class="meta"><strong>Nummeret:</strong> ${esc(maker.number_note)}</p>` : ""}
     ${sources ? `<details><summary>Kilder (${maker.sources.length})</summary><ul class="sources">${sources}</ul></details>` : ""}`;
+}
+
+// --- Wikipedia: kort omtale av navn som ikke står i listen ----------------------------
+
+const WATCH_WORDS = {
+  no: /\b(ur(maker\w*|verk\w*|fabrikk\w*|merke\w*|produsent\w*)?|klokke\w*|lommeur\w*|armbåndsur\w*)\b/i,
+  en: /\b(watch\w*|horolog\w*|clock\w*|chronomet\w*)\b/i,
+};
+const CITY_WORDS = /\b(gen[eèé]ve|geneva|genf|le locle|la chaux-de-fonds|biel|bienne|suisse|switzerland|swiss|made)\b/gi;
+
+async function lookupWikipedia(name) {
+  const words = name.toLowerCase().replace(CITY_WORDS, " ").split(/[^\p{L}]+/u).filter((w) => w.length >= 4);
+  if (!words.length) return null;
+  for (const lang of ["no", "en"]) {
+    const term = `${name.replace(CITY_WORDS, " ")} ${lang === "no" ? "ur" : "watch"}`;
+    const url = `https://${lang}.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1` +
+      `&generator=search&gsrlimit=4&gsrsearch=${encodeURIComponent(term)}` +
+      "&prop=extracts|info&exintro=1&explaintext=1&exsentences=3&inprop=url";
+    try {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const pages = Object.values((await res.json()).query?.pages ?? {}).sort((a, b) => a.index - b.index);
+      const hit = pages.find((p) => p.extract && WATCH_WORDS[lang].test(p.extract) &&
+        words.some((w) => p.title.toLowerCase().includes(w)));
+      if (hit) return { title: hit.title, extract: hit.extract, url: hit.fullurl, lang };
+    } catch { /* uten nett: prøv neste språk, og gi opp stille */ }
+  }
+  return null;
 }
 
 // --- Hjelpere ------------------------------------------------------------------

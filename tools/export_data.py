@@ -28,7 +28,6 @@ TABLES = {
     "auction_results": "SELECT item_type, brand, material, escapement, condition, price_nok, price_basis, sale_date, "
                        "auction_house, source_url, notes, is_demo FROM auction_results ORDER BY sale_date DESC",
     "period_rules": "SELECT feature, value, year_from, year_to, note, source, is_demo FROM period_rules ORDER BY feature, value",
-    "makers": "SELECT brand, display_name, summary, interpretation, number_note, sources, is_verified FROM makers ORDER BY brand",
 }
 
 
@@ -50,6 +49,10 @@ def main() -> None:
             (OUT / f"{name}.json").write_text(json.dumps(rows, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
             print(f"{name}: {len(rows)} rader")
     db.unlink(missing_ok=True)
+
+    # Merkekunnskapen deles som den er.
+    (OUT / "makers.json").write_text((ROOT / "app" / "data" / "makers.json").read_text(encoding="utf-8"), encoding="utf-8")
+    print("makers:", len(json.loads((OUT / "makers.json").read_text(encoding="utf-8"))["makers"]), "navn")
 
     # Samme instruks, skjema og demoeksempler som Python-versjonen bruker.
     contract = {"system_prompt": SYSTEM_PROMPT, "user_instruction": USER_INSTRUCTION,

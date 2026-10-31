@@ -4,7 +4,7 @@ import sqlite3
 import statistics
 
 from app.models import ComparableSale, NormalizedFacts, Valuation
-from app.services.normalize import KNOWN_BRANDS
+from app.services.makers import COMPARABLE_WITH_UNSIGNED, tier_of
 
 # Fra mest til minst spesifikt. Merke slippes aldri: et signert ur sammenlignes ikke med usignerte.
 LEVELS: list[tuple[str, tuple[str, ...], str]] = [
@@ -38,9 +38,9 @@ def _fetch(conn: sqlite3.Connection, facts: NormalizedFacts, item_type: str, use
 def value_item(conn: sqlite3.Connection, facts: NormalizedFacts, item_type: str = "pocket_watch",
                min_sales: int = 5) -> Valuation | None:
     usable_levels = [lvl for lvl in LEVELS if all(_known(facts, f) for f in lvl[1])]
-    # Kjente merker prises bare mot seg selv. Mindre kjente navn (ofte forhandlere eller små
-    # fabrikanter) sammenlignes med usignerte ur, med en merknad om det.
-    brand = facts.brand if facts.brand in KNOWN_BRANDS else None
+    # Merker prises mot seg selv. Bare handelsnavn og rimelig masseproduksjon sammenlignes med
+    # usignerte ur. Et navn vi ikke kjenner, prises aldri som usignert: det kan være et fint merke.
+    brand = None if _unsigned_like(facts) else facts.brand
 
     fallback: tuple[tuple, list] | None = None
     for level in usable_levels:
@@ -54,6 +54,10 @@ def value_item(conn: sqlite3.Connection, facts: NormalizedFacts, item_type: str 
     return None
 
 
+def _unsigned_like(facts: NormalizedFacts) -> bool:
+    return facts.brand is None or tier_of(facts.brand) in COMPARABLE_WITH_UNSIGNED
+
+
 def _known(facts: NormalizedFacts, field: str) -> bool:
     value = getattr(facts, field)
     return value is not None and value != "unknown"
@@ -62,7 +66,7 @@ def _known(facts: NormalizedFacts, field: str) -> bool:
 def _build(level: tuple, rows: list[sqlite3.Row], facts: NormalizedFacts, sufficient: bool,
            min_sales: int) -> Valuation:
     key, used, label = level
-    known = facts.brand in KNOWN_BRANDS
+    known = not _unsigned_like(facts)
     if known:
         who = "Samme merke"
     else:
@@ -77,7 +81,7 @@ def _build(level: tuple, rows: list[sqlite3.Row], facts: NormalizedFacts, suffic
     label = label.format(who=who)
     caveats = list(BASE_CAVEATS)
     if facts.brand and not known:
-        caveats.insert(0, f"«{facts.brand_display or facts.brand}» finnes ikke i merkelisten vår, så uret er sammenlignet "
+        caveats.insert(0, f"Vi har ingen salg av «{facts.brand_display or facts.brand}», så uret er sammenlignet "
                           "med usignerte og mindre kjente ur.")
     if widened:
         caveats.insert(0, f"For få salg med nøyaktig samme egenskaper. Intervallet ser bort fra {' og '.join(widened)}.")
@@ -99,3 +103,14 @@ def _build(level: tuple, rows: list[sqlite3.Row], facts: NormalizedFacts, suffic
                                     is_demo=bool(r["is_demo"])) for r in rows[:12]],
         is_demo=is_demo,
     )
+
+
+def no_sales_message(facts: NormalizedFacts) -> str:
+    """Forklaring når det ikke finnes sammenlignbare salg."""
+    if facts.brand is None:
+        return "Vi har ingen sammenlignbare salg av usignerte ur med disse egenskapene ennå."
+    name = facts.brand_display or facts.brand
+    if tier_of(facts.brand) is None:
+        return (f"Vi har ingen salg av «{name}» og kjenner ikke navnet godt nok til å sammenligne med andre ur. "
+                "Et ukjent navn kan være alt fra et lite forhandlernavn til et fint merke.")
+    return f"Vi har ingen registrerte salg av {name} ennå."

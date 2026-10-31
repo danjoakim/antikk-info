@@ -1,6 +1,6 @@
 // Prisintervall fra realiserte salg. Samme regler som app/services/valuation.py.
 
-import { isKnownBrand } from "./normalize.js";
+import { unsignedLike } from "./normalize.js";
 
 // Fra mest til minst spesifikt. Merke slippes aldri: et signert ur sammenlignes ikke med usignerte.
 const LEVELS = [
@@ -31,8 +31,9 @@ function fetchRows(sales, facts, itemType, use, brand) {
 
 export function valueItem(sales, facts, { itemType = "pocket_watch", minSales = 5 } = {}) {
   const usable = LEVELS.filter(([, use]) => use.every((f) => known(facts, f)));
-  // Kjente merker prises bare mot seg selv. Mindre kjente navn sammenlignes med usignerte ur.
-  const brand = isKnownBrand(facts.brand) ? facts.brand : null;
+  // Merker prises mot seg selv. Bare handelsnavn og rimelig masseproduksjon sammenlignes med usignerte ur;
+  // et navn vi ikke kjenner, prises aldri som usignert.
+  const brand = unsignedLike(facts) ? null : facts.brand;
   let fallback = null;
   for (const level of usable) {
     const rows = fetchRows(sales, facts, itemType, level[1], brand);
@@ -49,10 +50,10 @@ function build([key, used, label], rows, facts, sufficient, minSales) {
   const unknown = ["material", "escapement"].filter((f) => !known(facts, f)).map((f) => CRITERIA_LABELS[f]);
   const widened = dropped.filter((d) => !unknown.includes(d));
 
-  const brandKnown = isKnownBrand(facts.brand);
+  const brandKnown = !unsignedLike(facts);
   const caveats = [...BASE_CAVEATS];
   if (facts.brand && !brandKnown) {
-    caveats.unshift(`«${facts.brand_display || facts.brand}» finnes ikke i merkelisten vår, så uret er sammenlignet ` +
+    caveats.unshift(`Vi har ingen salg av «${facts.brand_display || facts.brand}», så uret er sammenlignet ` +
       "med usignerte og mindre kjente ur.");
   }
   if (widened.length) caveats.unshift(`For få salg med nøyaktig samme egenskaper. Intervallet ser bort fra ${widened.join(" og ")}.`);

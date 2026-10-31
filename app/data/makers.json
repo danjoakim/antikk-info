@@ -1,0 +1,1688 @@
+{
+ "_beskrivelse": "Kunnskap om urmakere og forhandlernavn. Kilde til sannhet for både server- og nettversjonen. Omtalene er skrevet ut fra allment kjent historikk og er ikke verifisert punkt for punkt; lenkene går til Wikipedia-søk.",
+ "tiers": {
+  "haute": "Fremste klasse",
+  "premium": "Anerkjent kvalitetsmerke",
+  "mid": "Kjent merke med stor produksjon",
+  "mass": "Rimelig masseproduksjon",
+  "retailer": "Forhandler (urene er som regel laget av andre)",
+  "movement": "Verkprodusent (leverte verk til mange merker)",
+  "trade_name": "Handelsnavn eller etablisseur"
+ },
+ "makers": [
+  {
+   "brand": "vacheron constantin",
+   "display_name": "Vacheron Constantin",
+   "aliases": [
+    "vacheron",
+    "vacheron & constantin",
+    "vacheron et constantin"
+   ],
+   "country": "Sveits",
+   "place": "Genève",
+   "founded": 1755,
+   "tier": "haute",
+   "summary": "En av verdens eldste urmakere, med drift uten avbrudd siden 1755. Kjent for fine lommeur og komplikasjoner, ofte i gull.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Vacheron Constantin",
+     "url": "https://en.wikipedia.org/w/index.php?search=Vacheron%20Constantin%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "patek philippe",
+   "display_name": "Patek Philippe",
+   "aliases": [
+    "patek",
+    "patek philippe & co",
+    "patek, philippe"
+   ],
+   "country": "Sveits",
+   "place": "Genève",
+   "founded": 1839,
+   "tier": "haute",
+   "summary": "Regnes blant de fremste urmakerne i verden. Lommeur fra Patek Philippe oppnår ofte svært høye priser.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Patek Philippe",
+     "url": "https://en.wikipedia.org/w/index.php?search=Patek%20Philippe%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "audemars piguet",
+   "display_name": "Audemars Piguet",
+   "aliases": [
+    "audemars piguet & cie",
+    "audemars, piguet"
+   ],
+   "country": "Sveits",
+   "place": "Le Brassus",
+   "founded": 1875,
+   "tier": "haute",
+   "summary": "Urmaker fra Vallée de Joux, kjent for kompliserte ur som repetisjon og evighetskalender.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Audemars Piguet",
+     "url": "https://en.wikipedia.org/w/index.php?search=Audemars%20Piguet%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "breguet",
+   "display_name": "Breguet",
+   "aliases": [
+    "a.-l. breguet",
+    "abraham-louis breguet",
+    "breguet et fils"
+   ],
+   "country": "Frankrike/Sveits",
+   "place": "Paris",
+   "founded": 1775,
+   "tier": "haute",
+   "summary": "Grunnlagt av Abraham-Louis Breguet, en av urmakerkunstens store oppfinnere. Navnet er også mye forfalsket på eldre ur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Breguet",
+     "url": "https://en.wikipedia.org/w/index.php?search=Breguet%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "blancpain",
+   "display_name": "Blancpain",
+   "aliases": [
+    "jehan-jacques blancpain"
+   ],
+   "country": "Sveits",
+   "place": "Villeret",
+   "founded": 1735,
+   "tier": "haute",
+   "summary": "Grunnlagt i 1735 og regnet som et av de eldste urmerkene.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Blancpain",
+     "url": "https://en.wikipedia.org/w/index.php?search=Blancpain%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "jaeger-lecoultre",
+   "display_name": "Jaeger-LeCoultre",
+   "aliases": [
+    "jaeger le coultre",
+    "jaeger lecoultre",
+    "le coultre",
+    "lecoultre"
+   ],
+   "country": "Sveits",
+   "place": "Le Sentier",
+   "founded": 1833,
+   "tier": "haute",
+   "summary": "Verksted fra Vallée de Joux som har laget egne kalibre og levert verk til andre store merker.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Jaeger-LeCoultre",
+     "url": "https://en.wikipedia.org/w/index.php?search=Jaeger-LeCoultre%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "a. lange & söhne",
+   "display_name": "A. Lange & Söhne",
+   "aliases": [
+    "a. lange & soehne",
+    "a. lange & sohne",
+    "lange & sohne",
+    "lange & söhne"
+   ],
+   "country": "Tyskland",
+   "place": "Glashütte",
+   "founded": 1845,
+   "tier": "haute",
+   "summary": "Grunnla urindustrien i Glashütte i Sachsen. Lommeur fra før 1945 er svært ettertraktet.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: A. Lange & Söhne",
+     "url": "https://en.wikipedia.org/w/index.php?search=A.%20Lange%20%26%20S%C3%B6hne%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "ulysse nardin",
+   "display_name": "Ulysse Nardin",
+   "aliases": [],
+   "country": "Sveits",
+   "place": "Le Locle",
+   "founded": 1846,
+   "tier": "premium",
+   "summary": "Kjent for marinekronometre og presisjonsur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Ulysse Nardin",
+     "url": "https://en.wikipedia.org/w/index.php?search=Ulysse%20Nardin%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "girard-perregaux",
+   "display_name": "Girard-Perregaux",
+   "aliases": [
+    "girard perregaux"
+   ],
+   "country": "Sveits",
+   "place": "La Chaux-de-Fonds",
+   "founded": 1791,
+   "tier": "premium",
+   "summary": "Gammelt sveitsisk merke, blant annet kjent for lommeur med tourbillon og tre broer.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Girard-Perregaux",
+     "url": "https://en.wikipedia.org/w/index.php?search=Girard-Perregaux%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "h. moser & cie",
+   "display_name": "H. Moser & Cie",
+   "aliases": [
+    "h. moser",
+    "heinrich moser",
+    "moser & cie"
+   ],
+   "country": "Sveits/Russland",
+   "place": "Schaffhausen og St. Petersburg",
+   "founded": 1828,
+   "tier": "premium",
+   "summary": "Grunnlagt av Heinrich Moser, som solgte mange lommeur på det russiske markedet.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: H. Moser & Cie",
+     "url": "https://en.wikipedia.org/w/index.php?search=H.%20Moser%20%26%20Cie%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "urban jürgensen",
+   "display_name": "Urban Jürgensen",
+   "aliases": [
+    "jules jurgensen",
+    "jules jürgensen",
+    "jurgensen",
+    "jürgensen",
+    "urban jurgensen"
+   ],
+   "country": "Danmark/Sveits",
+   "place": "København og Le Locle",
+   "founded": 1773,
+   "tier": "haute",
+   "summary": "Dansk-sveitsisk urmakerfamilie kjent for fine lommeur og kronometre. Navnet ble senere brukt på enklere ur, særlig i USA.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Urban Jürgensen",
+     "url": "https://en.wikipedia.org/w/index.php?search=Urban%20J%C3%BCrgensen%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "piaget",
+   "display_name": "Piaget",
+   "aliases": [],
+   "country": "Sveits",
+   "place": "La Côte-aux-Fées",
+   "founded": 1874,
+   "tier": "premium",
+   "summary": "Startet som verkprodusent og ble senere kjent for svært tynne ur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Piaget",
+     "url": "https://en.wikipedia.org/w/index.php?search=Piaget%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "baume & mercier",
+   "display_name": "Baume & Mercier",
+   "aliases": [
+    "baume",
+    "baume et mercier"
+   ],
+   "country": "Sveits",
+   "place": "Genève",
+   "founded": 1830,
+   "tier": "premium",
+   "summary": "Familien Baume laget ur fra 1830; navnet Baume & Mercier er fra 1918.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Baume & Mercier",
+     "url": "https://en.wikipedia.org/w/index.php?search=Baume%20%26%20Mercier%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "gübelin",
+   "display_name": "Gübelin",
+   "aliases": [
+    "e. gübelin",
+    "gubelin"
+   ],
+   "country": "Sveits",
+   "place": "Luzern",
+   "founded": 1854,
+   "tier": "retailer",
+   "summary": "Juveler og urforhandler i Luzern. Gübelin-signerte ur er ofte laget av andre anerkjente fabrikker.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Gübelin",
+     "url": "https://en.wikipedia.org/w/index.php?search=G%C3%BCbelin%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "omega",
+   "display_name": "Omega",
+   "aliases": [
+    "louis brandt",
+    "louis brandt & frère",
+    "ω"
+   ],
+   "country": "Sveits",
+   "place": "La Chaux-de-Fonds, senere Biel",
+   "founded": 1848,
+   "tier": "premium",
+   "summary": "Grunnlagt av Louis Brandt. Merket Omega ble tatt i bruk på 1890-tallet. Verksnummer kan dateres med publiserte tabeller.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Omega",
+     "url": "https://en.wikipedia.org/w/index.php?search=Omega%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "longines",
+   "display_name": "Longines",
+   "aliases": [
+    "e. francillon",
+    "longines francillon"
+   ],
+   "country": "Sveits",
+   "place": "Saint-Imier",
+   "founded": 1832,
+   "tier": "premium",
+   "summary": "Har ført register over produksjonen, slik at mange Longines-ur kan dateres etter verksnummer.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Longines",
+     "url": "https://en.wikipedia.org/w/index.php?search=Longines%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "zenith",
+   "display_name": "Zenith",
+   "aliases": [
+    "georges favre-jacot"
+   ],
+   "country": "Sveits",
+   "place": "Le Locle",
+   "founded": 1865,
+   "tier": "premium",
+   "summary": "Grunnlagt av Georges Favre-Jacot, kjent for egne verk og presisjon.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Zenith",
+     "url": "https://en.wikipedia.org/w/index.php?search=Zenith%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "iwc",
+   "display_name": "IWC",
+   "aliases": [
+    "international watch co",
+    "international watch company",
+    "iwc schaffhausen"
+   ],
+   "country": "Sveits",
+   "place": "Schaffhausen",
+   "founded": 1868,
+   "tier": "premium",
+   "summary": "Grunnlagt av amerikaneren F. A. Jones. Kjent for solide lommeur med egne kalibre.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: IWC",
+     "url": "https://en.wikipedia.org/w/index.php?search=IWC%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "rolex",
+   "display_name": "Rolex",
+   "aliases": [
+    "wilsdorf & davis"
+   ],
+   "country": "Sveits/Storbritannia",
+   "place": "London, senere Genève",
+   "founded": 1905,
+   "tier": "premium",
+   "summary": "Grunnlagt av Hans Wilsdorf. Mye forfalsket.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Rolex",
+     "url": "https://en.wikipedia.org/w/index.php?search=Rolex%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "universal genève",
+   "display_name": "Universal Genève",
+   "aliases": [
+    "universal geneve",
+    "universal watch"
+   ],
+   "country": "Sveits",
+   "place": "Genève",
+   "founded": 1894,
+   "tier": "premium",
+   "summary": "Kjent for kronografer og ur med kalender.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Universal Genève",
+     "url": "https://en.wikipedia.org/w/index.php?search=Universal%20Gen%C3%A8ve%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "heuer",
+   "display_name": "Heuer",
+   "aliases": [
+    "ed. heuer",
+    "edouard heuer",
+    "tag heuer"
+   ],
+   "country": "Sveits",
+   "place": "Saint-Imier",
+   "founded": 1860,
+   "tier": "premium",
+   "summary": "Kjent for stoppeklokker og kronografer.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Heuer",
+     "url": "https://en.wikipedia.org/w/index.php?search=Heuer%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "breitling",
+   "display_name": "Breitling",
+   "aliases": [
+    "g. leon breitling",
+    "léon breitling"
+   ],
+   "country": "Sveits",
+   "place": "Saint-Imier",
+   "founded": 1884,
+   "tier": "premium",
+   "summary": "Kjent for kronografer og flygerur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Breitling",
+     "url": "https://en.wikipedia.org/w/index.php?search=Breitling%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "movado",
+   "display_name": "Movado",
+   "aliases": [
+    "ditesheim",
+    "l.a.i. ditesheim"
+   ],
+   "country": "Sveits",
+   "place": "La Chaux-de-Fonds",
+   "founded": 1881,
+   "tier": "premium",
+   "summary": "Grunnlagt av familien Ditesheim; kjent for blant annet Ermeto-reiseur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Movado",
+     "url": "https://en.wikipedia.org/w/index.php?search=Movado%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "ebel",
+   "display_name": "Ebel",
+   "aliases": [],
+   "country": "Sveits",
+   "place": "La Chaux-de-Fonds",
+   "founded": 1911,
+   "tier": "mid",
+   "summary": "Sveitsisk urmerke fra 1911.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Ebel",
+     "url": "https://en.wikipedia.org/w/index.php?search=Ebel%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "tissot",
+   "display_name": "Tissot",
+   "aliases": [
+    "charles-félicien tissot"
+   ],
+   "country": "Sveits",
+   "place": "Le Locle",
+   "founded": 1853,
+   "tier": "mid",
+   "summary": "Stort sveitsisk merke med lang historie, blant annet mye salg til Russland.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Tissot",
+     "url": "https://en.wikipedia.org/w/index.php?search=Tissot%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "eterna",
+   "display_name": "Eterna",
+   "aliases": [
+    "eterna watch"
+   ],
+   "country": "Sveits",
+   "place": "Grenchen",
+   "founded": 1856,
+   "tier": "mid",
+   "summary": "Merket ble opprinnelig drevet av Schild Frères i Grenchen.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Eterna",
+     "url": "https://en.wikipedia.org/w/index.php?search=Eterna%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "cyma",
+   "display_name": "Cyma",
+   "aliases": [
+    "tavannes-cyma"
+   ],
+   "country": "Sveits",
+   "place": "Le Locle",
+   "founded": 1862,
+   "tier": "mid",
+   "summary": "Startet av brødrene Schwob og produserte i stort volum, også sammen med Tavannes.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Cyma",
+     "url": "https://en.wikipedia.org/w/index.php?search=Cyma%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "tavannes",
+   "display_name": "Tavannes",
+   "aliases": [
+    "tavannes watch co"
+   ],
+   "country": "Sveits",
+   "place": "Tavannes",
+   "founded": 1891,
+   "tier": "mid",
+   "summary": "Stor produsent av lommeur og armbåndsur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Tavannes",
+     "url": "https://en.wikipedia.org/w/index.php?search=Tavannes%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "doxa",
+   "display_name": "Doxa",
+   "aliases": [],
+   "country": "Sveits",
+   "place": "Le Locle",
+   "founded": 1889,
+   "tier": "mid",
+   "summary": "Grunnlagt av Georges Ducommun, kjent for solide lommeur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Doxa",
+     "url": "https://en.wikipedia.org/w/index.php?search=Doxa%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "zodiac",
+   "display_name": "Zodiac",
+   "aliases": [],
+   "country": "Sveits",
+   "place": "Le Locle",
+   "founded": 1882,
+   "tier": "mid",
+   "summary": "Sveitsisk urmerke fra Le Locle.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Zodiac",
+     "url": "https://en.wikipedia.org/w/index.php?search=Zodiac%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "certina",
+   "display_name": "Certina",
+   "aliases": [
+    "kurth frères"
+   ],
+   "country": "Sveits",
+   "place": "Grenchen",
+   "founded": 1888,
+   "tier": "mid",
+   "summary": "Grunnlagt av brødrene Kurth i Grenchen.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Certina",
+     "url": "https://en.wikipedia.org/w/index.php?search=Certina%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "mido",
+   "display_name": "Mido",
+   "aliases": [],
+   "country": "Sveits",
+   "place": "Biel",
+   "founded": 1918,
+   "tier": "mid",
+   "summary": "Sveitsisk merke kjent for robuste armbåndsur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Mido",
+     "url": "https://en.wikipedia.org/w/index.php?search=Mido%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "oris",
+   "display_name": "Oris",
+   "aliases": [],
+   "country": "Sveits",
+   "place": "Hölstein",
+   "founded": 1904,
+   "tier": "mid",
+   "summary": "Sveitsisk merke som lenge laget rimelige mekaniske ur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Oris",
+     "url": "https://en.wikipedia.org/w/index.php?search=Oris%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "alpina",
+   "display_name": "Alpina",
+   "aliases": [],
+   "country": "Sveits",
+   "place": "Genève",
+   "founded": 1883,
+   "tier": "mid",
+   "summary": "Startet som en sammenslutning av urmakere.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Alpina",
+     "url": "https://en.wikipedia.org/w/index.php?search=Alpina%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "moeris",
+   "display_name": "Moeris",
+   "aliases": [],
+   "country": "Sveits",
+   "place": "Saint-Imier",
+   "founded": 1864,
+   "tier": "mid",
+   "summary": "Sveitsisk produsent av lommeur og armbåndsur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Moeris",
+     "url": "https://en.wikipedia.org/w/index.php?search=Moeris%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "cortebert",
+   "display_name": "Cortebert",
+   "aliases": [],
+   "country": "Sveits",
+   "place": "Cortebert",
+   "founded": 1790,
+   "tier": "mid",
+   "summary": "Gammelt sveitsisk verksted, kjent for lommeur og senere for verk til Panerai.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Cortebert",
+     "url": "https://en.wikipedia.org/w/index.php?search=Cortebert%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "revue thommen",
+   "display_name": "Revue Thommen",
+   "aliases": [
+    "thommen"
+   ],
+   "country": "Sveits",
+   "place": "Waldenburg",
+   "founded": 1853,
+   "tier": "mid",
+   "summary": "Kjent for lommeur og flyinstrumenter.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Revue Thommen",
+     "url": "https://en.wikipedia.org/w/index.php?search=Revue%20Thommen%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "marvin",
+   "display_name": "Marvin",
+   "aliases": [],
+   "country": "Sveits",
+   "place": "Saint-Imier",
+   "founded": 1850,
+   "tier": "mid",
+   "summary": "Sveitsisk merke med lommeur og armbåndsur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Marvin",
+     "url": "https://en.wikipedia.org/w/index.php?search=Marvin%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "buren",
+   "display_name": "Buren",
+   "aliases": [
+    "büren"
+   ],
+   "country": "Sveits",
+   "place": "Büren an der Aare",
+   "founded": 1873,
+   "tier": "mid",
+   "summary": "Sveitsisk merke som også leverte verk.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Buren",
+     "url": "https://en.wikipedia.org/w/index.php?search=Buren%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "roamer",
+   "display_name": "Roamer",
+   "aliases": [],
+   "country": "Sveits",
+   "place": "Solothurn",
+   "founded": 1888,
+   "tier": "mid",
+   "summary": "Sveitsisk merke med stor produksjon av rimelige ur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Roamer",
+     "url": "https://en.wikipedia.org/w/index.php?search=Roamer%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "enicar",
+   "display_name": "Enicar",
+   "aliases": [],
+   "country": "Sveits",
+   "place": "La Chaux-de-Fonds",
+   "founded": 1914,
+   "tier": "mid",
+   "summary": "Sveitsisk merke, særlig kjent for armbåndsur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Enicar",
+     "url": "https://en.wikipedia.org/w/index.php?search=Enicar%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "invicta",
+   "display_name": "Invicta",
+   "aliases": [],
+   "country": "Sveits",
+   "place": "La Chaux-de-Fonds",
+   "founded": 1837,
+   "tier": "mid",
+   "summary": "Historisk sveitsisk merke; dagens merke med samme navn er et annet firma.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Invicta",
+     "url": "https://en.wikipedia.org/w/index.php?search=Invicta%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "west end watch co",
+   "display_name": "West End Watch Co",
+   "aliases": [
+    "west end watch"
+   ],
+   "country": "Sveits/India",
+   "place": "Genève og Bombay",
+   "founded": 1886,
+   "tier": "mid",
+   "summary": "Laget ur særlig for markedet i India og Midtøsten.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: West End Watch Co",
+     "url": "https://en.wikipedia.org/w/index.php?search=West%20End%20Watch%20Co%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "agassiz",
+   "display_name": "Agassiz",
+   "aliases": [],
+   "country": "Sveits",
+   "place": "Saint-Imier",
+   "founded": 1832,
+   "tier": "mid",
+   "summary": "Forløperen til Longines, senere eget merke.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Agassiz",
+     "url": "https://en.wikipedia.org/w/index.php?search=Agassiz%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "roskopf",
+   "display_name": "Roskopf",
+   "aliases": [
+    "g. f. roskopf",
+    "system roskopf",
+    "systeme roskopf",
+    "système roskopf"
+   ],
+   "country": "Sveits",
+   "place": "La Chaux-de-Fonds",
+   "founded": 1867,
+   "tier": "mass",
+   "summary": "Georges-Frédéric Roskopf laget et enkelt og billig lommeur for arbeidere. «System Roskopf» ble brukt av mange produsenter.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Roskopf",
+     "url": "https://en.wikipedia.org/w/index.php?search=Roskopf%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "unitas",
+   "display_name": "Unitas",
+   "aliases": [],
+   "country": "Sveits",
+   "place": "Tramelan",
+   "founded": 1898,
+   "tier": "movement",
+   "summary": "Laget verk som ble brukt i svært mange lommeur og armbåndsur fra ulike merker.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Unitas",
+     "url": "https://en.wikipedia.org/w/index.php?search=Unitas%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "a. schild",
+   "display_name": "A. Schild",
+   "aliases": [],
+   "country": "Sveits",
+   "place": "Grenchen",
+   "founded": 1896,
+   "tier": "movement",
+   "summary": "Stor produsent av verk (merket AS) til mange merker.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: A. Schild",
+     "url": "https://en.wikipedia.org/w/index.php?search=A.%20Schild%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "fontainemelon",
+   "display_name": "Fontainemelon",
+   "aliases": [
+    "fabrique d'horlogerie de fontainemelon",
+    "fhf"
+   ],
+   "country": "Sveits",
+   "place": "Fontainemelon",
+   "founded": 1793,
+   "tier": "movement",
+   "summary": "Gammel verkfabrikk som leverte råverk til mange merker.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Fontainemelon",
+     "url": "https://en.wikipedia.org/w/index.php?search=Fontainemelon%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "junghans",
+   "display_name": "Junghans",
+   "aliases": [],
+   "country": "Tyskland",
+   "place": "Schramberg",
+   "founded": 1861,
+   "tier": "mid",
+   "summary": "En gang en av verdens største urfabrikker.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Junghans",
+     "url": "https://en.wikipedia.org/w/index.php?search=Junghans%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "kienzle",
+   "display_name": "Kienzle",
+   "aliases": [],
+   "country": "Tyskland",
+   "place": "Schwenningen",
+   "founded": 1883,
+   "tier": "mass",
+   "summary": "Stor tysk produsent av rimelige ur og klokker.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Kienzle",
+     "url": "https://en.wikipedia.org/w/index.php?search=Kienzle%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "stowa",
+   "display_name": "Stowa",
+   "aliases": [],
+   "country": "Tyskland",
+   "place": "Pforzheim",
+   "founded": 1927,
+   "tier": "mid",
+   "summary": "Tysk merke kjent for blant annet flygerur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Stowa",
+     "url": "https://en.wikipedia.org/w/index.php?search=Stowa%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "laco",
+   "display_name": "Laco",
+   "aliases": [
+    "lacher & co"
+   ],
+   "country": "Tyskland",
+   "place": "Pforzheim",
+   "founded": 1925,
+   "tier": "mid",
+   "summary": "Tysk merke kjent for flygerur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Laco",
+     "url": "https://en.wikipedia.org/w/index.php?search=Laco%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "wempe",
+   "display_name": "Wempe",
+   "aliases": [
+    "gerhard d. wempe"
+   ],
+   "country": "Tyskland",
+   "place": "Hamburg",
+   "founded": 1878,
+   "tier": "retailer",
+   "summary": "Juveler og urforhandler; laget også kronometre.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Wempe",
+     "url": "https://en.wikipedia.org/w/index.php?search=Wempe%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "waltham",
+   "display_name": "Waltham",
+   "aliases": [
+    "a. w. w. co",
+    "american waltham",
+    "american watch co",
+    "waltham watch co"
+   ],
+   "country": "USA",
+   "place": "Waltham, Massachusetts",
+   "founded": 1850,
+   "tier": "mid",
+   "summary": "Stor amerikansk fabrikk. Serienummer kan dateres med publiserte tabeller.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Waltham",
+     "url": "https://en.wikipedia.org/w/index.php?search=Waltham%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "elgin",
+   "display_name": "Elgin",
+   "aliases": [
+    "elgin nat'l watch co",
+    "elgin national watch co"
+   ],
+   "country": "USA",
+   "place": "Elgin, Illinois",
+   "founded": 1864,
+   "tier": "mid",
+   "summary": "En av de største amerikanske produsentene av lommeur. Serienummer kan dateres med tabeller.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Elgin",
+     "url": "https://en.wikipedia.org/w/index.php?search=Elgin%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "hamilton",
+   "display_name": "Hamilton",
+   "aliases": [
+    "hamilton watch co"
+   ],
+   "country": "USA",
+   "place": "Lancaster, Pennsylvania",
+   "founded": 1892,
+   "tier": "mid",
+   "summary": "Kjent for nøyaktige jernbaneur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Hamilton",
+     "url": "https://en.wikipedia.org/w/index.php?search=Hamilton%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "illinois",
+   "display_name": "Illinois",
+   "aliases": [
+    "illinois springfield",
+    "illinois watch co"
+   ],
+   "country": "USA",
+   "place": "Springfield, Illinois",
+   "founded": 1869,
+   "tier": "mid",
+   "summary": "Amerikansk produsent, blant annet av jernbaneur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Illinois",
+     "url": "https://en.wikipedia.org/w/index.php?search=Illinois%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "ball",
+   "display_name": "Ball",
+   "aliases": [
+    "ball watch co",
+    "webb c. ball"
+   ],
+   "country": "USA",
+   "place": "Cleveland, Ohio",
+   "founded": 1879,
+   "tier": "mid",
+   "summary": "Kjent for jernbaneur som oppfylte strenge krav.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Ball",
+     "url": "https://en.wikipedia.org/w/index.php?search=Ball%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "e. howard",
+   "display_name": "E. Howard",
+   "aliases": [
+    "e. howard & co",
+    "howard watch co"
+   ],
+   "country": "USA",
+   "place": "Boston",
+   "founded": 1858,
+   "tier": "premium",
+   "summary": "Amerikansk kvalitetsprodusent.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: E. Howard",
+     "url": "https://en.wikipedia.org/w/index.php?search=E.%20Howard%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "hampden",
+   "display_name": "Hampden",
+   "aliases": [
+    "dueber-hampden",
+    "hampden watch co"
+   ],
+   "country": "USA",
+   "place": "Springfield (Massachusetts), senere Canton (Ohio)",
+   "founded": 1877,
+   "tier": "mid",
+   "summary": "Amerikansk produsent av lommeur, også for eksport til Russland.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Hampden",
+     "url": "https://en.wikipedia.org/w/index.php?search=Hampden%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "rockford",
+   "display_name": "Rockford",
+   "aliases": [
+    "rockford watch co"
+   ],
+   "country": "USA",
+   "place": "Rockford, Illinois",
+   "founded": 1873,
+   "tier": "mid",
+   "summary": "Amerikansk produsent av lommeur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Rockford",
+     "url": "https://en.wikipedia.org/w/index.php?search=Rockford%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "south bend",
+   "display_name": "South Bend",
+   "aliases": [
+    "south bend watch co"
+   ],
+   "country": "USA",
+   "place": "South Bend, Indiana",
+   "founded": 1903,
+   "tier": "mid",
+   "summary": "Amerikansk produsent av lommeur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: South Bend",
+     "url": "https://en.wikipedia.org/w/index.php?search=South%20Bend%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "ingersoll",
+   "display_name": "Ingersoll",
+   "aliases": [
+    "robt. h. ingersoll"
+   ],
+   "country": "USA/Storbritannia",
+   "place": "New York",
+   "founded": 1892,
+   "tier": "mass",
+   "summary": "Kjent for «dollarklokka», et svært billig lommeur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Ingersoll",
+     "url": "https://en.wikipedia.org/w/index.php?search=Ingersoll%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "waterbury",
+   "display_name": "Waterbury",
+   "aliases": [
+    "waterbury clock co",
+    "waterbury watch co"
+   ],
+   "country": "USA",
+   "place": "Waterbury, Connecticut",
+   "founded": 1880,
+   "tier": "mass",
+   "summary": "Laget billige masseproduserte ur.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Waterbury",
+     "url": "https://en.wikipedia.org/w/index.php?search=Waterbury%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "westclox",
+   "display_name": "Westclox",
+   "aliases": [
+    "western clock co"
+   ],
+   "country": "USA",
+   "place": "La Salle, Illinois",
+   "founded": 1885,
+   "tier": "mass",
+   "summary": "Rimelige lommeur og vekkerklokker.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Westclox",
+     "url": "https://en.wikipedia.org/w/index.php?search=Westclox%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "dent",
+   "display_name": "Dent",
+   "aliases": [
+    "dent london",
+    "e. dent & co",
+    "e. j. dent"
+   ],
+   "country": "Storbritannia",
+   "place": "London",
+   "founded": 1814,
+   "tier": "premium",
+   "summary": "Kjent for kronometre og klokken i Big Ben.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Dent",
+     "url": "https://en.wikipedia.org/w/index.php?search=Dent%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "charles frodsham",
+   "display_name": "Charles Frodsham",
+   "aliases": [
+    "chas. frodsham",
+    "frodsham"
+   ],
+   "country": "Storbritannia",
+   "place": "London",
+   "founded": 1834,
+   "tier": "premium",
+   "summary": "Kjent for presisjonsur og kronometre.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Charles Frodsham",
+     "url": "https://en.wikipedia.org/w/index.php?search=Charles%20Frodsham%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "j. w. benson",
+   "display_name": "J. W. Benson",
+   "aliases": [
+    "benson",
+    "j.w. benson"
+   ],
+   "country": "Storbritannia",
+   "place": "London",
+   "founded": 1847,
+   "tier": "mid",
+   "summary": "Stor urforhandler og produsent i London.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: J. W. Benson",
+     "url": "https://en.wikipedia.org/w/index.php?search=J.%20W.%20Benson%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "smiths",
+   "display_name": "Smiths",
+   "aliases": [
+    "s. smith & sons",
+    "smith & sons"
+   ],
+   "country": "Storbritannia",
+   "place": "London",
+   "founded": 1851,
+   "tier": "mid",
+   "summary": "Britisk produsent av ur og instrumenter.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Smiths",
+     "url": "https://en.wikipedia.org/w/index.php?search=Smiths%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "rotherham",
+   "display_name": "Rotherham",
+   "aliases": [
+    "rotherham & sons"
+   ],
+   "country": "Storbritannia",
+   "place": "Coventry",
+   "founded": 1747,
+   "tier": "mid",
+   "summary": "Gammel engelsk urfabrikk i Coventry.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Rotherham",
+     "url": "https://en.wikipedia.org/w/index.php?search=Rotherham%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "lip",
+   "display_name": "Lip",
+   "aliases": [],
+   "country": "Frankrike",
+   "place": "Besançon",
+   "founded": 1867,
+   "tier": "mid",
+   "summary": "Fransk urfabrikk i Besançon.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Lip",
+     "url": "https://en.wikipedia.org/w/index.php?search=Lip%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "leroy",
+   "display_name": "Leroy",
+   "aliases": [
+    "l. leroy",
+    "leroy & cie"
+   ],
+   "country": "Frankrike",
+   "place": "Paris",
+   "founded": 1785,
+   "tier": "haute",
+   "summary": "Fransk urmaker, kjent for et av de mest kompliserte lommeurene som er laget.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Leroy",
+     "url": "https://en.wikipedia.org/w/index.php?search=Leroy%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "j. tostrup",
+   "display_name": "J. Tostrup",
+   "aliases": [
+    "tostrup"
+   ],
+   "country": "Norge",
+   "place": "Christiania (Oslo)",
+   "founded": 1832,
+   "tier": "retailer",
+   "summary": "Gullsmed og forhandler. Ur signert Tostrup er som regel laget i Sveits.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: J. Tostrup",
+     "url": "https://en.wikipedia.org/w/index.php?search=J.%20Tostrup%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "david-andersen",
+   "display_name": "David-Andersen",
+   "aliases": [
+    "david andersen"
+   ],
+   "country": "Norge",
+   "place": "Christiania (Oslo)",
+   "founded": 1876,
+   "tier": "retailer",
+   "summary": "Gullsmed og forhandler i Oslo. Signerte ur er som regel laget i Sveits.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: David-Andersen",
+     "url": "https://en.wikipedia.org/w/index.php?search=David-Andersen%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "halda",
+   "display_name": "Halda",
+   "aliases": [],
+   "country": "Sverige",
+   "place": "Svängsta",
+   "founded": 1887,
+   "tier": "mid",
+   "summary": "Svensk urfabrikk grunnlagt av Henning Hammarlund.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Halda",
+     "url": "https://en.wikipedia.org/w/index.php?search=Halda%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "pavel bure",
+   "display_name": "Pavel Bure",
+   "aliases": [
+    "paul buhre",
+    "paul buhré",
+    "павел буре"
+   ],
+   "country": "Russland/Sveits",
+   "place": "St. Petersburg og Le Locle",
+   "founded": 1815,
+   "tier": "premium",
+   "summary": "Hofleverandør til tsaren. Mange ur ble laget i Sveits for Bure.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Pavel Bure",
+     "url": "https://en.wikipedia.org/w/index.php?search=Pavel%20Bure%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "seiko",
+   "display_name": "Seiko",
+   "aliases": [
+    "k. hattori",
+    "seikosha"
+   ],
+   "country": "Japan",
+   "place": "Tokyo",
+   "founded": 1881,
+   "tier": "mid",
+   "summary": "Grunnlagt av Kintaro Hattori.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Seiko",
+     "url": "https://en.wikipedia.org/w/index.php?search=Seiko%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "citizen",
+   "display_name": "Citizen",
+   "aliases": [],
+   "country": "Japan",
+   "place": "Tokyo",
+   "founded": 1918,
+   "tier": "mid",
+   "summary": "Japansk urprodusent.",
+   "interpretation": null,
+   "number_note": null,
+   "sources": [
+    {
+     "title": "Wikipedia: Citizen",
+     "url": "https://en.wikipedia.org/w/index.php?search=Citizen%20watch"
+    }
+   ],
+   "is_verified": false
+  },
+  {
+   "brand": "g. monard",
+   "display_name": "G. Monard, Genève",
+   "aliases": [
+    "monard"
+   ],
+   "country": "Sveits",
+   "place": "Genève",
+   "founded": null,
+   "tier": "trade_name",
+   "summary": "Navnet står på mange sveitsiske lommeur fra 1800-tallet, ofte gravert på cuvetten sammen med et nummer. Eksempler i handelen spenner fra ur i uedelt metall med usignert verk til sølv- og gullur, mange med nøkkeloppstrekk. Kildene vi har funnet, sier lite om hvem G. Monard var. En Jules Monard i Genève laget fine komplikasjonsur rundt 1900.",
+   "interpretation": "Bredden i kvalitet, og at verkene ofte er usignerte, tyder på at navnet ble brukt av en etablisseur (som kjøpte verk og kasser fra ulike leverandører og satte dem sammen) eller som handelsnavn. Det er en tolkning, ikke dokumentert. Om G. Monard og Jules Monard hører sammen, vet vi ikke.",
+   "number_note": "Nummeret etter «No» på cuvetten er urets eget nummer i produsentens serie. Samme nummer i kassen viser at delene hører sammen. Vi har ingen tabell som kan datere Monard-nummer.",
+   "sources": [
+    {
+     "title": "Proantic: G. Monard à Genève, savonnette, 1800-tallet",
+     "url": "https://proantic.com/en/1514320-pocket-watch-full-hunter-monard-a-geneve-xix-century.html"
+    },
+    {
+     "title": "Fellows 2017: G. Monard, kasse nr. 70958, usignert verk",
+     "url": "https://www.fellows.co.uk/bidding/1962-watches-watch-parts-648/359-a-full-hunter-pocket-watch-by-g-monard-together-with-a-white-metal-full-huter-fob-watch-188730"
+    },
+    {
+     "title": "Antiquorum 2016: Jules Monard, Genève, nr. 24964, ca. 1900",
+     "url": "https://catalog.antiquorum.swiss/en/lots/jules-monard-lot-299-293"
+    }
+   ],
+   "is_verified": false
+  }
+ ]
+}

@@ -157,6 +157,26 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ## Øktlogg
 
+### 2026-10-31 – Kartlegging: salgsresultater fra auksjonshus
+**Bakgrunn:** Brukeren vil samle informasjon om ur og priser fra auksjonshus.
+**Funn om kildene:**
+- Viser tilslag åpent: Antiquorum (solgt pris inkl. salær, 25 %), Gardiner Houlgate (tilslag + 26,4 % inkl. mva), Gorringes («Sold for»), Smith & Singer (tilslag og pris inkl. salær).
+- Skjuler prisene bak innlogging eller abonnement: Fellows, the-saleroom, Catawiki (avsluttede objekter ble ikke vist), Heritage (ikke vist for dette objektet).
+- Norske hus (Blomqvist, Grev Wedels Plass, Christiania) ble ikke funnet med nettsøk; må trolig hentes via brukeren.
+- Utbyttet er lavt: om lag to brukbare salg per tre oppslag.
+**Kandidatsalg (ikke lagt inn ennå):**
+| Hus | Dato | Ur | Pris | Grunnlag |
+|---|---|---|---|---|
+| Antiquorum | 2022-05-08 | Vacheron Constantin, savonnette 18 k, ca. 1915, verk 412538 | CHF 3 500 | inkl. salær |
+| Antiquorum | 2024-11-10 | Vacheron Constantin, åpen 18 k, ca. 1915, verk 374500 | CHF 6 250 | inkl. salær |
+| Gorringes | 2025-07-15 | Vacheron & Constantin, åpen 18 k, verk 394139, dårlig stand | GBP 1 000 | «Sold for» |
+| Gardiner Houlgate | 2023-10-24 | Omega, sølv 0.800, anker, går ikke | GBP 65 | tilslag |
+| Gardiner Houlgate | 2024-10-22 | Omega, sølv 0.800 og forgylt, anker, 1930-årene, god stand | GBP 140 | tilslag |
+| Antiquorum | 2020-10-01 | Usignert, sølv 0.800, åpen, ca. 1900, må repareres | CHF 56 | inkl. salær |
+**Dateringsfunn:** Antiquorum daterer verk 374500 til ca. 1915 (støtter 1915–1920 for 377144), men også verk 412538 til ca. 1915, mens tabellene setter 410 000 til ca. 1930. Tabellene for Vacheron Constantin er derfor usikre over 400 000.
+**Valuta:** Salg må lagres i opprinnelig valuta med kurs; 2024-snitt fra DNBs tabell: GBP 13,74, CHF 12,22, EUR 11,63, USD 10,75 (beregnet snitt av daglige kurser).
+**Neste:** Avklare med brukeren hvilke urtyper som skal prioriteres og om hen sender lenker fra norske hus.
+
 ### 2026-10-31 – Vacheron & Constantin: fasit fra ekte ur
 **Bakgrunn:** Brukeren lastet opp fem bilder av uret som avslørte at appen ikke kjente Vacheron Constantin (testet før økt 15).
 **Avlest manuelt:** Savonnette i 18 k gull («0,750» i ramme i begge lokk), kassenummer 233243 i frontlokket og i ytre baklokk (siste siffer 3 eller 5), «V&C» i ramme, «5» og malteserkors i baklokket. Cuvetten er gravert «Vacheron & Constantin», «Chronomètre» og «Genève» med malteserkors. Verket har broer, kroneoppstrekk, signatur «Vacheron & Constantin Genève» og verksnummer 377144. Ankergaffelen er ikke synlig. Prislappen «116…» ved siden av uret er ikke en del av uret.

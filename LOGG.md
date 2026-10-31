@@ -157,6 +157,14 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ## Øktlogg
 
+### 2026-10-31 – Research: hvordan andre apper finner priser, informasjon og bilder
+- **Store prisdatabaser** (WorthPoint, Barnebys, EveryWatch) har bygget opp millioner av salg over mange år gjennom avtaler med hundrevis av auksjonshus og markedsplasser, med AI og manuell kontroll. WorthPoint koster fra 29,99 dollar i måneden; Barnebys' prisbank er gratis å søke i, men har ikke noe åpent API.
+- **De mange «Antique Identifier»-appene** gjenkjenner bildet med AI og gir «AI-anslag» uten navngitte kilder. Det er nettopp den gjetningen InformAntikk skal unngå.
+- **Bildesøk:** Google Cloud Vision Web Detection finner like bilder på nett (1 000 gratis per måned, deretter 3,50 dollar per 1 000).
+- **eBay:** Marketplace Insights API (solgte objekter) er i begrenset utgivelse; åpent API gir bare aktive annonser.
+- **Auctionet** (nordisk, over 80 hus) har et åpent arkiv over solgte objekter med priser.
+- **Konklusjon:** Ingen gratis, lovlig kilde gir ferdige pris-API-er. Realistisk vei for oss: manuell kuratering med kilde (brukeren sender lenker), eventuelt lenker ut til prisarkiver (Auctionet, Barnebys) med ferdig søk fra appen, og senere avtale med en datakilde.
+
 ### 2026-10-31 – Kartlegging: salgsresultater fra auksjonshus
 **Bakgrunn:** Brukeren vil samle informasjon om ur og priser fra auksjonshus.
 **Funn om kildene:**

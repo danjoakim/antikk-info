@@ -165,7 +165,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-11-01 | Ny kategori: Elektronikk, spill og media | Brukerens test med PS5-kontroller |
 | 2026-11-01 | Maskoten er en lisensiert stockillustrasjon av en skjære (brukeren har kjøpt lisens). Brukes som maskot i appen, ikke som logo | Egne tegninger i kode ble for geometriske, og bildegenerering bommet på arten. Stocklisenser tillater normalt ikke bruk som logo/varemerke |
 | 2026-11-01 | Appen heter **Funn** | Brukerens valg. Kort og norsk, og passer til flyten: du gjør et funn, skjæra samler funnene i reiret. Ingen varemerkeregistrering nå |
-| 2026-11-01 | Ny skjære fra Kuraplan erstatter stockskjæra, som ikke ble godkjent for bruken. Vilkårene hos Kuraplan må sjekkes før lansering | Brukerens nye fil |
+| 2026-11-01 | Ny skjære fra Kuraplan erstatter stockskjæra, som ikke ble godkjent for bruken. Creative Commons-lisens uten krav om kreditering (ifølge brukeren), så merket trenger ikke være med | Brukerens nye fil |
 | 2026-11-01 | Skjæra har monokkel og tversoversløyfe og sitter i en loppiskasse (kaffekoppen er droppet) | Rekvisitter gir personlighet uten å tegne om fuglen; kassa skjuler klørne og knytter skjæra til loppis |
 | 2026-10-29 | Standardmodeller: `gpt-6-astra` (OpenAIs anbefalte), `gemini-3.8-flash` (Googles anbefalte stabile Flash) | Hentet fra leverandørenes modelloversikter 29.10.2026; overstyres med `VISION_MODEL` |
 
@@ -190,7 +190,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ### 2026-11-01 – Ny skjære: den forrige var ikke godkjent
 **Bakgrunn:** Lisensen på den forrige stockskjæra ble ikke godkjent for denne bruken. Brukeren har fått en ny skjære (laget på Kuraplan, svart-hvit, sitter på grein, ser mot venstre).
 **Gjort:** Hvit bakgrunn fjernet, greina skjult, og samme monokkel, tversoversløyfe og loppiskasse lagt på. Byttet inn i alle sju H-skjermene (`skjaere2_kasse.png`, 852×933). Spørsmålstegnet i «Fant ingenting» er flyttet fordi skjæra nå ser andre veien. Alle fire bildefiler med den gamle skjæra er slettet fra designlerretet.
-**Å avklare:** Originalfilen har «Made on kuraplan.com» nederst i hjørnet. Utsnittet av skjæra tar ikke med teksten, men Kuraplans vilkår må sjekkes: om bildet kan brukes kommersielt i en app, og om merket kan utelates.
+**Avklart:** Teksten «Made on kuraplan.com» kan fjernes. Ifølge brukeren ligger bildet under en Creative Commons-lisens som ikke krever kreditering. Lagre lisensnavn og lenke sammen med bildefilen når den legges i repoet.
 
 ### 2026-11-01 – Skjæra får monokkel og flytter i loppiskasse
 **Gjort:** Rekvisitter tegnet som eget lag oppå den lisensierte skjæra: monokkel med gullkjede og tversoversløyfe i neonrosa. Selve skjærefilen er uendret. Prøvd også lesebriller og lupe; brukeren valgte monokkel.

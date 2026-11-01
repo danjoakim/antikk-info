@@ -183,6 +183,11 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ## Øktlogg
 
+### 2026-11-01 – Forslag til nytt utseende
+**Bakgrunn:** Brukeren: steampunk-stilen er utdatert med alt det nye.
+**Gjort:** Tre retninger på et designlerret (claude.ai-artefakt «InformAntikk – nytt utseende»), hver med start- og resultatskjerm i mobilformat: A Loppisfunn (lyst og rolig, grønn aksent, Manrope), B Prislapp (kraftpapir og etikett, IBM Plex Mono/Sans, rust), C Kamera først (mørkt, søker med siktemerker, gul aksent). Alle har prisen øverst på resultatet, med «Til salgs for» og «Solgt for» adskilt, og lenkede enkeltpriser.
+**Neste:** Brukeren velger retning; deretter bygges den inn i nettversjonen.
+
 ### 2026-11-01 – Økt 21: Priser for alt, og feilen med demopriser
 **Bakgrunn:** Brukeren testet en PS5-kontroller: appen viste «spillkontroller» og «350 kr i demo», og ingen priser fra nettet. «Jeg forstår ikke hvordan dette skal hjelpe folk på loppemarked.»
 **Årsaker:**

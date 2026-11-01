@@ -440,8 +440,23 @@ async function lookup(event) {
 
 // --- Resultat ------------------------------------------------------------------
 
-function renderResult({ dating, valuation, valuation_message, maker }) {
+function renderSaleSearches(links) {
+  const card = $("#sales-card");
+  card.hidden = !links?.length;
+  if (!links?.length) { card.innerHTML = ""; return; }
+  card.innerHTML = `
+    <h2>Se hva lignende er solgt for</h2>
+    <p class="meta">Ferdige søk etter solgte eksemplarer. Prisene der er ikke kontrollert av InformAntikk – sammenlign bilder og tilstand.</p>
+    <ul class="sale-links">${links.map((l) => `
+      <li><a class="sale-link" href="${esc(l.url)}" target="_blank" rel="noopener">
+        <span class="sale-site">${esc(l.label)}</span>
+        <span class="meta">${esc(l.note)} · «${esc(l.query)}»</span></a></li>`).join("")}
+    </ul>`;
+}
+
+function renderResult({ dating, valuation, valuation_message, maker, sale_searches }) {
   renderMaker(maker);
+  renderSaleSearches(sale_searches);
   const demo = `<span class="badge badge-demo">Demodata</span>`;
 
   if (dating.status === "dated") {

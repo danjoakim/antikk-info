@@ -5,6 +5,7 @@ import { dateItem } from "./dating.js";
 import { ESCAPEMENT_LABELS, LAYOUT_LABELS, LOCATION_LABELS, makerInfo, MATERIAL_LABELS, noSalesMessage, normalize, setMakers, WINDING_LABELS } from "./normalize.js";
 import { clearSettings, isLive, loadSettings, saveSettings } from "./settings.js";
 import { suggestPhotos } from "./suggest.js";
+import { saleSearchLinks } from "./salesearch.js";
 import { valueItem } from "./valuation.js";
 import { analyzeWithGemini, mockFacts, testKey, VisionError } from "./vision.js";
 
@@ -53,9 +54,9 @@ async function loadJson(name) {
 }
 
 async function loadData() {
-  const [serial_ranges, hallmarks, auction_results, period_rules, makers, contract] = await Promise.all(
-    ["serial_ranges", "hallmarks", "auction_results", "period_rules", "makers", "vision_contract"].map(loadJson));
-  return { serial_ranges, hallmarks, auction_results, period_rules, makers, contract };
+  const [serial_ranges, hallmarks, auction_results, period_rules, makers, contract, sale_search] = await Promise.all(
+    ["serial_ranges", "hallmarks", "auction_results", "period_rules", "makers", "vision_contract", "sale_search"].map(loadJson));
+  return { serial_ranges, hallmarks, auction_results, period_rules, makers, contract, sale_search };
 }
 
 // --- Bildebehandling i nettleseren -------------------------------------------------
@@ -449,18 +450,34 @@ function lookup(event) {
   const { serial_ranges, hallmarks, auction_results, period_rules } = state.data;
   const facts = normalize(hallmarks, state.confirmed, "confirmed");
   const valuation = valueItem(auction_results, facts, { minSales: MIN_SALES });
+  const maker = makerInfo(facts.brand);
   renderResult({
-    dating: dateItem(serial_ranges, facts, period_rules), valuation,
-    maker: makerInfo(facts.brand),
+    dating: dateItem(serial_ranges, facts, period_rules), valuation, maker,
     valuation_message: valuation ? null : noSalesMessage(facts),
+    sale_searches: saleSearchLinks(state.data.sale_search, facts, maker?.display_name ?? facts.brand_display ?? null),
   });
   show("result");
 }
 
 // --- Resultat ------------------------------------------------------------------
 
-function renderResult({ dating, valuation, valuation_message, maker }) {
+function renderSaleSearches(links) {
+  const card = $("#sales-card");
+  card.hidden = !links?.length;
+  if (!links?.length) { card.innerHTML = ""; return; }
+  card.innerHTML = `
+    <h2>Se hva lignende er solgt for</h2>
+    <p class="meta">Ferdige søk etter solgte eksemplarer. Prisene der er ikke kontrollert av InformAntikk – sammenlign bilder og tilstand.</p>
+    <ul class="sale-links">${links.map((l) => `
+      <li><a class="sale-link" href="${esc(l.url)}" target="_blank" rel="noopener">
+        <span class="sale-site">${esc(l.label)}</span>
+        <span class="meta">${esc(l.note)} · «${esc(l.query)}»</span></a></li>`).join("")}
+    </ul>`;
+}
+
+function renderResult({ dating, valuation, valuation_message, maker, sale_searches }) {
   renderMaker(maker);
+  renderSaleSearches(sale_searches);
   const demo = `<span class="badge badge-demo">Demodata</span>`;
 
   if (dating.status === "dated") {

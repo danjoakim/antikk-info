@@ -204,9 +204,19 @@ class MakerInfo(BaseModel):
     is_verified: bool = False
 
 
+class SaleSearch(BaseModel):
+    """Ferdig søk etter solgte eksemplarer på et eksternt prisarkiv."""
+    site: str
+    label: str
+    note: str
+    query: str
+    url: str
+
+
 class LookupResponse(BaseModel):
     normalized: NormalizedFacts
     dating: DatingResult
     valuation: Valuation | None
     valuation_message: str | None = None
     maker: MakerInfo | None = None
+    sale_searches: list[SaleSearch] = []

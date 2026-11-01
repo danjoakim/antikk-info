@@ -424,3 +424,10 @@ summary { cursor: pointer; font: italic 1.1rem var(--display); min-height: 44px;
   .sp-lens { transform: translate(118px, 92px); }
   .btn:active { transform: none; }
 }
+
+/* Søk etter solgte eksemplarer */
+.sale-links { list-style: none; margin: .75rem 0 0; padding: 0; display: grid; gap: .5rem; }
+.sale-link { display: block; padding: .7rem .85rem; border: 1px solid var(--rule, currentColor); border-radius: 4px;
+  text-decoration: none; color: inherit; }
+.sale-link:active { transform: translateY(1px); }
+.sale-site { display: block; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }

@@ -1,0 +1,89 @@
+{
+ "_beskrivelse": "Søk etter solgte eksemplarer på eksterne prisarkiv. Felles for server- og nettversjonen. Nye kategorier legges til under item_types; hvert ord oppgis på svensk (Auctionet) og engelsk (Barnebys, eBay). Barnebys søker med ELLER mellom ordene, så der brukes bare merkenavnet, og nettstedet utelates når uret ikke er signert.",
+ "sites": [
+  {
+   "id": "auctionet",
+   "label": "Auctionet",
+   "note": "Tilslag fra nordiske auksjonshus",
+   "lang": "sv",
+   "url": "https://auctionet.com/sv/search?is=ended&q={q}",
+   "join": "+",
+   "brand_only": false,
+   "material_with_brand": false
+  },
+  {
+   "id": "barnebys",
+   "label": "Barnebys",
+   "note": "Oppnådde priser fra auksjonshus verden over (søker på merkenavnet)",
+   "lang": "en",
+   "url": "https://www.barnebys.com/realized-prices/{q}.html",
+   "join": "_",
+   "brand_only": true,
+   "material_with_brand": false
+  },
+  {
+   "id": "ebay",
+   "label": "eBay – solgte",
+   "note": "Nylig solgte annonser, mest USA og Storbritannia",
+   "lang": "en",
+   "url": "https://www.ebay.com/sch/i.html?_nkw={q}&LH_Sold=1&LH_Complete=1",
+   "join": "+",
+   "brand_only": false,
+   "material_with_brand": true
+  }
+ ],
+ "item_types": {
+  "pocket_watch": {
+   "sv": "fickur",
+   "en": "pocket watch"
+  }
+ },
+ "materials": {
+  "gold_18k": {
+   "sv": "guld",
+   "en": "gold"
+  },
+  "gold_14k": {
+   "sv": "guld",
+   "en": "gold"
+  },
+  "gold_filled": {
+   "sv": "doublé",
+   "en": "gold filled"
+  },
+  "silver_935": {
+   "sv": "silver",
+   "en": "silver"
+  },
+  "silver_925": {
+   "sv": "silver",
+   "en": "silver"
+  },
+  "silver_900": {
+   "sv": "silver",
+   "en": "silver"
+  },
+  "silver_875": {
+   "sv": "silver",
+   "en": "silver"
+  },
+  "silver_800": {
+   "sv": "silver",
+   "en": "silver"
+  },
+  "steel": {
+   "sv": "stål",
+   "en": "steel"
+  }
+ },
+ "escapements": {
+  "cylinder": {
+   "sv": "cylinder",
+   "en": "cylinder"
+  },
+  "verge": {
+   "sv": "spindel",
+   "en": "verge"
+  }
+ }
+}

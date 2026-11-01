@@ -296,3 +296,20 @@ def test_vacheron_real_watch(conn):
     assert value_item(conn, n) is None                       # ingen egne salg: ingen pris
     d = date_item(conn, n)
     assert d.estimate is None and d.period.display == "ca. 1860–1940"   # bare grov periode uten tabell
+
+
+# --- Søk etter solgte eksemplarer -----------------------------------------------------
+
+from app.models import NormalizedFacts  # noqa: E402
+from app.services.salesearch import sale_search_links  # noqa: E402
+
+
+def test_sale_search_links_for_brand_and_unsigned():
+    links = {l.site: l for l in sale_search_links(NormalizedFacts(material="gold_18k"), "Vacheron Constantin")}
+    assert links["auctionet"].url == "https://auctionet.com/sv/search?is=ended&q=fickur+vacheron+constantin"
+    assert links["barnebys"].url == "https://www.barnebys.com/realized-prices/vacheron_constantin.html"
+    assert links["ebay"].url.endswith("_nkw=pocket+watch+vacheron+constantin+gold&LH_Sold=1&LH_Complete=1")
+    unsigned = {l.site: l for l in sale_search_links(NormalizedFacts(material="silver_800", escapement="cylinder"))}
+    assert unsigned["auctionet"].query == "fickur silver cylinder"
+    assert "barnebys" not in unsigned and unsigned["ebay"].query == "pocket watch silver cylinder"
+    assert sale_search_links(NormalizedFacts(), None, item_type="vase") == []

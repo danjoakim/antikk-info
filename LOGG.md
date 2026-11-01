@@ -73,7 +73,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 - [ ] Legge til salgsdata for nøkkeloppstrekk vs. kroneoppstrekk (påvirker prisen)
 
 ### Prioritert rekkefølge (avtalt 01.11.2026)
-1. [ ] Søkeknapper etter solgte på Auctionet, Barnebys og eBay fra resultatsiden (enkelt, gratis, gjelder alle kategorier)
+1. [x] Søkeknapper etter solgte på Auctionet, Barnebys og eBay fra resultatsiden (enkelt, gratis, gjelder alle kategorier)
 2. [ ] Frontlokk (savonnette) i skjemaet
 3. [ ] Neste kategori etter lommeur (porselen/keramikk eller sølv – brukeren velger)
 4. [ ] Felles salgsdatabase med godkjenningskø (Supabase) og nettsøk etter salg via Gemini
@@ -172,6 +172,13 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-11-01 – Økt 17: Se hva lignende er solgt for
+**Gjort:** Nytt kort på resultatsiden med ferdige søk etter solgte eksemplarer: Auctionet (avsluttede, tilslag; svenske søkeord), Barnebys (oppnådde priser; bare merkenavnet) og eBay (solgte). Søkeordene lages av bekreftet merke, materiale og gangtype. Ordlistene ligger i `app/data/sale_search.json`, felles for begge versjoner, så nye kategorier bare trenger nye ord. Kortet sier tydelig at prisene der ikke er kontrollert av appen.
+**Funn under testing:** Auctionet-adressen `?is=ended&q=` gir avsluttede salg med tilslag (kontrollert i nettleser). Barnebys søker med ELLER mellom ordene, så «pocket watch vacheron constantin gold» ga 86 754 treff med mye irrelevant. Barnebys får derfor bare merkenavnet og utelates for usignerte ting.
+**Filer:** `app/data/sale_search.json` (ny), `app/services/salesearch.py` (ny), `docs/js/salesearch.js` (ny), `docs/data/sale_search.json`, `app/models.py` (`SaleSearch`, `LookupResponse.sale_searches`), `app/routes/analyze.py`, `tools/export_data.py`, `docs/js/app.js`, `app/static/app.js`, begge `index.html` og `styles.css`, tester.
+**Tester:** Python 59, JavaScript 23 bestått. Mobilnettleser med Vacheron-fasiten: kortet vises med tre riktige lenker, ingen feil.
+**Ikke testet:** eBay-lenken i ekte nettleser (adresseformatet er eBays kjente for solgte annonser).
 
 ### 2026-10-31 – Research: hvordan andre apper finner priser, informasjon og bilder
 - **Store prisdatabaser** (WorthPoint, Barnebys, EveryWatch) har bygget opp millioner av salg over mange år gjennom avtaler med hundrevis av auksjonshus og markedsplasser, med AI og manuell kontroll. WorthPoint koster fra 29,99 dollar i måneden; Barnebys' prisbank er gratis å søke i, men har ikke noe åpent API.

@@ -184,3 +184,18 @@ test("merkelisten: ukjent navn gir ingen pris; Roskopf sammenlignes med usignert
     marks: [{ text: "Vacheron & Constantin Genève", location: "cuvette_outside", type: "inscription" }] }, "vision");
   assert.deepEqual([t.brand, t.retailer], ["vacheron constantin", "J. Tostrup"]);
 });
+
+// --- Søk etter solgte eksemplarer ---------------------------------------------------
+import { saleSearchLinks } from "../docs/js/salesearch.js";
+
+test("søkelenker for merke og usignert", () => {
+  const data = load("sale_search");
+  const links = Object.fromEntries(saleSearchLinks(data, { material: "gold_18k" }, "Vacheron Constantin").map((l) => [l.site, l]));
+  assert.equal(links.auctionet.url, "https://auctionet.com/sv/search?is=ended&q=fickur+vacheron+constantin");
+  assert.equal(links.barnebys.url, "https://www.barnebys.com/realized-prices/vacheron_constantin.html");
+  assert.ok(links.ebay.url.endsWith("_nkw=pocket+watch+vacheron+constantin+gold&LH_Sold=1&LH_Complete=1"));
+  const unsigned = Object.fromEntries(saleSearchLinks(data, { material: "silver_800", escapement: "cylinder" }).map((l) => [l.site, l]));
+  assert.equal(unsigned.auctionet.query, "fickur silver cylinder");
+  assert.ok(!unsigned.barnebys); assert.equal(unsigned.ebay.query, "pocket watch silver cylinder");
+  assert.deepEqual(saleSearchLinks(data, {}, null, "vase"), []);
+});

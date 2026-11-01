@@ -11,6 +11,7 @@ from app.db.database import connection_dependency
 from app.models import AnalyzeResponse, ConfirmedFacts, LookupResponse
 from app.services.dating import date_item
 from app.services.makers import maker_info
+from app.services.salesearch import sale_search_links
 from app.services.valuation import no_sales_message
 from app.services.suggest import suggest_photos
 from app.models import LOCATION_LABELS
@@ -114,5 +115,8 @@ def lookup(
     message = None
     if valuation is None:
         message = no_sales_message(facts)
+    maker = maker_info(facts)
+    brand_name = maker.display_name if maker else facts.brand_display
     return LookupResponse(normalized=facts, dating=date_item(conn, facts), valuation=valuation,
-                          valuation_message=message, maker=maker_info(facts))
+                          valuation_message=message, maker=maker,
+                          sale_searches=sale_search_links(facts, brand_name, body.item_type))

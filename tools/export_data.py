@@ -52,6 +52,7 @@ def main() -> None:
 
     # Merkekunnskapen deles som den er.
     (OUT / "makers.json").write_text((ROOT / "app" / "data" / "makers.json").read_text(encoding="utf-8"), encoding="utf-8")
+    (OUT / "sale_search.json").write_text((ROOT / "app" / "data" / "sale_search.json").read_text(encoding="utf-8"), encoding="utf-8")
     print("makers:", len(json.loads((OUT / "makers.json").read_text(encoding="utf-8"))["makers"]), "navn")
 
     # Samme instruks, skjema og demoeksempler som Python-versjonen bruker.

@@ -79,6 +79,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 4. [ ] Felles salgsdatabase med godkjenningskø (Supabase) og nettsøk etter salg via Gemini
 
 ### Parkerte idéer (ikke start før det over er ferdig)
+- Samlinger («Mine funn») med lagrede analyser, som i Curio
 - Skannefunksjon: smart søker med skarphetsmåler, gjenskinnsvarsel og automatisk avtrykk (nivå 1); levende guide med Gemini Live API (nivå 2). Usikker gevinst: bilder fra videostrøm er dårligere enn stillbilder til å lese små stempler.
 - Lignende bilder fra nettet (Google Cloud Vision Web Detection)
 - Henvisning til urmaker/auksjonshus for verdifulle funn
@@ -151,6 +152,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-10-31 | Merker i fremste klasse får råd om å få uret vurdert og advarsel om forfalskninger | Høy verdi og mange forfalskede signaturer på eldre ur |
 | 2026-10-31 | Knappen «Lagre bildene på telefonen» deler originalbildene via delingsarket (Web Share), med nedlasting som reserve | iOS lagrer ikke bilder tatt med kameraet fra en nettside i Bilder-appen; brukeren mistet bildene av et testet ur |
 | 2026-11-01 | InformAntikk er for alt man finner på loppis og i antikk- og bruktbutikker. Lommeur er første kategori, ikke hele appen | Brukerens presisering. Nye løsninger (felles salgsdatabase, nettsøk etter salg, lignende bilder) bygges generelt, ikke for ur |
+| 2026-11-01 | Vi tar det beste fra de andre appene: rask bildeflyt og samlinger (Curio), salgsdata med kilde (WorthPoint, Barnebys, AntiqBot), lignende bilder (Google Lens), fagperson ved verdifulle funn (Mearto, ValueMyStuff), betaling per analyse (AntiqBot). Det vi beholder selv: år og pris bare fra tabeller og lenkede salg | Brukerens strategi. Ærlighet om kilder er det som skiller oss fra konkurrentene |
 | 2026-10-29 | Standardmodeller: `gpt-6-astra` (OpenAIs anbefalte), `gemini-3.8-flash` (Googles anbefalte stabile Flash) | Hentet fra leverandørenes modelloversikter 29.10.2026; overstyres med `VISION_MODEL` |
 
 ---

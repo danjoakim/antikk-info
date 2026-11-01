@@ -243,6 +243,25 @@ input[name$="serial"], input[name="case_number"] { font-variant-numeric: tabular
 .stamp { font-size: 14px; padding: 4px 9px; background: var(--tape); }
 .stamp small { display: block; font-size: 11px; color: var(--muted); }
 
+/* --- Identifisering ------------------------------------------------------------------------ */
+
+.identity { margin: 4px 0 16px; }
+.identity .box-label { margin-bottom: 8px; }
+.id-cards { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.id-card {
+  width: 100%; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 4px;
+  padding: 12px 14px; border: var(--line); background: var(--white); color: var(--ink);
+  box-shadow: 4px 4px 0 var(--ink); font: 15px/1.4 var(--mono); -webkit-tap-highlight-color: transparent;
+}
+.id-card.picked { background: var(--sticker); }
+.id-card.picked .id-name::before { content: "✓ "; }
+.id-card:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--ink); }
+.id-name { font-weight: 700; font-size: 17px; }
+.id-why { font-size: 14px; }
+.id-check { font-size: 14px; font-weight: 700; background: var(--tape); padding: 4px 6px; align-self: flex-start; }
+.id-source { display: inline-block; margin: 6px 0 0 2px; font-size: 13px; color: var(--muted); }
+.result-identity { margin: 4px 0 0; }
+
 /* --- Beskjeder ------------------------------------------------------------------------------ */
 
 .notice { border: 2px solid var(--ink); background: var(--white); padding: 10px 12px; margin-bottom: 14px; font-size: 15px; }

@@ -6,6 +6,7 @@ import { CATEGORY_LABELS, ESCAPEMENT_LABELS, isWatch, LAYOUT_LABELS, LOCATION_LA
 import { clearSettings, isLive, loadSettings, saveSettings } from "./settings.js";
 import { suggestPhotos } from "./suggest.js";
 import { describeItem, searchWebSales } from "./websales.js";
+import { describeObserved, identifyItem, mockIdentity } from "./identify.js";
 import { valueItem } from "./valuation.js";
 import { analyzeWithGemini, mockFacts, testKey, VisionError } from "./vision.js";
 
@@ -177,7 +178,7 @@ function openCapture() {
 // --- Venteskjerm ---------------------------------------------------------------
 
 // Skjæra vipper i kassa mens en liten sjekkliste krysses av.
-const LOADING_STEPS = ["Ser hva det er", "Leser merker og tall", "Sjekker stempler og etiketter"];
+const LOADING_STEPS = ["Ser hva det er", "Leser merker og tall", "Sjekker stempler og etiketter", "Finner ut nøyaktig hva det er"];
 let loadingTimer = null;
 let loadingAbort = null;
 
@@ -203,11 +204,18 @@ function showLoading() {
   const items = [...screen.querySelectorAll(".checklist li")];
   let i = 0;
   loadingTimer = setInterval(() => {
-    if (i >= items.length - 1) return stopLoading();   // siste punkt står til svaret kommer
+    if (i >= items.length - 2) return stopLoading();   // nest siste punkt står til bildeanalysen er ferdig
     items[i].className = "done";
     i += 1;
     items[i].className = "now";
   }, 2600);
+}
+
+/** Bildeanalysen er ferdig: kryss av alt unntatt siste punkt (identifiseringen). */
+function loadingIdentify() {
+  stopLoading();
+  const items = [...document.querySelectorAll("#screen-loading .checklist li")];
+  items.forEach((li, n) => { li.className = n < items.length - 1 ? "done" : "now"; });
 }
 
 /** Setter inn skjæra i kassa der det står data-skjaere="alt-tekst". */
@@ -272,7 +280,16 @@ async function analyze() {
       : mockFacts(state.data.contract, $("#mock-scenario").value);
     const normalized = normalize(state.data.hallmarks, facts, "vision");
     const suggestions = suggestPhotos(state.data.serial_ranges, facts, normalized);
-    state.analysis = { mode: live ? "live" : "mock", facts, normalized, suggestions,
+    if (controller.signal.aborted) return;
+    // Steg 2: finn ut nøyaktig hva det er, med kilder. Feiler det, går appen videre uten forslag.
+    loadingIdentify();
+    const identity = live
+      ? await identifyItem(describeObserved(facts, normalized),
+          { key: state.settings.key, model: state.settings.model, signal: controller.signal })
+          .catch((err) => ({ candidates: [], decided: false, error: err.message }))
+      : mockIdentity($("#mock-scenario").value);
+    state.analysis = { mode: live ? "live" : "mock", facts, normalized, suggestions, identity,
+      chosen: identity.decided ? identity.candidates[0] : null,
       seconds: live ? (performance.now() - started) / 1000 : null, photos: images.length,
       bytes: images.reduce((sum, i) => sum + i.blob.size, 0) };
     if (controller.signal.aborted) return;
@@ -338,6 +355,8 @@ function renderConfirm() {
     ? fineness.map((m) => `<span class="stamp">${esc(m.text)} <small>${esc(place(m.location))}</small></span>`).join("")
     : `<small>Ingen stempler lest.</small>`;
   renderFound(normalized, facts);
+  renderIdentity();
+  if (state.analysis.chosen) applyCandidate(state.analysis.chosen);
   toggleWatchFields();
 
   document.querySelectorAll("[data-conf]").forEach((chip) => {
@@ -363,6 +382,54 @@ function renderConfirm() {
       <button class="link" type="button" data-action="add-photo">Legg til eller bytt bilder</button></div>`);
   }
   $("#confirm-notices").innerHTML = notices.join("");
+}
+
+// --- Identifisering: «Dette ser ut til å være» / «Er det en av disse?» -----------------
+
+function renderIdentity() {
+  const box = $("#identity-box");
+  const { identity, chosen } = state.analysis;
+  const list = identity?.candidates ?? [];
+  box.hidden = !list.length;
+  if (!list.length) { box.innerHTML = ""; return; }
+  const card = (c, i) => `
+    <li><button type="button" class="id-card${chosen === c ? " picked" : ""}" data-pick="${i}" aria-pressed="${chosen === c}">
+      <span class="id-name">${esc(c.name)}${c.demo ? ` <span class="badge badge-demo">eksempel</span>` : ""}</span>
+      ${c.why ? `<span class="id-why">${esc(c.why)}</span>` : ""}
+      ${!identity.decided && c.check ? `<span class="id-check">Sjekk: ${esc(c.check)}</span>` : ""}
+    </button>
+    <a class="id-source" href="${esc(c.url)}" target="_blank" rel="noopener">kilde: ${esc(c.site)}</a></li>`;
+  box.innerHTML = identity.decided
+    ? `<h2 class="box-label">Dette ser ut til å være</h2><ul class="id-cards">${card(list[0], 0)}</ul>`
+    : `<h2 class="box-label">Er det en av disse?</h2><ul class="id-cards">${list.map(card).join("")}</ul>
+       <button type="button" class="link" data-pick="none">${chosen ? "Ingen av disse" : "Ingen av disse – bruk det som ble lest"}</button>`;
+}
+
+/** Fyller ut feltene med det valgte forslaget. Brukeren kan fortsatt rette. */
+function applyCandidate(c) {
+  const form = $("#confirm-form");
+  if (c.what) form.object_type.value = c.what;
+  if (c.maker) form.brand.value = c.maker;
+  if (c.title) form.elements.work_title.value = c.title;
+  if (c.creator) form.elements.creator.value = c.creator;
+  toggleWatchFields();
+}
+
+function pickCandidate(which) {
+  const a = state.analysis;
+  if (which === "none") {
+    a.chosen = null;
+    const n = a.normalized;   // tilbake til det som ble lest
+    const form = $("#confirm-form");
+    form.object_type.value = n.object_type ?? "";
+    form.brand.value = n.brand_display ?? "";
+    form.elements.work_title.value = n.title ?? "";
+    form.elements.creator.value = n.creator ?? "";
+  } else {
+    a.chosen = a.identity.candidates[Number(which)];
+    applyCandidate(a.chosen);
+  }
+  renderIdentity();
 }
 
 function place(location) {
@@ -413,6 +480,9 @@ function lookup(event) {
   state.confirmed = {
     item_type: category,
     object_type: form.object_type.value.trim() || null,
+    identified: state.analysis.chosen?.name ?? null,
+    identified_url: state.analysis.chosen?.demo ? null : state.analysis.chosen?.url ?? null,
+    identified_site: state.analysis.chosen?.site ?? null,
     title: form.elements.work_title.value.trim() || null,
     creator: form.elements.creator.value.trim() || null,
     materials: form.materials.value.split(",").map((m) => m.trim()).filter(Boolean),
@@ -460,6 +530,7 @@ async function startWebSales(facts, maker, dating) {
   const seen = state.analysis;
   const printed = (seen?.facts?.marks ?? []).filter((m) => ["inscription", "label"].includes(m.type)).map((m) => m.text);
   const description = describeItem({ ...facts, observed: seen?.normalized?.description, printed,
+    identified: state.confirmed?.identified,
     other_numbers: seen?.normalized?.other_numbers ?? [] }, {
     brandName: maker?.display_name ?? facts.brand_display ?? null, itemType: facts.category,
     period: dating.status === "dated" ? `${dating.estimate}` : dating.period?.display?.replace(/^ca\. /, "") || null,
@@ -526,7 +597,14 @@ function renderWebSales({ sales, background, range, listedRange, dropped, stats,
 
 function renderResultHead(valuation) {
   const c = state.confirmed;
-  $("#result-title").textContent = c.title ? `«${c.title}»` : capitalize(c.object_type || CATEGORY_LABELS[c.item_type] || "Funnet");
+  $("#result-title").textContent = c.title ? `«${c.title}»` : c.identified ? c.identified : capitalize(c.object_type || CATEGORY_LABELS[c.item_type] || "Funnet");
+  const idLine = $("#result-identity");
+  idLine.hidden = !c.identified;
+  const source = c.identified_url
+    ? `<a href="${esc(c.identified_url)}" target="_blank" rel="noopener">${esc(c.identified_site)}</a>` : "eksempel";
+  idLine.innerHTML = !c.identified ? ""
+    : c.title ? `Identifisert som «${esc(c.identified)}» – kilde: ${source}`   // overskriften er boktittelen
+    : `Navnet er hentet fra ${source}`;
   $("#result-sub").textContent = [c.creator, c.title ? c.object_type : null, c.brand, ...(c.materials ?? [])].filter(Boolean).join(" · ");
   const photo = state.photos.find((p) => p.url);
   const box = $("#result-photo");
@@ -757,6 +835,8 @@ document.addEventListener("change", (e) => {
 });
 
 document.addEventListener("click", (e) => {
+  const pick = e.target.closest("[data-pick]");
+  if (pick) return pickCandidate(pick.dataset.pick);
   const remove = e.target.closest("[data-remove]");
   if (remove) { removePhoto(Number(remove.dataset.remove)); return renderPhotos(); }
   const action = e.target.closest("[data-action]")?.dataset.action;

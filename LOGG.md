@@ -165,6 +165,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-11-01 | Ny kategori: Elektronikk, spill og media | Brukerens test med PS5-kontroller |
 | 2026-11-01 | Maskoten er en lisensiert stockillustrasjon av en skjære (brukeren har kjøpt lisens). Brukes som maskot i appen, ikke som logo | Egne tegninger i kode ble for geometriske, og bildegenerering bommet på arten. Stocklisenser tillater normalt ikke bruk som logo/varemerke |
 | 2026-11-01 | ~~Bildesøk med Cloud Vision~~ – forkastet samme kveld: ga plakater i stedet for boka. Bare Gemini | Cloud Vision matcher utseende, ikke hva tingen er |
+| 2026-11-01 | Identifisering med kilde før prissøk; brukeren velger bare når bildet ikke avgjør det | Presist navn gir bedre pristreff; ingen spørsmål om det som synes |
 | 2026-11-01 | Appen heter **Funn** | Brukerens valg. Kort og norsk, og passer til flyten: du gjør et funn, skjæra samler funnene i reiret. Ingen varemerkeregistrering nå |
 | 2026-11-01 | Ny skjære fra Kuraplan erstatter stockskjæra, som ikke ble godkjent for bruken. Creative Commons-lisens uten krav om kreditering (ifølge brukeren), så merket trenger ikke være med | Brukerens nye fil |
 | 2026-11-01 | Skjæra har monokkel og tversoversløyfe og sitter i en loppiskasse (kaffekoppen er droppet) | Rekvisitter gir personlighet uten å tegne om fuglen; kassa skjuler klørne og knytter skjæra til loppis |
@@ -187,6 +188,18 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-11-01 – Økt 25: Identifisering før prissøk («Er det en av disse?»)
+**Bakgrunn:** Brukeren valgte idé 1 og 2: først finne ut nøyaktig hva tingen er, deretter priser på det presise navnet; la brukeren velge bare når bildet ikke avgjør det (aldri «PS4 eller PS5» når det synes).
+**Gjort:**
+- Ny `docs/js/identify.js`: Gemini med Google-søk får alt som ble lest og sett (tekst, merker, nummer, tittel, beskrivelse, stiltrekk) og skal finne eksakt identitet. Bare forslag med kilde Google fant beholdes. Ett forslag når bildet avgjør det; 2–3 med «Sjekk: …» bare når det som synes, passer på flere. Instruksen forbyr alternativer bildet utelukker og oppdiktede modell-/dekornavn.
+- Felles `callGrounded` i `websales.js` (brukes av både identifisering og prissøk).
+- Venteskjermen har nytt punkt «Finner ut nøyaktig hva det er». Feiler identifiseringen, går appen videre uten forslag.
+- «Stemmer dette?»: «Dette ser ut til å være» (valgt på forhånd) eller «Er det en av disse?» med kort, kilde og «Ingen av disse». Valget fyller ut feltene, som fortsatt kan rettes.
+- Prissøket får «identified as …». Resultatet bruker navnet som overskrift og viser kilden.
+- Demomodus: faste, merkede eksempler (Omega: ett svar; porselen: to kort).
+**Tester:** 41 JS-tester (6 nye) og 63 Python-tester bestått. Nettlesertest med simulert Gemini: ett svar, flere svar med valg, ingen forslag, demo, «Ingen av disse», bokflyten.
+**Ikke gjort:** Serverversjonen (`app/`) har ikke identifiseringen. Idé 3 (felles base over bekreftede funn) venter på beslutninger om lagring, bilder og godkjenning.
 
 ### 2026-11-01 – Bildesøket fjernet igjen
 **Bakgrunn:** Med ekte nøkkel ga Cloud Vision plakater og postere for boka i stedet for boka (den matcher utseendet, omslagsmaleriet, ikke hva tingen er). Brukeren har testet andre apper (Antiqum, 59 kr/uke): de bruker bare en AI-modell og fyller på med gjetning. Beslutning: bare Gemini, men vi må finne på noe smart.

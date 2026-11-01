@@ -23,6 +23,7 @@ const WINDING_EN = { key: "key wind", stem: "keyless (stem wind)" };
 /** Kort engelsk beskrivelse av tingen, bygget bare av bekreftede fakta. */
 export function describeItem(facts, { brandName = null, itemType = "pocket_watch", period = null } = {}) {
   const parts = [ITEM_LABELS[itemType] ?? itemType];
+  if (facts.identified) parts.push(`identified as «${facts.identified}»`);
   if (facts.object_type) parts.push(`– «${facts.object_type}» (Norwegian name)`);
   if (facts.title) parts.push(`titled «${facts.title}»${facts.creator ? ` by ${facts.creator}` : ""}`);
   else if (facts.creator) parts.push(`by ${facts.creator}`);
@@ -87,10 +88,10 @@ export function groundedDomains(metadata) {
   return out;
 }
 
-const sourceTitles = (metadata) => (metadata?.groundingChunks ?? []).map((c) => (c.web?.title ?? "").toLowerCase());
+export const sourceTitles = (metadata) => (metadata?.groundingChunks ?? []).map((c) => (c.web?.title ?? "").toLowerCase());
 
 /** Nettstedet må være blant kildene: samme domene, eller navnet (f.eks. «finn», «ebay») i en kildetittel. */
-function verified(url, domains, titles = []) {
+export function verified(url, domains, titles = []) {
   const h = host(url);
   if (!h) return false;
   for (const d of domains) if (h === d || h.endsWith(`.${d}`) || d.endsWith(`.${h}`)) return true;
@@ -110,7 +111,7 @@ export function parsePrice(value) {
   return Number(t);
 }
 
-function extractJson(text) {
+export function extractJson(text) {
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
   if (start < 0 || end <= start) return null;
@@ -178,7 +179,8 @@ export function parseWebSales(data, fx) {
            entryPoint: meta.searchEntryPoint?.renderedContent ?? null };
 }
 
-export async function searchWebSales(description, fx, { key, model, signal } = {}) {
+/** Kaller Gemini med Google-søk. buildBody(thinkingLevel) lager forespørselen. Gir rå svardata. */
+export async function callGrounded(buildBody, { key, model, signal, label = "Nettsøket" } = {}) {
   const url = `${API}/models/${encodeURIComponent(model)}:generateContent`;
   const send = async (body) => {
     let res;
@@ -186,20 +188,25 @@ export async function searchWebSales(description, fx, { key, model, signal } = {
       res = await fetch(url, { method: "POST", signal, headers: { "Content-Type": "application/json", "x-goog-api-key": key },
                                body: JSON.stringify(body) });
     } catch (err) {
-      throw new VisionError(err.name === "AbortError" ? "Nettsøket tok for lang tid." : "Fikk ikke kontakt med nettsøket.");
+      throw new VisionError(err.name === "AbortError" ? `${label} tok for lang tid.` : `Fikk ikke kontakt med ${label.toLowerCase()}.`);
     }
     return { res, data: await res.json().catch(() => ({})) };
   };
   const level = /^gemini-3/i.test(model ?? "") ? "low" : null;
-  let { res, data } = await send(buildWebSalesRequest(description, { thinkingLevel: level }));
+  let { res, data } = await send(buildBody(level));
   if (res.status === 400 && level && /thinking/i.test(data?.error?.message ?? "")) {
-    ({ res, data } = await send(buildWebSalesRequest(description)));
+    ({ res, data } = await send(buildBody(null)));
   }
   if (!res.ok) {
     const msg = data?.error?.message ?? "";
-    if (res.status === 429) throw new VisionError("Kvoten for nettsøk er brukt opp. Prøv igjen senere.");
+    if (res.status === 429) throw new VisionError(`Kvoten for nettsøk er brukt opp. Prøv igjen senere.`);
     if (/search|grounding|tool/i.test(msg)) throw new VisionError("Nettsøk er ikke tilgjengelig for denne nøkkelen eller modellen.");
-    throw new VisionError(`Nettsøket feilet (HTTP ${res.status}).`);
+    throw new VisionError(`${label} feilet (HTTP ${res.status}).`);
   }
+  return data;
+}
+
+export async function searchWebSales(description, fx, { key, model, signal } = {}) {
+  const data = await callGrounded((thinkingLevel) => buildWebSalesRequest(description, { thinkingLevel }), { key, model, signal });
   return parseWebSales(data, fx);
 }

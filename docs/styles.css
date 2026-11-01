@@ -1,59 +1,27 @@
-/* InformAntikk – viktoriansk / steampunk
-   Et urmakerverksted i 1890-årene: hovedbokpapir, valnøtt, messing, irgrønn og oksblod.
-   Knappene er graverte messingplater; kortene er etiketter i et kuriositetskabinett. */
+/* Funn – loppislapp-stil
+   Hvitt papir, svart tusj, maskeringsteip og neonrosa klistremerker. Harde skygger, ingen runde hjørner.
+   Courier Prime for tekst (som en skrivemaskinlapp), Permanent Marker for det som er skrevet for hånd. */
 
 :root {
-  --paper: #e9e1cc;          /* hovedbokpapir */
-  --paper-deep: #ddd2b6;
-  --card: #f4eedd;           /* etikett */
-  --ink: #261a12;
-  --muted: #6b5a47;
-  --rule: #4a3523;           /* valnøtt-strek */
-  --rule-soft: #b9a888;
-  --walnut: #2b1a10;
-  --walnut-2: #3d2716;
-  --brass: #b4873a;
-  --brass-hi: #ecd08a;
-  --brass-lo: #7e561f;
-  --brass-ink: #2b1a10;
-  --brass-soft: #e6d6ae;
-  --ok: #3e6b5e;             /* verdigris */
-  --ok-soft: #d7e2d6;
-  --warn: #8a5a12;
-  --warn-soft: #efe0bb;
-  --bad: #7a2c24;            /* oksblod */
-  --bad-soft: #ecd3cb;
-  --radius: 4px;
-  --display: "IM Fell English", Baskerville, "Baskerville Old Face", "GFS Baskerville", "Iowan Old Style", Palatino, Georgia, serif;
-  --display-sc: "IM Fell English SC", "IM Fell English", Baskerville, "GFS Baskerville", "Iowan Old Style", Palatino, Georgia, serif;
-  --serif: "Libre Caslon Text", "Big Caslon", Baskerville, "Iowan Old Style", "Palatino Linotype", Palatino, Charter, "Bitstream Charter", Georgia, serif;
-  --sans: var(--serif);
-  color-scheme: light dark;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #1b120b;
-    --paper-deep: #140d08;
-    --card: #271a10;
-    --ink: #ece0c4;
-    --muted: #b9a582;
-    --rule: #8c6a3c;
-    --rule-soft: #4b3824;
-    --walnut: #120b06;
-    --walnut-2: #24170d;
-    --brass: #d2a659;
-    --brass-hi: #f3d995;
-    --brass-lo: #8f6526;
-    --brass-ink: #1b120b;
-    --brass-soft: #3a2a17;
-    --ok: #8dbfae;
-    --ok-soft: #1f2f29;
-    --warn: #e2b766;
-    --warn-soft: #3a2b14;
-    --bad: #e0968a;
-    --bad-soft: #3b1d18;
-  }
+  --paper: #FAFAF7;
+  --white: #FFFFFF;
+  --ink: #111111;
+  --muted: #4A4A46;
+  --photo: #E3E1DA;
+  --tape: #E9DCAE;
+  --sticker: #FF5FA2;
+  --gold: #C9A43A;
+  --ok: #1D6B3A;
+  --ok-soft: #DDF3E3;
+  --warn: #7A4B00;
+  --warn-soft: #FFF1BF;
+  --bad: #A3122A;
+  --bad-soft: #FFE0E5;
+  --line: 2.5px solid var(--ink);
+  --shadow: 5px 5px 0 var(--ink);
+  --mono: "Courier Prime", "Courier New", Courier, monospace;
+  --marker: "Permanent Marker", "Marker Felt", "Comic Sans MS", cursive;
+  color-scheme: light;
 }
 
 * { box-sizing: border-box; }
@@ -61,383 +29,323 @@
 html, body { margin: 0; }
 
 body {
+  background: var(--paper);
   color: var(--ink);
-  font: 17px/1.6 var(--serif);
+  font: 16px/1.5 var(--mono);
   -webkit-text-size-adjust: 100%;
   min-height: 100dvh;
-  background-color: var(--paper);
-  /* Papir som har ligget i en skuff: mørkere kanter og svake fibre */
-  background-image:
-    radial-gradient(ellipse at 50% 0%, transparent 55%, color-mix(in srgb, var(--paper-deep) 80%, transparent) 100%),
-    repeating-linear-gradient(97deg, transparent 0 3px, color-mix(in srgb, var(--rule-soft) 9%, transparent) 3px 4px);
 }
 
-a { color: inherit; }
-:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
-
-/* --- Toppfelt: messingskilt på valnøtt ------------------------------------------ */
-
-.topbar {
-  display: flex; align-items: center; gap: 12px;
-  padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
-  background: linear-gradient(180deg, var(--walnut-2), var(--walnut));
-  border-bottom: 3px double var(--brass);
-  color: var(--brass-hi);
-}
-.topbar img { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .5)); }
-.brand {
-  font-family: var(--display-sc); font-size: 1.45rem; letter-spacing: .03em; line-height: 1;
-  color: var(--brass-hi); text-shadow: 0 1px 0 rgba(0, 0, 0, .6);
-}
-
-main { max-width: 560px; margin: 0 auto; }
-
-.screen {
-  padding: 22px 16px calc(24px + env(safe-area-inset-bottom));
-  min-height: calc(100dvh - 64px);
-  display: flex; flex-direction: column;
-}
-.screen-center { align-items: center; justify-content: center; text-align: center; gap: 12px; }
-
-/* --- Typografi -------------------------------------------------------------------- */
-
-h1 {
-  font-family: var(--display); font-weight: 400; font-size: 2.15rem; line-height: 1.12;
-  margin: 0 0 14px; letter-spacing: -.005em;
-}
-/* Kapittelpynt under overskriften: strek – blomst – strek */
-h1::after {
-  content: "❦"; display: block; margin-top: 8px; width: 9.5rem;
-  font-size: .9rem; line-height: 1; color: var(--brass); text-align: center;
-  background: linear-gradient(var(--rule-soft), var(--rule-soft)) left 50% / 3.6rem 1px no-repeat,
-              linear-gradient(var(--rule-soft), var(--rule-soft)) right 50% / 3.6rem 1px no-repeat;
-}
-.screen-center h1::after { margin-inline: auto; }
-.lead { color: var(--muted); margin: 0 0 16px; font-size: 1.02rem; }
-.fineprint { color: var(--muted); font-size: .9rem; font-style: italic; }
+a { color: var(--ink); text-underline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--sticker); outline-offset: 2px; }
 p { margin: 0 0 12px; }
 
-/* --- Knapper: graverte messingplater med nagler ------------------------------------------ */
+main { max-width: 480px; margin: 0 auto; }
 
-.actions { margin-top: auto; padding-top: 22px; display: flex; flex-direction: column; gap: 12px; }
-.row { display: flex; gap: 10px; }
-.row > * { flex: 1; }
-.row-links { justify-content: space-between; }
-.row-links > * { flex: 0 1 auto; }
+.screen {
+  padding: calc(10px + env(safe-area-inset-top)) 22px calc(26px + env(safe-area-inset-bottom));
+  min-height: 100dvh;
+  display: flex; flex-direction: column;
+}
+.screen-center { align-items: center; text-align: center; }
 
-.btn {
-  position: relative; display: inline-flex; align-items: center; justify-content: center;
-  min-height: 54px; padding: 0 26px; border-radius: var(--radius); cursor: pointer;
-  font: 400 1.22rem/1 var(--display-sc); letter-spacing: .04em; text-align: center;
-  user-select: none; -webkit-tap-highlight-color: transparent;
+/* --- Overskrifter: tusj på teip -------------------------------------------------- */
+
+h1, h2 { font-weight: 400; }
+.tag {
+  align-self: flex-start; display: inline-block; background: var(--tape);
+  padding: 8px 14px; transform: rotate(-1.5deg); margin: 6px 0 14px;
 }
-.btn-primary {
-  color: var(--brass-ink);
-  background: linear-gradient(180deg, var(--brass-hi) 0%, var(--brass) 52%, var(--brass-lo) 100%);
-  border: 1px solid #4b3214;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), inset 0 -2px 0 rgba(0, 0, 0, .18), 0 2px 0 #4b3214, 0 4px 8px rgba(43, 26, 16, .25);
-  text-shadow: 0 1px 0 rgba(255, 244, 210, .55);
-}
-/* Nagler i hver ende av platen */
-.btn-primary::before, .btn-primary::after {
-  content: ""; position: absolute; top: 50%; width: 7px; height: 7px; margin-top: -3.5px; border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #fff3c9 0 18%, var(--brass-lo) 60%, #3b2610 100%);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, .35);
-}
-.btn-primary::before { left: 10px; }
-.btn-primary::after { right: 10px; }
-.btn-primary:active { transform: translateY(2px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), 0 0 0 #4b3214, 0 1px 3px rgba(43, 26, 16, .3); }
-.btn-secondary {
-  color: var(--ink); background: color-mix(in srgb, var(--card) 70%, transparent);
-  border: 1px solid var(--rule); box-shadow: inset 0 0 0 2px var(--card), inset 0 0 0 3px var(--rule-soft);
-}
-.btn-secondary:active { transform: translateY(1px); }
-.btn[disabled] { filter: grayscale(.6); opacity: .55; cursor: default; }
+.tag h1 { margin: 0; font: 400 28px/1.15 var(--marker); }
+.tag-center { align-self: center; }
+.lead { font-size: 15px; line-height: 1.45; }
+.fineprint { font-size: 13px; color: var(--muted); }
+.meta { font-size: 13px; color: var(--muted); }
+.meta.good { color: var(--ok); font-weight: 700; }
+.nowrap { white-space: nowrap; }
+.count { font-size: 14px; }
+
+/* --- Lenker og knapper ------------------------------------------------------------ */
 
 .link {
-  background: none; border: 0; padding: 12px 4px; min-height: 44px; cursor: pointer;
-  color: var(--ink); font: italic 1rem var(--serif);
-  text-decoration: underline; text-decoration-color: var(--brass); text-decoration-thickness: 1px; text-underline-offset: 4px;
+  background: none; border: 0; padding: 0; min-height: 44px; cursor: pointer;
+  display: inline-flex; align-items: center; color: var(--ink);
+  font: 700 15px var(--mono); text-decoration: underline; text-underline-offset: 3px;
+  -webkit-tap-highlight-color: transparent;
 }
-.link-inline { padding: 0; min-height: 0; font-size: inherit; }
+.link-top { align-self: flex-start; }
+.link-center { align-self: center; justify-content: center; font-size: 16px; }
+.link-inline { min-height: 0; display: inline; font-size: inherit; }
+.screen-top { display: flex; justify-content: space-between; align-items: center; }
 
-/* --- Etiketter: små emaljeskilt ------------------------------------------------------ */
+.actions { margin-top: auto; padding-top: 22px; display: flex; flex-direction: column; gap: 10px; }
+.row { display: flex; gap: 10px; }
+.row > * { flex: 1; }
 
-.badge {
-  font: .82rem/1 var(--display-sc); letter-spacing: .04em; padding: 4px 9px 5px;
-  border: 1px solid currentColor; border-radius: 2px;
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; text-align: center;
+  min-height: 60px; padding: 0 18px; cursor: pointer; border-radius: 0;
+  border: var(--line); box-shadow: var(--shadow); color: var(--ink);
+  font: 700 18px/1.1 var(--mono); letter-spacing: .02em;
+  user-select: none; -webkit-tap-highlight-color: transparent;
+  transition: transform .08s, box-shadow .08s;
 }
-.badge-demo { color: var(--brass-hi); border-color: var(--brass); margin-left: auto; }
-.card .badge-demo, .guide-card .badge-demo { color: var(--warn); border-color: var(--warn); background: var(--warn-soft); margin-left: auto; }
+.btn-primary { background: var(--sticker); }
+.btn-big { min-height: 66px; font-size: 19px; }
+.btn-secondary { background: var(--white); min-height: 54px; font-size: 15px; box-shadow: 4px 4px 0 var(--ink); }
+.btn:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--ink); }
+.btn[disabled] { background: var(--photo); color: var(--muted); box-shadow: 3px 3px 0 var(--muted); border-color: var(--muted); cursor: default; }
+.btn[disabled]:active { transform: none; }
 
-.chip {
-  font: .82rem/1 var(--display-sc); font-variant-numeric: lining-nums; letter-spacing: .03em; padding: 3px 8px 4px;
-  border: 1px solid currentColor; border-radius: 2px; white-space: nowrap;
+/* --- Startskjerm -------------------------------------------------------------------- */
+
+.screen-intro { padding-top: calc(22px + env(safe-area-inset-top)); }
+.start-top { display: flex; align-items: center; gap: 10px; padding-top: 6px; }
+.start-top .link-top { margin-left: auto; align-self: center; }
+.logo { position: relative; display: inline-block; margin-left: 4px; }
+.logo-word {
+  margin: 0; display: inline-block; background: var(--sticker); border: 3px solid var(--ink);
+  padding: 0 20px 6px; transform: rotate(-3deg); box-shadow: var(--shadow);
+  font: 400 50px/1.15 var(--marker); letter-spacing: .01em;
 }
-.chip:empty { display: none; }
-.chip.high { color: var(--ok); background: var(--ok-soft); }
-.chip.mid { color: var(--warn); background: var(--warn-soft); }
-.chip.low { color: var(--bad); background: var(--bad-soft); }
+.tape { position: absolute; background: var(--tape); opacity: .95; }
+.tape-logo { left: -10px; top: -9px; width: 54px; height: 16px; transform: rotate(-18deg); z-index: 1; }
+.star { position: absolute; fill: #F3D47A; stroke: var(--ink); stroke-linejoin: round; }
+.star-big { right: -22px; top: -16px; width: 34px; height: 34px; stroke-width: 2; }
+.star-small { right: -30px; top: 22px; width: 16px; height: 16px; stroke-width: 1.5; }
 
-/* --- Kort: etiketter i et kuriositetskabinett (dobbel strek) ------------------------------- */
+/* --- Snakkebobler ------------------------------------------------------------------- */
 
-.card, .guide-card, .notice, .mock-panel, .status, .guide-figure {
-  background: var(--card);
-  border: 1px solid var(--rule);
-  border-radius: var(--radius);
-  box-shadow: inset 0 0 0 3px var(--card), inset 0 0 0 4px var(--rule-soft), 0 1px 2px rgba(43, 26, 16, .12);
+.bubble {
+  position: relative; background: var(--white); border: var(--line); box-shadow: var(--shadow);
+  padding: 13px 16px; font-size: 16px; line-height: 1.45;
 }
-.card { padding: 18px 18px 16px; margin-bottom: 16px; }
-.card h2, .guide-card h2 {
-  font: italic 400 1.3rem/1.2 var(--display); margin: 0 0 10px; color: var(--ink);
-  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+.bubble p { margin: 0; }
+.bubble p + p { margin-top: 6px; }
+.bubble::after {
+  content: ""; position: absolute; width: 18px; height: 18px; background: var(--white);
+  border-right: var(--line); border-bottom: var(--line);
 }
-.card p { margin: 0 0 10px; }
-.big { font: 400 2.4rem/1.1 var(--serif); font-variant-numeric: lining-nums; margin: 0 0 8px; letter-spacing: -.01em; }
-.meta { color: var(--muted); font-size: .92rem; }
-.meta.good { color: var(--ok); }
-.nowrap { white-space: nowrap; }
+.bubble-start { margin: 26px 70px 0 0; font-size: 17px; }
+.bubble-start::after { right: 96px; bottom: -12px; transform: rotate(45deg); }
+.bubble-left { flex: 1; margin-bottom: 30px; font-size: 15px; box-shadow: 4px 4px 0 var(--ink); }
+.bubble-left::after { left: -11px; bottom: 16px; border: 0; border-left: var(--line); border-bottom: var(--line); transform: rotate(45deg); }
+.bubble-up { margin-top: 14px; }
+.bubble-up::after { right: 60px; top: -11px; border: 0; border-left: var(--line); border-top: var(--line); transform: rotate(45deg); }
+.bubble-think { display: inline-block; margin-top: 44px; padding: 12px 18px; font-weight: 700; font-size: 17px; box-shadow: 4px 4px 0 var(--ink); }
+.bubble-think::after { left: calc(50% - 9px); bottom: -11px; transform: rotate(45deg); }
 
-.notice { padding: 14px 16px; margin-bottom: 14px; font-size: .98rem; }
-.notice p { margin: 0 0 6px; }
-.notice p:last-child { margin: 0; }
-.notice-warn { background: var(--warn-soft); box-shadow: inset 0 0 0 3px var(--warn-soft), inset 0 0 0 4px color-mix(in srgb, var(--warn) 40%, transparent); }
-.notice .link { padding: 6px 0 0; min-height: 0; }
+/* --- Skjæra ------------------------------------------------------------------------------- */
 
-.mock-panel { margin-top: 18px; padding: 16px; }
-.mock-panel label { display: block; font: italic 1.1rem var(--display); margin-bottom: 8px; }
+.mascot { flex: none; }
+.skjaere { position: relative; display: block; width: 100%; aspect-ratio: 852 / 933; }
+.skjaere img { width: 100%; height: 100%; display: block; }
+.kasse-tekst { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.kasse-tekst text { font-family: var(--marker); font-size: 92px; fill: var(--ink); }
 
-.status { padding: 12px 14px; margin: 0; }
-.status.ok { color: var(--ok); }
-.status.bad { color: var(--bad); background: var(--bad-soft); }
+.mascot-start { align-self: flex-end; width: 220px; margin: 26px 4px 0 0; }
+.mascot-small { width: 96px; }
+.mascot-tiny { width: 74px; margin-left: auto; }
+.mascot-result { width: 150px; }
+.mascot-none { width: 210px; transform: rotate(-5deg); }
+.mascot-wait { width: 230px; margin-top: 20px; transform-origin: 55% 80%; animation: vipp 1.6s ease-in-out infinite; }
+@keyframes vipp { 0%, 100% { transform: rotate(0deg); } 30% { transform: rotate(-4deg); } 60% { transform: rotate(3deg); } }
 
-.error {
-  color: var(--bad); background: var(--bad-soft); padding: 12px 14px; margin: 12px 0 0;
-  border-left: 3px solid var(--bad); font-style: italic;
+.mascot-talk { margin-top: 26px; display: flex; gap: 10px; align-items: flex-end; }
+.title-row { display: flex; align-items: flex-end; gap: 8px; }
+.title-row .tag { margin-bottom: 16px; }
+
+/* --- Bilder ------------------------------------------------------------------------------- */
+
+.photo-grid { margin-top: 8px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 12px; }
+.thumb { position: relative; margin: 0; aspect-ratio: 1; border: 2px solid var(--ink); background: var(--photo); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb > svg { width: 46%; margin: 18% auto 0; display: block; opacity: .5; }
+.thumb::before {
+  content: ""; position: absolute; left: 16px; top: -8px; width: 46px; height: 14px; z-index: 1;
+  background: var(--tape); opacity: .95; transform: rotate(-4deg);
 }
+.thumb:nth-child(2n)::before { left: 20px; transform: rotate(3deg); }
+.thumb figcaption {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 3px 5px; font-size: 11px; line-height: 1.2;
+  background: rgba(255, 255, 255, .9); border-top: 1.5px solid var(--ink);
+}
+.thumb-note { position: absolute; left: 6px; right: 6px; top: 50%; font-size: 11px; text-align: center; line-height: 1.2; }
+.thumb-remove {
+  position: absolute; right: -10px; top: -10px; width: 30px; height: 30px; border-radius: 15px; z-index: 2;
+  border: 2px solid var(--ink); background: var(--white); color: var(--ink); padding: 0; cursor: pointer;
+  font: 700 15px/1 var(--mono);
+}
+.add-tile {
+  aspect-ratio: 1; border: 2px dashed var(--ink); background: transparent; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+}
+.add-tile .plus { font-size: 30px; line-height: 1; }
+.add-tile .add-label { font-size: 13px; font-weight: 700; }
 
-/* --- Ikonknapp (innstillinger) ---------------------------------------------------------- */
+.arrows { list-style: none; margin: 18px 0 0; padding: 12px 0 0; border-top: 2px dashed var(--ink); display: flex; flex-direction: column; gap: 6px; font-size: 15px; }
+.arrows li::before { content: "→ "; }
+.guide-link { margin: 10px 0 0; font-size: 14px; }
 
-.icon-btn { background: none; border: 0; color: var(--brass-hi); width: 44px; height: 44px; display: grid; place-items: center; margin-right: -10px; cursor: pointer; border-radius: 50%; }
-.topbar .icon-btn:first-of-type { margin-left: auto; }
-.badge-demo:not([hidden]) + .icon-btn { margin-left: 4px; }
+/* --- Venteskjerm -------------------------------------------------------------------------- */
 
-/* --- Lister og tips --------------------------------------------------------------------- */
+.wait-photos { align-self: stretch; display: flex; justify-content: center; gap: 8px; }
+.wait-photos span { flex: 0 0 calc((100% - 16px) / 3); height: 64px; border: 2px solid var(--ink); background: var(--photo) center / cover no-repeat; }
+.dot { animation: prikk 1.2s infinite; }
+.dot:nth-child(2) { animation-delay: .2s; }
+.dot:nth-child(3) { animation-delay: .4s; }
+@keyframes prikk { 0%, 20% { opacity: .15; } 50% { opacity: 1; } 100% { opacity: .15; } }
+.checklist { margin: 22px 0 0; padding: 0; list-style: none; align-self: stretch; text-align: left; display: flex; flex-direction: column; gap: 8px; font-size: 16px; }
+.checklist li::before { content: "[ ] "; }
+.checklist li.done::before { content: "[x] "; }
+.checklist li.now { font-weight: 700; }
+.checklist li:not(.done):not(.now) { color: var(--muted); }
+.screen-center .actions { align-self: stretch; }
 
-.tips { margin: 0 0 14px; padding-left: 1.2em; color: var(--muted); }
-.tips li { margin: 4px 0; }
-.tips li::marker { content: "❧  "; color: var(--brass); }
+/* --- Stemmer dette? ------------------------------------------------------------------------ */
 
-/* --- Skjema ---------------------------------------------------------------------------------- */
+.box { border: 2px solid var(--ink); background: var(--white); padding: 10px 12px; margin: 4px 0 16px; font-size: 15px; }
+.box-label { margin: 0 0 4px; font: 700 13px var(--mono); text-transform: uppercase; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.found-list { list-style: none; margin: 0; padding: 0; }
+.found-list li { padding: 6px 0; border-bottom: 1px dashed var(--ink); }
+.found-list li:last-child { border-bottom: 0; }
+.found-list small { color: var(--muted); }
+.num-value { font-size: 17px; font-variant-numeric: tabular-nums; letter-spacing: .03em; }
+.found-ignored { margin-top: 6px; }
+.found-ignored ul { margin: 6px 0 0; padding-left: 1.1em; font-size: 13px; color: var(--muted); }
 
-.field { margin-bottom: 18px; }
-.field label { display: flex; align-items: center; gap: 10px; font: italic 1.15rem var(--display); margin-bottom: 6px; }
-.field small { display: block; color: var(--muted); font-size: .88rem; margin-top: 5px; font-style: italic; }
+.field { margin-bottom: 12px; }
+.field > label { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font: 700 14px var(--mono); text-transform: uppercase; margin-bottom: 4px; }
+.field small { display: block; font-size: 13px; color: var(--muted); margin-top: 4px; }
+.field-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 input, select {
-  width: 100%; min-height: 52px; padding: 0 14px; border-radius: var(--radius);
-  border: 1px solid var(--rule-soft); border-bottom: 2px solid var(--rule);
-  background: color-mix(in srgb, var(--card) 85%, #fff 15%); color: var(--ink);
-  font: 1.08rem var(--serif);
+  width: 100%; min-height: 48px; padding: 0 12px; border-radius: 0;
+  border: 2px solid var(--ink); background: var(--white); color: var(--ink);
+  font: 17px var(--mono); -webkit-appearance: none; appearance: none;
 }
-@media (prefers-color-scheme: dark) { input, select { background: var(--card); } }
-input::placeholder { color: var(--muted); font-style: italic; }
-input:focus, select:focus { outline: none; border-color: var(--brass); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brass) 30%, transparent); }
-input[name$="serial"], input[name="case_number"] { font-variant-numeric: lining-nums tabular-nums; letter-spacing: .06em; }
-.field-check label { font: 1rem var(--serif); gap: 10px; }
-.field-check input { width: 22px; min-height: 22px; height: 22px; accent-color: var(--brass); }
+select {
+  padding-right: 32px; font-size: 15px;
+  background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23111' stroke-width='2'/%3E%3C/svg%3E") right 10px center / 12px 8px no-repeat;
+}
+input::placeholder { color: #8A8A84; }
+input:focus, select:focus { outline: none; box-shadow: 4px 4px 0 var(--sticker); }
+input[name$="serial"], input[name="case_number"] { font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+.field-check label { font: 400 15px var(--mono); text-transform: none; gap: 10px; }
+.field-check input { width: 24px; min-height: 24px; height: 24px; -webkit-appearance: auto; appearance: auto; accent-color: var(--sticker); }
+
+.chip { font: 700 11px/1 var(--mono); text-transform: lowercase; padding: 3px 7px; border: 1.5px solid var(--ink); border-radius: 999px; white-space: nowrap; }
+.chip:empty { display: none; }
+.chip.high { background: var(--ok-soft); }
+.chip.mid { background: var(--warn-soft); }
+.chip.low { background: var(--bad-soft); }
 
 .stamps { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.stamp { font-size: .9rem; padding: 4px 10px; border-radius: 2px; background: var(--brass-soft); border: 1px solid var(--rule-soft); }
-.stamp small { display: block; color: var(--muted); font-size: .76rem; font-style: italic; }
+.stamp { font-size: 14px; padding: 4px 9px; background: var(--tape); }
+.stamp small { display: block; font-size: 11px; color: var(--muted); }
 
-/* --- Funnet på uret ------------------------------------------------------------------------ */
+/* --- Beskjeder ------------------------------------------------------------------------------ */
 
-.found h2 { margin-bottom: 6px; }
-.found-list { list-style: none; padding: 0; margin: 0; }
-.found-list li { padding: 10px 0; border-bottom: 1px dotted var(--rule-soft); }
-.found-list li:last-child { border-bottom: 0; }
-.found-list small { color: var(--muted); font-style: italic; }
-.found-list .chip { display: inline-block; margin-top: 2px; }
-.num-value { font: 700 1.25rem var(--serif); font-variant-numeric: lining-nums tabular-nums; letter-spacing: .02em; }
-.found-ignored { margin-top: 6px; }
-.found-ignored ul { margin: 6px 0 0; padding-left: 1.1em; color: var(--muted); font-size: .92rem; }
+.notice { border: 2px solid var(--ink); background: var(--white); padding: 10px 12px; margin-bottom: 14px; font-size: 15px; }
+.notice p { margin: 0 0 6px; }
+.notice p:last-child { margin: 0; }
+.notice-warn { background: var(--warn-soft); }
+.notice-hint { background: var(--tape); }
+.notice .link { min-height: 36px; }
+.error { border: 2px solid var(--bad); background: var(--bad-soft); color: var(--bad); padding: 10px 12px; margin: 12px 0 0; font-weight: 700; }
+.status { border: 2px solid var(--ink); padding: 10px 12px; }
+.status.ok { background: var(--ok-soft); }
+.status.bad { background: var(--bad-soft); color: var(--bad); }
+.badge { font: 700 12px/1 var(--mono); padding: 4px 8px; border: 2px solid var(--ink); background: #FFE14D; }
+.mock-panel { margin-top: 18px; border: 2px dashed var(--ink); padding: 12px; }
+.mock-panel label { display: block; font: 700 14px var(--mono); margin-bottom: 6px; }
+.mock-panel .fineprint { margin: 8px 0 0; }
 
-/* --- Resultat: prisskala som et messinginstrument ----------------------------------------------- */
+/* --- Resultat ------------------------------------------------------------------------------- */
 
-.range { margin: 20px 0 8px; }
-.range-track {
-  position: relative; height: 12px; border-radius: 6px; border: 1px solid #4b3214;
-  background:
-    repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), rgba(43, 26, 16, .45) calc(10% - 1px) 10%),
-    linear-gradient(180deg, var(--brass-hi), var(--brass) 55%, var(--brass-lo));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4);
+.result-head { display: flex; gap: 12px; align-items: flex-end; }
+.result-info { flex: 1; min-width: 0; padding-bottom: 8px; }
+.result-photo { height: 120px; border: 2px solid var(--ink); background: var(--photo) center / cover no-repeat; }
+.result-title { margin: 12px 0 0; font: 400 28px/1.1 var(--marker); overflow-wrap: anywhere; }
+.result-sub { margin: 4px 0 0; font-size: 15px; }
+.result-mascot { position: relative; flex: none; margin-right: -6px; }
+.price-sticker {
+  position: absolute; right: -8px; top: 10px; min-width: 68px; height: 68px; padding: 0 6px; border-radius: 34px;
+  background: var(--sticker); border: 2px solid var(--ink); transform: rotate(10deg);
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  font: 400 14px/1.05 var(--marker);
 }
-.range-marker {
-  position: absolute; top: 50%; width: 26px; height: 26px; border-radius: 50%; transform: translate(-50%, -50%);
-  background: radial-gradient(circle at 35% 30%, #fff6d6 0 15%, var(--brass) 55%, var(--brass-lo) 100%);
-  border: 2px solid #3b2610; box-shadow: 0 2px 3px rgba(0, 0, 0, .35);
-}
-.range-labels { display: flex; justify-content: space-between; margin-top: 12px; font-variant-numeric: lining-nums tabular-nums; }
-.range-labels div { display: flex; flex-direction: column; font-size: .85rem; color: var(--muted); font-style: italic; }
-.range-labels strong { color: var(--ink); font: 700 1.1rem var(--serif); font-style: normal; font-variant-numeric: lining-nums tabular-nums; }
+.price-sticker.empty { background: var(--white); font-size: 26px; }
+
+#dating-card:empty { display: none; }
+.card { border-top: 2px dashed var(--ink); padding: 16px 0 6px; margin-top: 18px; }
+.card h2 { margin: 0 0 10px; font: 400 22px/1.2 var(--marker); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.card h3 { margin: 16px 0 6px; font: 700 13px var(--mono); text-transform: uppercase; }
+.card p { margin: 0 0 8px; }
+.big { font: 400 30px/1.15 var(--marker); margin: 0 0 4px; }
+.card .badge-demo { background: #FFE14D; }
+
+.web-range-label { margin: 10px 0 0; font: 700 13px var(--mono); text-transform: uppercase; }
+.web-sales, .web-facts { list-style: none; margin: 10px 0 0; padding: 0; }
+.web-sales li { display: grid; gap: 2px; padding: 10px 0; border-bottom: 1px solid var(--ink); }
+.web-sale-title { font-weight: 700; }
+.web-sale-price { font-variant-numeric: tabular-nums; }
+.web-facts li { padding: 4px 0; line-height: 1.45; }
+.web-suggestions iframe { width: 100%; height: 90px; border: 0; margin-top: 8px; }
+.web-note { margin-top: 12px; }
+
+.range { margin: 18px 0 8px; }
+.range-track { position: relative; height: 12px; border: 2px solid var(--ink); background: repeating-linear-gradient(90deg, var(--white) 0 calc(10% - 2px), var(--ink) calc(10% - 2px) 10%); }
+.range-marker { position: absolute; top: 50%; width: 24px; height: 24px; border-radius: 12px; transform: translate(-50%, -50%); background: var(--sticker); border: 2px solid var(--ink); }
+.range-labels { display: flex; justify-content: space-between; margin-top: 12px; font-variant-numeric: tabular-nums; }
+.range-labels div { display: flex; flex-direction: column; font-size: 12px; color: var(--muted); }
+.range-labels strong { color: var(--ink); font-size: 16px; }
 .range-labels .mid { text-align: center; }
 .range-labels .end { text-align: right; }
 
-.caveats { margin: 12px 0 0; padding-left: 1.1em; font-size: .92rem; color: var(--muted); }
-.caveats li { margin: 5px 0; }
-.caveats li::marker { content: "✦  "; color: var(--brass); font-size: .8em; }
-.caveats li.demo { color: var(--warn); font-weight: 700; }
+.caveats { margin: 10px 0 0; padding-left: 1.1em; font-size: 14px; }
+.caveats li { margin: 4px 0; }
+.caveats li.demo { font-weight: 700; color: var(--bad); }
+details { margin-top: 10px; }
+summary { cursor: pointer; font-weight: 700; min-height: 44px; display: flex; align-items: center; text-decoration: underline; text-underline-offset: 3px; }
+.sales { list-style: none; padding: 0; margin: 4px 0 0; font-size: 14px; }
+.sales li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--ink); }
+.sales .price { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.maker-name { font: 700 20px/1.2 var(--mono); margin: 0 0 6px; }
+.sources { padding-left: 1.1em; margin: 6px 0 0; font-size: 14px; }
 
-details { margin-top: 12px; border-top: 1px solid var(--rule-soft); padding-top: 8px; }
-summary { cursor: pointer; font: italic 1.1rem var(--display); min-height: 44px; display: flex; align-items: center; }
-.sales { list-style: none; padding: 0; margin: 4px 0 0; font-size: .95rem; }
-.sales li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px dotted var(--rule-soft); }
-.sales li:last-child { border: 0; }
-.sales .price { font-variant-numeric: lining-nums tabular-nums; white-space: nowrap; font-weight: 700; }
+/* --- Fant ingenting ------------------------------------------------------------------------- */
 
-.maker-name { font: 400 1.55rem/1.15 var(--display); margin: 0 0 8px; }
-.sources { padding-left: 1.1em; margin: 6px 0 0; font-size: .92rem; }
-.sources li { margin: 5px 0; }
+.result-none { display: flex; flex-direction: column; }
+.mascot-wonder { position: relative; align-self: center; margin-top: 50px; }
+.wonder-mark { position: absolute; left: 30px; top: -58px; font: 400 54px/1 var(--marker); transform: rotate(8deg); }
+.result-none .tag { margin-top: 22px; }
+.result-none .tag h1 { font-size: 26px; }
+.result-none > p { font-size: 16px; }
 
-/* --- Bilder: fotografier i messingramme ---------------------------------------------------------- */
+/* --- Veiledning ------------------------------------------------------------------------------- */
 
-.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 12px; }
-.thumb {
-  position: relative; margin: 0; aspect-ratio: 3 / 4; display: grid; place-items: center; overflow: hidden;
-  padding: 4px; border-radius: 3px;
-  background: linear-gradient(135deg, var(--brass-hi), var(--brass) 45%, var(--brass-lo));
-  box-shadow: 0 2px 5px rgba(43, 26, 16, .3);
-}
-.thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 1px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .3); filter: sepia(.12); }
-.thumb svg { width: 50%; opacity: .55; color: var(--walnut); }
-.thumb figcaption {
-  position: absolute; left: 4px; right: 4px; bottom: 4px; padding: 5px 6px; font: italic .8rem/1.25 var(--serif);
-  background: linear-gradient(transparent, rgba(27, 18, 11, .85)); color: #f5e8c8;
-}
-.thumb-note { position: absolute; top: 10px; left: 8px; right: 8px; font-size: .72rem; text-align: center; color: var(--walnut); font-style: italic; }
-.thumb-remove {
-  position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
-  border: 1px solid #3b2610; color: var(--walnut); font: 1.15rem/1 var(--serif);
-  background: radial-gradient(circle at 35% 30%, #fff6d6 0 15%, var(--brass) 60%, var(--brass-lo));
-}
-.photo-empty {
-  grid-column: 1 / -1; padding: 30px 16px; text-align: center; color: var(--muted);
-  border: 1px dashed var(--rule); border-radius: var(--radius); background: color-mix(in srgb, var(--card) 60%, transparent);
-}
-.photo-empty svg { width: 64px; opacity: .45; }
-.photo-empty p { margin: 6px 0 0; font-style: italic; }
-#suggest-box { margin-bottom: 14px; }
-
-/* --- Veiledning -------------------------------------------------------------------------------- */
-
-.guide-link { margin: -6px 0 14px; font-size: 1rem; }
-.guide-figure { margin: 0 0 16px; padding: 12px 10px 10px; }
+.guide-figure { margin: 0 0 16px; padding: 12px; border: 2px solid var(--ink); background: var(--white); }
 .guide-figure svg { width: 100%; height: auto; display: block; }
-.guide-figure figcaption { font-size: .88rem; color: var(--muted); margin-top: 6px; font-style: italic; }
+.guide-figure figcaption { font-size: 13px; color: var(--muted); margin-top: 6px; }
 .g-line * { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.g-line .g-fill { fill: var(--brass-soft); }
+.g-line .g-fill { fill: var(--tape); }
 .g-line .g-fill-soft { fill: var(--paper); }
-.g-line .g-accent { stroke: var(--brass); stroke-width: 3.5; }
+.g-line .g-accent { stroke: var(--gold); stroke-width: 3.5; }
 .g-line .g-accent2 { stroke: var(--ink); stroke-width: 4; }
 .g-line .g-dot { fill: var(--ink); }
 .g-label line { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 3; }
-.g-label text { fill: var(--ink); font: italic 12px var(--serif); }
-.guide-card { padding: 16px 18px; margin-bottom: 14px; scroll-margin-top: 12px; }
-.guide-card p, .guide-card li { margin: 0 0 8px; }
+.g-label text { fill: var(--ink); font: 12px var(--mono); }
+.guide-card { border-top: 2px dashed var(--ink); padding: 14px 0 4px; }
+.guide-card h2 { margin: 0 0 8px; font: 400 21px/1.2 var(--marker); display: flex; gap: 10px; align-items: center; }
 .guide-card ul { padding-left: 1.2em; margin: 0; }
-.guide-card li::marker { content: "❧  "; color: var(--brass); }
+.guide-card li { margin: 0 0 6px; }
 .guide-card .num {
-  display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; flex: none;
-  font: 400 1rem/1 var(--display); font-style: normal; color: var(--brass-ink);
-  background: radial-gradient(circle at 35% 30%, var(--brass-hi), var(--brass) 60%, var(--brass-lo));
-  border: 1px solid #4b3214;
+  display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 15px; flex: none;
+  background: var(--sticker); border: 2px solid var(--ink); font: 700 15px/1 var(--mono);
 }
 
-/* --- Venteskjerm: viktoriansk lommeur med tannhjul ---------------------------------------------- */
-:root {
-  --sp-brass-1: #f0cf86; --sp-brass-2: #c8933a; --sp-brass-3: #7a4f17;
-  --sp-copper-1: #e3946a; --sp-copper-2: #8c4422;
-  --sp-dark: #3a2614; --sp-cream-1: #fbf4e2; --sp-cream-2: #eadbb8; --sp-window: #24170c;
-}
-.loader { width: 220px; height: 220px; filter: drop-shadow(0 6px 10px rgba(58, 38, 20, .25)); }
-.sp-s1 { stop-color: var(--sp-brass-1); } .sp-s2 { stop-color: var(--sp-brass-2); } .sp-s3 { stop-color: var(--sp-brass-3); }
-.sp-c1 { stop-color: var(--sp-copper-1); } .sp-c2 { stop-color: var(--sp-copper-2); }
-.sp-d1 { stop-color: var(--sp-cream-1); } .sp-d2 { stop-color: var(--sp-cream-2); }
-.sp-gear-body { fill: url(#sp-brass); stroke: var(--sp-dark); stroke-width: 1.4; stroke-linejoin: round; }
-.sp-copperish .sp-gear-body { fill: url(#sp-copper); }
-.sp-gear-cut { fill: var(--paper); stroke: var(--sp-dark); stroke-width: 1.2; }
-.sp-gear-spokes line { stroke: var(--sp-brass-2); stroke-width: 4; stroke-linecap: round; }
-.sp-copperish .sp-gear-spokes line { stroke: var(--sp-copper-2); }
-.sp-gear-hub { fill: var(--sp-dark); }
-.sp-g1 { animation: sp-spin 16s linear infinite; }
-.sp-g2 { animation: sp-spin 11s linear infinite reverse; }
-.sp-g3 { animation: sp-spin 8s linear infinite; }
-.sp-bow { fill: none; stroke: url(#sp-brass); stroke-width: 5; }
-.sp-crown, .sp-pendant { fill: url(#sp-brass); stroke: var(--sp-dark); stroke-width: 1.2; }
-.sp-knurl-line { stroke: var(--sp-dark); stroke-width: 1; opacity: .6; }
-.sp-case { fill: url(#sp-brass); stroke: var(--sp-dark); stroke-width: 2; }
-.sp-knurl { fill: none; stroke: var(--sp-dark); stroke-width: 2.2; stroke-dasharray: 1.2 2.2; opacity: .55; }
-.sp-dial { fill: url(#sp-dial); stroke: var(--sp-brass-3); stroke-width: 1.5; }
-.sp-chapter { fill: none; stroke: var(--sp-dark); stroke-width: .6; opacity: .6; }
-.sp-ticks line { stroke: var(--sp-dark); stroke-width: .7; }
-.sp-numerals text { font: 400 7.6px var(--display); fill: var(--sp-dark); text-anchor: middle; }
-.sp-window-rim { fill: url(#sp-brass); stroke: var(--sp-dark); stroke-width: 1; }
-.sp-window { fill: var(--sp-window); }
-.sp-hairspring { fill: none; stroke: var(--sp-brass-1); stroke-width: .5; opacity: .8; }
-.sp-balance { animation: sp-swing .5s ease-in-out infinite alternate; }
-.sp-balance-rim { fill: none; stroke: var(--sp-copper-1); stroke-width: 1.8; }
-.sp-balance line { stroke: var(--sp-copper-1); stroke-width: 1; }
-.sp-screw { fill: var(--sp-brass-1); }
-.sp-hand line { stroke: var(--sp-dark); stroke-linecap: round; }
-.sp-hand circle { fill: none; stroke: var(--sp-dark); }
-.sp-hand path { fill: var(--sp-dark); }
-.sp-hour line { stroke-width: 2.4; } .sp-hour circle { stroke-width: 1.6; }
-.sp-minute line { stroke-width: 1.5; } .sp-minute circle { stroke-width: 1.2; }
-.sp-minute { animation: sp-spin 24s linear infinite; }
-.sp-pin { fill: url(#sp-brass); stroke: var(--sp-dark); stroke-width: .8; }
-.sp-lens { animation: sp-scan 6.5s ease-in-out infinite; }
-.sp-handle { stroke: var(--sp-copper-2); stroke-width: 7; stroke-linecap: round; }
-.sp-handle-ring { fill: url(#sp-brass); stroke: var(--sp-dark); stroke-width: .8; }
-.sp-lens-rim { fill: none; stroke: url(#sp-brass); stroke-width: 6; }
-.sp-lens-glass { fill: rgba(255, 248, 225, .18); stroke: var(--sp-dark); stroke-width: 1; }
-.sp-lens-shine { fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; opacity: .7; }
-@keyframes sp-spin { to { transform: rotate(360deg); } }
-@keyframes sp-swing { from { transform: rotate(-60deg); } to { transform: rotate(60deg); } }
-@keyframes sp-scan {
-  0%, 100% { transform: translate(80px, 88px); }
-  25% { transform: translate(118px, 84px); }
-  50% { transform: translate(116px, 118px); }
-  75% { transform: translate(82px, 120px); }
-}
-.loading-text {
-  font: italic 1.2rem var(--display); color: var(--sp-brass-3);
-  min-height: 1.5em; margin: 4px 0 0; transition: opacity .25s;
-}
-.loading-text::before, .loading-text::after { content: "❦"; font-style: normal; color: var(--sp-brass-2); margin: 0 .5em; font-size: .9em; }
-.loading-text.fade { opacity: 0; }
-@media (prefers-color-scheme: dark) {
-  :root { --sp-dark: #1e140a; }
-  .loading-text { color: var(--sp-brass-1); }
-}
 @media (prefers-reduced-motion: reduce) {
-  .sp-gear, .sp-balance, .sp-minute, .sp-lens { animation: none; }
-  .sp-lens { transform: translate(118px, 92px); }
+  .mascot-wait, .dot { animation: none; }
+  .btn { transition: none; }
   .btn:active { transform: none; }
 }
-
-/* Søk etter solgte eksemplarer */
-.sale-links { list-style: none; margin: .75rem 0 0; padding: 0; display: grid; gap: .5rem; }
-.sale-link { display: block; padding: .7rem .85rem; border: 1px solid var(--rule, currentColor); border-radius: 4px;
-  text-decoration: none; color: inherit; }
-.sale-link:active { transform: translateY(1px); }
-.sale-site { display: block; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
-
-/* Funnet på nettet nå */
-.web-sales, .web-facts { list-style: none; margin: .75rem 0 0; padding: 0; display: grid; gap: .65rem; }
-.web-sales li { display: grid; gap: .1rem; padding-bottom: .6rem; border-bottom: 1px solid var(--rule-soft); }
-.web-sale-title { font-weight: 700; }
-.web-sale-price { font-variant-numeric: lining-nums tabular-nums; }
-.web-facts li { line-height: 1.45; }
-.web-suggestions iframe { width: 100%; height: 90px; border: 0; margin-top: .5rem; }
-.web-note { margin-top: 1rem; }
-.web-range-label { margin: .75rem 0 0; font-variant: small-caps; letter-spacing: .04em; }

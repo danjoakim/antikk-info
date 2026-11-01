@@ -5,7 +5,6 @@ import { dateItem } from "./dating.js";
 import { CATEGORY_LABELS, ESCAPEMENT_LABELS, isWatch, LAYOUT_LABELS, LOCATION_LABELS, makerInfo, MATERIAL_LABELS, noSalesMessage, normalize, setMakers, WINDING_LABELS } from "./normalize.js";
 import { clearSettings, isLive, loadSettings, saveSettings } from "./settings.js";
 import { suggestPhotos } from "./suggest.js";
-import { saleSearchLinks } from "./salesearch.js";
 import { describeItem, searchWebSales } from "./websales.js";
 import { valueItem } from "./valuation.js";
 import { analyzeWithGemini, mockFacts, testKey, VisionError } from "./vision.js";
@@ -124,24 +123,25 @@ function photoLabel(i) {
 
 function renderPhotos() {
   const grid = $("#photo-grid");
+  const n = state.photos.length;
   grid.innerHTML = state.photos.map((p, i) => `
     <figure class="thumb">
       ${p.url ? `<img src="${p.url}" alt="Bilde ${i + 1}">` : `${PLACEHOLDER_SVG}<span class="thumb-note">${esc(p.note)}</span>`}
-      <figcaption>${esc(capitalize(photoLabel(i) || `Bilde ${i + 1}`))}</figcaption>
+      ${photoLabel(i) ? `<figcaption>${esc(capitalize(photoLabel(i)))}</figcaption>` : ""}
       <button class="thumb-remove" data-remove="${i}" aria-label="Fjern bilde ${i + 1}">×</button>
     </figure>`).join("") +
-    (state.photos.length ? "" : `<div class="photo-empty">${PLACEHOLDER_SVG}<p>Ingen bilder ennå</p></div>`);
-  const n = state.photos.length;
-  const btn = $("#analyze-btn");
-  btn.disabled = n === 0;
-  btn.textContent = n ? `Analyser ${n} ${n === 1 ? "bilde" : "bilder"}` : "Analyser";
+    (n < MAX_PHOTOS ? `<label class="add-tile">
+      <input type="file" accept="image/*" capture="environment" data-input="camera" hidden>
+      <span class="plus" aria-hidden="true">+</span><span class="add-label">${n ? "ett til" : "ta bilde"}</span></label>` : "");
+  $("#photo-count").textContent = `${n} av ${MAX_PHOTOS} bilder`;
+  $("#analyze-btn").disabled = n === 0;
   $("#save-photos-btn").hidden = n === 0;
-  const box = $("#suggest-box");
   const suggestions = state.analysis?.suggestions ?? [];
-  box.hidden = !suggestions.length;
-  box.innerHTML = suggestions.length
-    ? `<p><strong>Dette vil hjelpe mest:</strong></p>${suggestions.map((s) => `<p>${esc(capitalize(s.label))}: ${esc(s.reason)}</p>`).join("")}`
-    : "";
+  $("#suggest-box").innerHTML = suggestions.length
+    ? `<p><b>Dette vil hjelpe mest:</b></p>${suggestions.map((s) => `<p>${esc(capitalize(s.label))}: ${esc(s.reason)}</p>`).join("")}`
+    : n === 0
+      ? `<p>Ta et bilde av <b>hele funnet</b> først.</p>`
+      : `<p>Fint! Har du et bilde av <b>undersiden</b> også? Der sitter stempelet ofte.</p>`;
 }
 
 async function onPhotoPicked(input) {
@@ -163,127 +163,59 @@ async function onPhotoPicked(input) {
       box.hidden = false;
     }
   }
-  renderPhotos();
+  if ($("#screen-capture").hidden) openCapture();
+  else renderPhotos();
 }
 
 function openCapture() {
   renderPhotos();
-  $("#capture-error").hidden = true;
   show("capture");
 }
 
 // --- Venteskjerm ---------------------------------------------------------------
 
-// Viktoriansk/steampunk lommeur: tannhjul i messing og kobber bak, romertall og Breguet-visere,
-// et åpent vindu der uroen svinger, og en messinglupe som glir over skiven.
-function gearPath(cx, cy, r, teeth, depth) {
-  const pts = [];
-  for (let i = 0; i < teeth; i++) {
-    const a = (i / teeth) * Math.PI * 2, s = (Math.PI * 2) / teeth;
-    for (const [da, rr] of [[0, r - depth], [s * 0.18, r], [s * 0.5, r], [s * 0.68, r - depth]]) {
-      pts.push(`${(cx + rr * Math.cos(a + da)).toFixed(1)},${(cy + rr * Math.sin(a + da)).toFixed(1)}`);
-    }
-  }
-  return `M${pts.join("L")}Z`;
-}
-
-function gear(cls, cx, cy, r, teeth, spokes) {
-  const spokeLines = Array.from({ length: spokes }, (_, i) => {
-    const a = (i / spokes) * Math.PI * 2;
-    return `<line x1="${cx}" y1="${cy}" x2="${(cx + (r - 9) * Math.cos(a)).toFixed(1)}" y2="${(cy + (r - 9) * Math.sin(a)).toFixed(1)}"/>`;
-  }).join("");
-  return `<g class="sp-gear ${cls}" style="transform-origin:${cx}px ${cy}px">
-    <path class="sp-gear-body" d="${gearPath(cx, cy, r, teeth, 5)}"/>
-    <circle class="sp-gear-cut" cx="${cx}" cy="${cy}" r="${r - 9}"/>
-    <g class="sp-gear-spokes">${spokeLines}</g>
-    <circle class="sp-gear-hub" cx="${cx}" cy="${cy}" r="4.5"/></g>`;
-}
-
-const ROMAN = ["XII", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI"];
-const numerals = ROMAN.map((n, i) => {
-  const a = (i / 12) * Math.PI * 2 - Math.PI / 2;
-  return `<text x="${(100 + 29 * Math.cos(a)).toFixed(1)}" y="${(104 + 29 * Math.sin(a) + 3).toFixed(1)}">${n}</text>`;
-}).join("");
-const minuteTicks = Array.from({ length: 60 }, (_, i) =>
-  `<line x1="100" y1="${i % 5 ? 66.5 : 65.5}" x2="100" y2="68.5" transform="rotate(${i * 6} 100 104)"/>`).join("");
-
-const LOADER_SVG = `<svg class="loader" viewBox="0 0 200 200" aria-hidden="true">
-  <defs>
-    <linearGradient id="sp-brass" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" class="sp-s1"/><stop offset=".5" class="sp-s2"/><stop offset="1" class="sp-s3"/>
-    </linearGradient>
-    <linearGradient id="sp-copper" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" class="sp-c1"/><stop offset="1" class="sp-c2"/>
-    </linearGradient>
-    <radialGradient id="sp-dial" cx=".4" cy=".35" r=".75">
-      <stop offset="0" class="sp-d1"/><stop offset="1" class="sp-d2"/>
-    </radialGradient>
-  </defs>
-  ${gear("sp-g1", 48, 132, 34, 16, 5)}
-  ${gear("sp-g2 sp-copperish", 154, 70, 24, 11, 4)}
-  ${gear("sp-g3", 160, 150, 16, 8, 3)}
-  <g class="sp-watch">
-    <circle class="sp-bow" cx="100" cy="30" r="13"/>
-    <rect class="sp-crown" x="93" y="42" width="14" height="12" rx="3"/>
-    <line class="sp-knurl-line" x1="96" y1="44" x2="96" y2="52"/><line class="sp-knurl-line" x1="100" y1="44" x2="100" y2="52"/><line class="sp-knurl-line" x1="104" y1="44" x2="104" y2="52"/>
-    <rect class="sp-pendant" x="96" y="53" width="8" height="5" rx="1.5"/>
-    <circle class="sp-case" cx="100" cy="104" r="50"/>
-    <circle class="sp-knurl" cx="100" cy="104" r="46.5"/>
-    <circle class="sp-dial" cx="100" cy="104" r="42"/>
-    <circle class="sp-chapter" cx="100" cy="104" r="37.5"/>
-    <g class="sp-ticks">${minuteTicks}</g>
-    <g class="sp-numerals">${numerals}</g>
-    <circle class="sp-window-rim" cx="100" cy="119" r="9.5"/>
-    <circle class="sp-window" cx="100" cy="119" r="8.2"/>
-    <path class="sp-hairspring" d="M100 119 m0 -1.2 a1.2 1.2 0 1 1 -1.2 1.2 a2.4 2.4 0 1 1 2.4 2.4 a3.6 3.6 0 1 1 -3.6 -3.6 a4.8 4.8 0 1 1 4.8 4.8"/>
-    <g class="sp-balance" style="transform-origin:100px 119px">
-      <circle class="sp-balance-rim" cx="100" cy="119" r="6.2"/>
-      <line x1="93.8" y1="119" x2="106.2" y2="119"/><line x1="100" y1="112.8" x2="100" y2="125.2"/>
-      <circle class="sp-screw" cx="93.8" cy="119" r="1.1"/><circle class="sp-screw" cx="106.2" cy="119" r="1.1"/>
-    </g>
-    <g class="sp-hand sp-hour" transform="rotate(-50 100 104)">
-      <line x1="100" y1="108" x2="100" y2="86"/><circle cx="100" cy="83" r="3.2"/>
-    </g>
-    <g class="sp-hand sp-minute" style="transform-origin:100px 104px">
-      <line x1="100" y1="109" x2="100" y2="74"/><circle cx="100" cy="77" r="2.4"/><path d="M100 70 L101.6 74 L98.4 74 Z"/>
-    </g>
-    <circle class="sp-pin" cx="100" cy="104" r="2.6"/>
-  </g>
-  <g class="sp-lens">
-    <line class="sp-handle" x1="13" y1="13" x2="31" y2="31"/>
-    <circle class="sp-handle-ring" cx="17" cy="17" r="3"/><circle class="sp-handle-ring" cx="27" cy="27" r="3"/>
-    <circle class="sp-lens-rim" cx="0" cy="0" r="17"/>
-    <circle class="sp-lens-glass" cx="0" cy="0" r="13.5"/>
-    <path class="sp-lens-shine" d="M-8 -6 A10 10 0 0 1 2 -10"/>
-  </g>
-</svg>`;
-
-const LOADING_STEPS = {
-  analyze: ["Studerer bildene …", "Finner ut hva hvert bilde viser …", "Leter etter nummer og stempler …",
-            "Tyder gravering og tekst …", "Undersøker gang og oppstrekk …"],
-  lookup: ["Blar i protokollene …", "Finner sammenlignbare salg …"],
-};
+// Skjæra vipper i kassa mens en liten sjekkliste krysses av.
+const LOADING_STEPS = ["Ser hva det er", "Leser merker og tall", "Sjekker stempler og etiketter"];
 let loadingTimer = null;
+let loadingAbort = null;
 
 function stopLoading() {
   clearInterval(loadingTimer);
   loadingTimer = null;
 }
 
-function showLoading(kind = "analyze") {
+function showLoading() {
   stopLoading();
-  const steps = LOADING_STEPS[kind] ?? LOADING_STEPS.analyze;
   const screen = $("#screen-loading");
-  screen.innerHTML = `${LOADER_SVG}<p class="loading-text" aria-live="polite">${esc(steps[0])}</p>`;
+  const thumbs = state.photos.slice(0, 4).map((p) =>
+    `<span${p.url ? ` style="background-image:url('${p.url}')"` : ""}></span>`).join("");
+  screen.innerHTML = `
+    <div class="wait-photos" aria-hidden="true">${thumbs}</div>
+    <div class="bubble bubble-think" aria-live="polite">Hmm, la meg se<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>
+    <div class="mascot mascot-wait" data-skjaere="Skjæra med monokkel studerer bildene"></div>
+    <ul class="checklist">${LOADING_STEPS.map((t, i) => `<li class="${i === 0 ? "now" : ""}">${esc(t)}</li>`).join("")}</ul>
+    <div class="actions"><button class="link link-center" id="cancel-btn">avbryt</button></div>`;
+  fillMascots(screen);
+  $("#cancel-btn").onclick = () => { loadingAbort?.abort(); stopLoading(); openCapture(); };
   show("loading");
+  const items = [...screen.querySelectorAll(".checklist li")];
   let i = 0;
-  const text = $(".loading-text", screen);
   loadingTimer = setInterval(() => {
-    i = Math.min(i + 1, steps.length - 1);   // blir stående på siste tekst
-    text.classList.add("fade");
-    setTimeout(() => { text.textContent = steps[i]; text.classList.remove("fade"); }, 250);
-    if (i === steps.length - 1) stopLoading();
+    if (i >= items.length - 1) return stopLoading();   // siste punkt står til svaret kommer
+    items[i].className = "done";
+    i += 1;
+    items[i].className = "now";
   }, 2600);
+}
+
+/** Setter inn skjæra i kassa der det står data-skjaere="alt-tekst". */
+function fillMascots(root = document) {
+  root.querySelectorAll("[data-skjaere]").forEach((slot) => {
+    if (slot.firstChild) return;
+    const node = $("#skjaere-tpl").content.firstElementChild.cloneNode(true);
+    $("img", node).alt = slot.dataset.skjaere;
+    slot.append(node);
+  });
 }
 
 // --- Lagre bildene på telefonen --------------------------------------------------------
@@ -294,7 +226,7 @@ function photoFiles() {
   return state.photos.map((p, i) => {
     const src = p.original ?? p.blob;
     const ext = /heic|heif/i.test(src.type) ? "heic" : /png/i.test(src.type) ? "png" : "jpg";
-    return new File([src], `informantikk-${stamp}-${i + 1}.${ext}`, { type: src.type || "image/jpeg" });
+    return new File([src], `funn-${stamp}-${i + 1}.${ext}`, { type: src.type || "image/jpeg" });
   });
 }
 
@@ -304,7 +236,7 @@ async function savePhotos() {
   if (!files.length) return;
   try {
     if (navigator.canShare?.({ files })) {
-      await navigator.share({ files, title: "Bilder fra InformAntikk" });  // iPhone: velg «Arkiver bilder»
+      await navigator.share({ files, title: "Bilder fra Funn" });  // iPhone: velg «Arkiver bilder»
       return;
     }
   } catch (err) {
@@ -326,8 +258,8 @@ async function savePhotos() {
 async function analyze() {
   if (!state.photos.length) return openCapture();
   const live = isLive(state.settings);
-  showLoading("analyze");
-  const controller = new AbortController();
+  showLoading();
+  const controller = loadingAbort = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
   const started = performance.now();
   try {
@@ -341,9 +273,11 @@ async function analyze() {
     state.analysis = { mode: live ? "live" : "mock", facts, normalized, suggestions,
       seconds: live ? (performance.now() - started) / 1000 : null, photos: images.length,
       bytes: images.reduce((sum, i) => sum + i.blob.size, 0) };
+    if (controller.signal.aborted) return;
     renderConfirm();
     show("confirm");
   } catch (err) {
+    if (controller.signal.aborted && $("#screen-loading").hidden) return;   // brukeren avbrøt
     showLoadingError(err instanceof VisionError ? err.message : `Noe gikk galt: ${err.message}`, analyze);
   } finally {
     clearTimeout(timer);
@@ -353,11 +287,15 @@ async function analyze() {
 function showLoadingError(message, retry) {
   stopLoading();
   const screen = $("#screen-loading");
-  screen.innerHTML = `<p class="error" role="alert">${esc(message)}</p>
-    <div class="actions" style="width:100%"><button class="btn btn-primary" id="retry-btn">Prøv igjen</button>
-    <button class="link" id="back-btn">Tilbake</button></div>`;
+  screen.innerHTML = `
+    <div class="bubble bubble-think" role="alert">${esc(message)}</div>
+    <div class="mascot mascot-wait" style="animation:none" data-skjaere="Skjæra"></div>
+    <div class="actions"><button class="btn btn-primary" id="retry-btn">PRØV IGJEN</button>
+    <button class="link link-center" id="back-btn">tilbake</button></div>`;
+  fillMascots(screen);
+  show("loading");
   $("#retry-btn").onclick = retry;
-  $("#back-btn").onclick = () => (state.analysis ? show("confirm") : openCapture());
+  $("#back-btn").onclick = () => (state.analysis ? show("confirm") : state.photos.length ? openCapture() : show("intro"));
 }
 
 function formatAnalysisTime(a) {
@@ -491,7 +429,6 @@ function lookup(event) {
   renderResult({
     dating, valuation, maker,
     valuation_message: valuation ? null : noSalesMessage(facts),
-    sale_searches: saleSearchLinks(state.data.sale_search, facts, maker?.display_name ?? facts.brand_display ?? null, facts.category),
   });
   // Uten egne salg er nettsøket priskortet; et tomt «Markedsverdi»-kort skjules ved ekte bruk.
   $("#value-card").hidden = !valuation && isLive(state.settings);
@@ -513,6 +450,7 @@ async function startWebSales(facts, maker, dating) {
   if (!isLive(state.settings)) { card.hidden = true; return; }
   card.hidden = false;
   card.innerHTML = `<h2>Priser funnet på nettet</h2><p class="meta web-wait">Søker etter priser og bakgrunn …</p>`;
+  setSummary({ waiting: true });
   const description = describeItem({ ...facts, observed: state.analysis?.normalized?.description }, {
     brandName: maker?.display_name ?? facts.brand_display ?? null, itemType: facts.category,
     period: dating.status === "dated" ? `${dating.estimate}` : dating.period?.display?.replace(/^ca\. /, "") || null,
@@ -525,9 +463,11 @@ async function startWebSales(facts, maker, dating) {
       { key: state.settings.key, model: state.settings.model, signal: controller.signal });
     if (controller !== webSearchController) return;
     renderWebSales(result, (performance.now() - started) / 1000);
+    setSummary({ web: result });
   } catch (err) {
     if (controller !== webSearchController) return;
     card.innerHTML = `<h2>Priser funnet på nettet</h2><p class="meta">${esc(err.message ?? "Nettsøket feilet.")}</p>`;
+    setSummary({ error: err.message ?? "Nettsøket feilet." });
   } finally {
     clearTimeout(timer);
   }
@@ -558,7 +498,7 @@ function renderWebSales({ sales, background, range, listedRange, dropped, stats,
     ${summary}
     ${list ? `<ul class="web-sales">${list}</ul>` : ""}
     ${facts ? `<h3>Bakgrunn</h3><ul class="web-facts">${facts}</ul>` : ""}
-    <p class="meta web-note">Hentet med Google-søk på ${Math.round(seconds)} s. Ikke kontrollert av InformAntikk – åpne lenken og sjekk at det ligner.
+    <p class="meta web-note">Hentet med Google-søk på ${Math.round(seconds)} s. Ikke kontrollert av Funn – åpne lenken og sjekk at det ligner.
       ${dropped ? `${dropped} treff uten bekreftet kilde eller pris ble utelatt.` : ""}</p>
     <div class="web-suggestions"></div>`;
   if (entryPoint) {
@@ -573,23 +513,65 @@ function renderWebSales({ sales, background, range, listedRange, dropped, stats,
 
 // --- Resultat ------------------------------------------------------------------
 
-function renderSaleSearches(links) {
-  const card = $("#sales-card");
-  card.hidden = !links?.length;
-  if (!links?.length) { card.innerHTML = ""; return; }
-  card.innerHTML = `
-    <h2>Se hva lignende er solgt for</h2>
-    <p class="meta">Ferdige søk etter solgte eksemplarer. Prisene der er ikke kontrollert av InformAntikk – sammenlign bilder og tilstand.</p>
-    <ul class="sale-links">${links.map((l) => `
-      <li><a class="sale-link" href="${esc(l.url)}" target="_blank" rel="noopener">
-        <span class="sale-site">${esc(l.label)}</span>
-        <span class="meta">${esc(l.note)} · «${esc(l.query)}»</span></a></li>`).join("")}
-    </ul>`;
+// --- Toppen av resultatet: bildet, navnet, prislappen og det skjæra sier --------------
+
+function renderResultHead(valuation) {
+  const c = state.confirmed;
+  $("#result-title").textContent = capitalize(c.object_type || CATEGORY_LABELS[c.item_type] || "Funnet");
+  $("#result-sub").textContent = [c.brand, ...(c.materials ?? [])].filter(Boolean).join(" · ");
+  const photo = state.photos.find((p) => p.url);
+  const box = $("#result-photo");
+  box.hidden = !photo;
+  box.style.backgroundImage = photo ? `url('${photo.url}')` : "";
+  state.ownValuation = valuation;
+  setSummary(isLive(state.settings) ? { waiting: true } : {});
 }
 
-function renderResult({ dating, valuation, valuation_message, maker, sale_searches }) {
+const span = (r) => `${nok.format(r.min)}–${kr(r.max)}`;
+
+/** Prislappen og snakkeboblen. Viser «Fant ingenting» når verken nettsøket eller egne salg ga priser. */
+function setSummary({ waiting = false, web = null, error = null } = {}) {
+  const own = state.ownValuation;
+  const sticker = $("#price-sticker");
+  const bubble = $("#result-bubble");
+  let none = false;
+  let range = null;
+  let html = "";
+  if (waiting) {
+    html = `<p>Leter etter priser med kilde …</p>`;
+  } else if (error) {
+    html = `<p>Nettsøket stoppet: ${esc(error)}</p>`;
+  } else {
+    const parts = [];
+    if (web?.listedRange) parts.push(`folk vil ha <b>${span(web.listedRange)}</b> for slike`);
+    if (web?.range) parts.push(`de har gått for <b>${span(web.range)}</b>`);
+    range = web?.range ?? web?.listedRange ?? null;
+    if (parts.length) html = `<p>Fant ${web.sales.length} priser! ${capitalize(parts.join(", og "))}.</p>`;
+    else if (web?.sales?.length) html = `<p>Fant ${web.sales.length} ${web.sales.length === 1 ? "pris" : "priser"}, men for få til et intervall. Se dem under.</p>`;
+    else if (web?.background?.length) html = `<p>Fant ingen priser med kilde denne gangen, men litt om bakgrunnen under.</p>`;
+    if (own) {
+      range ??= own;
+      html += `<p>${own.is_demo ? "I demotabellen" : "I tabellen vår"} er ${own.n_sales} lignende solgt for <b>${span(own)}</b>.</p>`;
+    }
+    none = !html;
+    if (none) {
+      const st = web?.stats;
+      $("#none-detail").textContent = st
+        ? `Google ga ${st.sources ?? 0} kilder; søket foreslo ${st.proposed ?? 0} priser${st.noPrice ? `, ${st.noPrice} uten lesbar pris` : ""}${st.unverified ? `, ${st.unverified} fra nettsteder som ikke var blant kildene` : ""}${st.json === false ? "; svaret hadde ikke riktig format" : ""}.`
+        : "";
+    }
+  }
+  bubble.innerHTML = html;
+  sticker.classList.toggle("empty", !range);
+  sticker.innerHTML = range ? `<span>${nok.format(range.min)}–<br>${nok.format(range.max)} kr</span>` : `<span>${waiting ? "…" : "?"}</span>`;
+  $("#result-found").hidden = none;
+  $("#result-none").hidden = !none;
+  $("#none-add").hidden = !none;
+}
+
+function renderResult({ dating, valuation, valuation_message, maker }) {
   renderMaker(maker);
-  renderSaleSearches(sale_searches);
+  renderResultHead(valuation);
   const demo = `<span class="badge badge-demo">Demodata</span>`;
 
   if (dating.status === "dated") {
@@ -610,7 +592,7 @@ function renderResult({ dating, valuation, valuation_message, maker, sale_search
       <p class="meta">Ut fra ${esc(p.basis.join(", "))}. Ikke en datering etter serienummer.</p>
       <p class="meta">${esc(dating.message)}</p>`;
   } else if (dating.status === "no_tables") {
-    $("#dating-card").innerHTML = `<h2>Alder</h2><p>${esc(dating.message)}</p>`;
+    $("#dating-card").innerHTML = "";   // ingen tabeller for denne kategorien; nettsøket står for bakgrunnen
   } else {
     $("#dating-card").innerHTML = `<h2>Produksjonsår</h2><p class="big">Ikke datert</p><p>${esc(dating.message)}</p>
       <p class="meta">Oppgi oppstrekk og gangtype for å få en grov periode.</p>`;
@@ -667,7 +649,7 @@ function renderMaker(maker) {
         : isWatch(category)
           ? `<p class="meta">Vi fant ingenting om «${esc(name)}». Det kan være et lite forhandler- eller handelsnavn.
              <a href="https://www.mikrolisk.de/" target="_blank" rel="noopener">Mikrolisk</a> har et stort register over urmerker.</p>`
-          : `<p class="meta">Wikipedia har ingen artikkel om «${esc(name)}». Se bakgrunnen fra nettet ovenfor.</p>`;
+          : `<p class="meta">Wikipedia har ingen artikkel om «${esc(name)}».</p>`;
     });
     return;
   }
@@ -737,7 +719,8 @@ function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
 function restart() {
   while (state.photos.length) removePhoto(0);
-  state.analysis = state.confirmed = null;
+  state.analysis = state.confirmed = state.ownValuation = null;
+  webSearchController?.abort();
   show("intro");
 }
 
@@ -872,6 +855,7 @@ async function init() {
   };
   $("#mock-scenario").innerHTML = Object.keys(state.data.contract.mock_scenarios)
     .map((s) => `<option value="${s}">${esc(MOCK_LABELS[s] ?? s)}</option>`).join("");
+  fillMascots();
   applyMode();
   show("intro");
 }

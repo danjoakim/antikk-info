@@ -187,6 +187,20 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ## Øktlogg
 
+### 2026-11-01 – Økt 22: Nytt utseende bygget inn – appen heter nå Funn
+**Gjort (nettversjonen i `docs/`):**
+- Hele appen i loppislapp-stilen fra designlerretet (Courier Prime + Permanent Marker, teip, neonrosa, harde skygger), bare lyst tema.
+- Navnet er Funn overalt: tittel, hjemskjermnavn, manifest, filnavn på lagrede bilder. Nye app-ikoner med skjærehodet (monokkel og sløyfe) på rosa.
+- Skjæra i loppiskassa (`docs/img/skjaere.png`, lisensnotat i `docs/img/LISENS.md`) på start, bilder, venting, stemmer dette?, resultat og fant ingenting. «LOPPIS» er tekst, så det får tusjfonten.
+- Start: «TA BILDE» åpner kameraet direkte, «eller velg fra bildene dine» åpner bildene; appen går rett til bildeskjermen. Toppfeltet er borte; «meny» leder til innstillingene.
+- Bilder: rutenett med teip, «+ ett til»-rute, teller «n av 8 bilder», skjæra gir tips i en snakkeboble (eller forslagene fra analysen).
+- Venting: skjæra vipper i kassa, sjekkliste krysses av, «avbryt» stopper analysen og går tilbake til bildene. Steampunk-lommeuret er fjernet.
+- Resultat: bilde, navn, prislapp-klistremerke på skjæra og en snakkeboble som oppsummerer prisene. Finnes verken nettpriser eller egne salg, vises «Hm. Denne vet jeg ikke.» med tips og diagnoselinjen.
+- **Fjernet:** kortet med ferdige søk på andre nettsteder («Se hva lignende er solgt for»). Prisene skal finnes i appen.
+- Alderskortet skjules for kategorier uten dateringstabeller.
+**Tester:** 33 JS-tester og 62 Python-tester bestått (1 hoppet over). Gjennomkjørt i hodeløs mobilnettleser: ekte modus med simulert Gemini (priser funnet og ingen priser), demomodus (Omega med salg, porselen uten), avbryt under analyse. Ingen JavaScript-feil.
+**Ikke gjort ennå:** «Dine funn» (lagre funnet og samlingen) og «LAGRE FUNNET»-knappen; serverversjonen (`app/static`) har fortsatt det gamle utseendet; lisensnavn og lenke for skjæra mangler i `LISENS.md`.
+
 ### 2026-11-01 – Ny skjære: den forrige var ikke godkjent
 **Bakgrunn:** Lisensen på den forrige stockskjæra ble ikke godkjent for denne bruken. Brukeren har fått en ny skjære (laget på Kuraplan, svart-hvit, sitter på grein, ser mot venstre).
 **Gjort:** Hvit bakgrunn fjernet, greina skjult, og samme monokkel, tversoversløyfe og loppiskasse lagt på. Byttet inn i alle sju H-skjermene (`skjaere2_kasse.png`, 852×933). Spørsmålstegnet i «Fant ingenting» er flyttet fordi skjæra nå ser andre veien. Alle fire bildefiler med den gamle skjæra er slettet fra designlerretet.

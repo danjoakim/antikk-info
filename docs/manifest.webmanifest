@@ -1,16 +1,15 @@
 {
-  "name": "InformAntikk",
-  "short_name": "InformAntikk",
-  "description": "Informasjon om antikviteter og gamle ting, rett fra mobilen: hva det er, hvem som laget det, og hva lignende er solgt for.",
+  "name": "Funn",
+  "short_name": "Funn",
+  "description": "Ta bilde av det du har funnet på loppis eller i bruktbutikken, og få vite hva det er og hva lignende selges for.",
   "lang": "no",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#e9e1cc",
-  "theme_color": "#2b1a10",
+  "background_color": "#FAFAF7",
+  "theme_color": "#FAFAF7",
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }

@@ -3,117 +3,134 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>InformAntikk</title>
-  <meta name="description" content="Informasjon om antikviteter og gamle ting, rett fra mobilen: hva det er, hvem som laget det, og hva lignende er solgt for.">
-  <meta name="theme-color" content="#2b1a10" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#120b06" media="(prefers-color-scheme: dark)">
+  <title>Funn</title>
+  <meta name="description" content="Ta bilde av det du har funnet på loppis eller i bruktbutikken, og få vite hva det er og hva lignende selges for.">
+  <meta name="theme-color" content="#FAFAF7">
+  <meta name="color-scheme" content="light">
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="icon" href="icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="InformAntikk">
+  <meta name="apple-mobile-web-app-title" content="Funn">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Permanent+Marker&display=swap">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="topbar">
-    <img src="icon.svg" alt="" width="34" height="34">
-    <span class="brand">InformAntikk</span>
-    <span id="mode-badge" class="badge badge-demo" hidden>Demo</span>
-    <button class="icon-btn" data-action="settings" aria-label="Innstillinger">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
-    </button>
-  </header>
+  <!-- Skjæra i loppiskassa. Ordet på kassa er tekst, så det får tusjfonten. -->
+  <template id="skjaere-tpl">
+    <span class="skjaere"><img src="img/skjaere.png" alt=""><svg class="kasse-tekst" viewBox="141 55 852 933" aria-hidden="true"><text x="440" y="780" text-anchor="middle" transform="rotate(-4 440 770)">LOPPIS</text></svg></span>
+  </template>
 
   <main id="app">
     <!-- 1. Start -->
-    <section id="screen-intro" class="screen">
-      <h1>Hva er det du har funnet?</h1>
-      <p class="lead">Ta bilder av tingen – porselen, sølv, glass, ur, møbler eller noe helt annet. Ett godt bilde kan være nok. Appen finner ut hva det er, leser stempler, merker og signaturer, og sier fra hvis ett bilde til vil hjelpe.</p>
-      <p>Mest får appen ut av <strong>merkene</strong>: under bunnen, på baksiden, inni lokket eller på en etikett. Lommeur har sine i lokkene.</p>
-      <p><button class="link link-inline" data-action="guide">Har du et lommeur? Se hvordan du åpner det</button></p>
-      <p class="fineprint">Du kan rette opp det appen har lest før noe slås opp. Årstall og priser kommer fra tabeller og salg med kilde, ikke fra gjetting.</p>
+    <section id="screen-intro" class="screen screen-intro">
+      <div class="start-top">
+        <div class="logo">
+          <span class="tape tape-logo" aria-hidden="true"></span>
+          <h1 class="logo-word">Funn</h1>
+          <svg class="star star-big" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 2 L20 14 L32 17 L20 20 L17 32 L14 20 L2 17 L14 14 Z"/></svg>
+          <svg class="star star-small" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1 L9.5 6.5 L15 8 L9.5 9.5 L8 15 L6.5 9.5 L1 8 L6.5 6.5 Z"/></svg>
+        </div>
+        <span id="mode-badge" class="badge badge-demo" hidden>demo</span>
+        <button class="link link-top" data-action="settings">meny</button>
+      </div>
+
+      <div class="bubble bubble-start">
+        <p>Har du funnet noe du liker? Vis meg det!</p>
+      </div>
+      <div class="mascot mascot-start" data-skjaere="Skjæra med monokkel sitter i en loppiskasse"></div>
+
       <div id="mock-panel" class="mock-panel" hidden>
         <label for="mock-scenario">Demomodus – velg eksempel</label>
         <select id="mock-scenario"></select>
         <p class="fineprint">Bildeanalysen bruker faste eksempler. <button class="link link-inline" data-action="settings">Legg inn Gemini-nøkkel</button> for ekte analyse.</p>
       </div>
+
       <div class="actions">
-        <button class="btn btn-primary" data-action="start">Start</button>
+        <label class="btn btn-primary btn-big">
+          <input type="file" accept="image/*" capture="environment" data-input="camera" hidden>
+          TA BILDE
+        </label>
+        <label class="link link-center">
+          <input type="file" accept="image/*" multiple data-input="gallery" hidden>
+          eller velg fra bildene dine
+        </label>
       </div>
     </section>
 
     <!-- 2. Bilder -->
     <section id="screen-capture" class="screen" hidden>
-      <h1>Bilder</h1>
-      <ul class="tips">
-        <li>Ta ett bilde av hele tingen, og ett av hvert merke, stempel eller signatur du finner.</li>
-        <li>Se under bunnen, på baksiden, inni lokk og skuffer, og på etiketter.</li>
-        <li>Gå nært på stempler og tall, og la lyset falle skrått.</li>
-      </ul>
-      <p class="guide-link"><button class="link link-inline" data-action="guide">Lommeur? Slik åpner du det</button></p>
+      <div class="screen-top">
+        <button class="link link-top" data-action="back">← tilbake</button>
+        <span id="photo-count" class="count"></span>
+      </div>
+      <div class="tag"><h1>Bildene dine</h1></div>
 
-      <div id="suggest-box" class="notice notice-hint" hidden></div>
       <div class="photo-grid" id="photo-grid"></div>
       <p class="error" id="capture-error" role="alert" hidden></p>
 
+      <div class="mascot-talk">
+        <div class="mascot mascot-small" data-skjaere="Skjæra"></div>
+        <div class="bubble bubble-left" id="suggest-box"></div>
+      </div>
+
+      <ul class="arrows">
+        <li>Hele funnet, forfra</li>
+        <li>Merker, stempler, signaturer</li>
+        <li>Gå nært, la lyset falle skrått</li>
+      </ul>
+      <p class="guide-link"><button class="link link-inline" data-action="guide">Lommeur? Slik åpner du det</button></p>
+
       <div class="actions">
-        <div class="row">
-          <label class="btn btn-secondary">
-            <input type="file" accept="image/*" capture="environment" data-input="camera" hidden>
-            Ta bilde
-          </label>
-          <label class="btn btn-secondary">
-            <input type="file" accept="image/*" multiple data-input="gallery" hidden>
-            Velg bilder
-          </label>
-        </div>
-        <button class="btn btn-primary" data-action="analyze" id="analyze-btn" disabled>Analyser</button>
-        <div class="row row-links">
-          <button class="link" data-action="back">Tilbake</button>
-          <button class="link" data-action="save-photos" id="save-photos-btn" hidden>Lagre bildene på telefonen</button>
-        </div>
+        <button class="btn btn-primary" data-action="analyze" id="analyze-btn" disabled>FINN UT HVA DET ER</button>
+        <label class="link link-center">
+          <input type="file" accept="image/*" multiple data-input="gallery" hidden>
+          velg fra bildene dine
+        </label>
+        <button class="link link-center" data-action="save-photos" id="save-photos-btn" hidden>lagre bildene på telefonen</button>
       </div>
     </section>
 
-    <!-- 3. Analyserer -->
-    <section id="screen-loading" class="screen screen-center" hidden>
-      <div class="spinner" aria-hidden="true"></div>
-      <p id="loading-text">Leser bildene …</p>
-    </section>
+    <!-- 3. Analyserer (fylles av app.js) -->
+    <section id="screen-loading" class="screen screen-center" hidden></section>
 
-    <!-- 4. Bekreft -->
+    <!-- 4. Stemmer dette? -->
     <section id="screen-confirm" class="screen" hidden>
-      <h1>Stemmer dette?</h1>
-      <p class="lead">Sjekk mot tingen og rett opp feil før appen slår opp.</p>
+      <button class="link link-top" data-action="retake">← bildene</button>
+      <div class="title-row">
+        <div class="tag"><h1>Stemmer dette?</h1></div>
+        <div class="mascot mascot-tiny" data-skjaere="Skjæra"></div>
+      </div>
+      <p class="lead">Dette leste jeg. Rett det som er feil før jeg leter etter priser.</p>
       <p class="meta" id="analysis-time"></p>
 
       <div id="confirm-notices"></div>
-      <section class="card found" aria-labelledby="found-title">
-        <h2 id="found-title">Funnet <span class="chip" data-conf="numbers"></span></h2>
+      <section class="box found" aria-labelledby="found-title">
+        <h2 id="found-title" class="box-label">Funnet <span class="chip" data-conf="numbers"></span></h2>
         <div id="found"></div>
       </section>
 
       <form id="confirm-form" novalidate>
-        <div class="field">
-          <label for="f-category">Kategori <span class="chip" data-conf="category"></span></label>
-          <select id="f-category" name="category"></select>
-        </div>
         <div class="field">
           <label for="f-object">Hva er det?</label>
           <input id="f-object" name="object_type" autocomplete="off" placeholder="F.eks. kaffekanne, spiseskje, vase">
           <small id="object-description"></small>
         </div>
         <div class="field">
-          <label for="f-brand">Produsent, merke eller signatur <span class="chip" data-conf="brand_signed"></span></label>
+          <label for="f-brand">Produsent eller signatur <span class="chip" data-conf="brand_signed"></span></label>
           <input id="f-brand" name="brand" autocomplete="off" autocapitalize="words" placeholder="Usignert">
         </div>
-        <div class="field">
-          <label for="f-materials">Materialer</label>
-          <input id="f-materials" name="materials" autocomplete="off" placeholder="F.eks. porselen, sølv, eik">
-          <small>Skill med komma.</small>
+        <div class="field-pair">
+          <div class="field">
+            <label for="f-category">Kategori <span class="chip" data-conf="category"></span></label>
+            <select id="f-category" name="category"></select>
+          </div>
+          <div class="field">
+            <label for="f-materials">Materiale</label>
+            <input id="f-materials" name="materials" autocomplete="off" placeholder="porselen">
+          </div>
         </div>
         <div id="watch-fields">
         <div class="field">
@@ -146,34 +163,65 @@
           <select id="f-material" name="material"></select>
           <div class="stamps" id="stamps"></div>
         </div>
+        <p class="fineprint">Usikker på noe? Feltet er merket med «sjekk».</p>
         <div class="actions">
-          <button class="btn btn-primary" type="submit">Finn informasjon</button>
-          <div class="row row-links">
-            <button class="link" type="button" data-action="retake">Ta bildene på nytt</button>
-          </div>
+          <button class="btn btn-primary" type="submit">FINN PRISER</button>
+          <button class="link link-center" type="button" data-action="add-photo">legg til et bilde</button>
         </div>
       </form>
     </section>
 
     <!-- 5. Resultat -->
     <section id="screen-result" class="screen" hidden>
-      <h1>Resultat</h1>
-      <article class="card" id="web-card" hidden></article>
-      <article class="card" id="value-card"></article>
+      <button class="link link-top" data-action="edit">← rett opplysninger</button>
+
+      <div id="result-found">
+        <div class="result-head">
+          <div class="result-info">
+            <div class="result-photo" id="result-photo" role="img" aria-label="Bilde av funnet"></div>
+            <h1 class="result-title" id="result-title"></h1>
+            <p class="result-sub" id="result-sub"></p>
+          </div>
+          <div class="result-mascot">
+            <div class="mascot mascot-result" data-skjaere="Skjæra med prislappen"></div>
+            <div class="price-sticker" id="price-sticker" aria-hidden="true"><span>…</span></div>
+          </div>
+        </div>
+        <div class="bubble bubble-up" id="result-bubble" aria-live="polite"></div>
+
+        <article class="card" id="web-card" hidden></article>
+        <article class="card" id="value-card"></article>
+      </div>
+
+      <!-- Fant ingenting -->
+      <div id="result-none" class="result-none" hidden>
+        <div class="mascot-wonder">
+          <span class="wonder-mark" aria-hidden="true">?</span>
+          <div class="mascot mascot-none" data-skjaere="Skjæra med monokkel ser spørrende ut"></div>
+        </div>
+        <div class="tag tag-center"><h1>Hm. Denne vet jeg ikke.</h1></div>
+        <p>Jeg fant ingen priser med en kilde jeg kan stå for. Jeg gjetter ikke – men dette kan hjelpe:</p>
+        <ul class="arrows">
+          <li>Ta bilde av merket under bunnen</li>
+          <li>Skriv inn navnet hvis du ser et</li>
+          <li>Ta bildet i bedre lys, gjerne fra siden</li>
+        </ul>
+        <p class="meta" id="none-detail"></p>
+      </div>
+
       <article class="card" id="dating-card"></article>
       <article class="card" id="maker-card" hidden></article>
-      <article class="card" id="sales-card" hidden></article>
+
       <div class="actions">
-        <button class="btn btn-primary" data-action="restart">Ny vurdering</button>
-        <div class="row row-links">
-          <button class="link" data-action="edit">Rett opplysninger</button>
-        </div>
+        <button class="btn btn-secondary" data-action="add-photo" id="none-add" hidden>LEGG TIL ET BILDE</button>
+        <button class="btn btn-primary" data-action="restart">SJEKK EN TIL</button>
       </div>
     </section>
 
     <!-- 6. Innstillinger -->
     <section id="screen-settings" class="screen" hidden>
-      <h1>Innstillinger</h1>
+      <button class="link link-top" data-action="close-settings">← tilbake</button>
+      <div class="tag"><h1>Meny</h1></div>
       <p class="lead">Nøkkelen lagres bare i denne nettleseren og sendes bare til Google.</p>
       <form id="settings-form" novalidate>
         <div class="field">
@@ -190,41 +238,35 @@
           <label><input type="checkbox" name="demo"> Demomodus (ingen kall til Gemini)</label>
         </div>
         <p id="settings-status" class="status" role="status" hidden></p>
+        <p><button class="link link-inline" type="button" data-action="guide">Slik åpner du et lommeur</button></p>
         <div class="actions">
-          <button class="btn btn-primary" type="submit">Lagre</button>
+          <button class="btn btn-primary" type="submit">LAGRE</button>
           <div class="row">
-            <button class="btn btn-secondary" type="button" data-action="test-key">Test nøkkelen</button>
-            <button class="btn btn-secondary" type="button" data-action="clear-key">Slett nøkkel</button>
-          </div>
-          <div class="row row-links">
-            <button class="link" type="button" data-action="close-settings">Tilbake</button>
+            <button class="btn btn-secondary" type="button" data-action="test-key">TEST NØKKELEN</button>
+            <button class="btn btn-secondary" type="button" data-action="clear-key">SLETT NØKKEL</button>
           </div>
         </div>
       </form>
     </section>
+
     <!-- Veiledning -->
     <section id="screen-guide" class="screen guide" hidden>
-      <h1>Slik åpner du et lommeur</h1>
-      <p class="lead">De fleste lommeur har to lokk bak: et ytre lokk og et indre støvlokk, cuvetten. Stempler og nummer kan sitte på begge, så appen ber om bilde av hvert lag.</p>
+      <button class="link link-top" data-action="close-guide">← tilbake</button>
+      <div class="tag"><h1>Slik åpner du et lommeur</h1></div>
+      <p class="lead">De fleste lommeur har to lokk bak: et ytre lokk og et indre støvlokk, cuvetten. Stempler og nummer kan sitte på begge, så ta bilde av hvert lag.</p>
 
       <figure class="guide-figure">
         <svg viewBox="0 0 320 210" role="img" aria-labelledby="guide-fig-title">
           <title id="guide-fig-title">Lagene i et lommeur sett fra siden: glass, urskive, urverk, cuvette og ytre lokk</title>
           <g class="g-line">
-            <!-- bøyle og krone -->
             <path d="M52 22a10 10 0 0 1 20 0" />
             <rect x="57" y="22" width="10" height="9" rx="2" />
-            <!-- glass -->
             <path d="M22 52q40-16 80 0" />
-            <!-- urskive -->
             <rect x="24" y="56" width="76" height="6" rx="2" class="g-fill-soft" />
-            <!-- urverk -->
             <rect x="26" y="68" width="72" height="22" rx="3" class="g-fill" />
             <circle cx="46" cy="79" r="6" />
             <circle cx="76" cy="79" r="4" />
-            <!-- cuvette (åpen, hengslet til venstre) -->
             <path d="M26 98 L96 128" class="g-accent" />
-            <!-- ytre lokk (åpent, hengslet til venstre) -->
             <path d="M24 104 L88 160" class="g-accent2" />
             <circle cx="25" cy="101" r="3" class="g-dot" />
           </g>
@@ -282,12 +324,11 @@
       </article>
 
       <div class="actions">
-        <button class="btn btn-primary" data-action="close-guide">Ferdig</button>
+        <button class="btn btn-primary" data-action="close-guide">FERDIG</button>
       </div>
     </section>
   </main>
   <noscript><p class="error">Appen trenger JavaScript.</p></noscript>
-
 
   <script type="module" src="js/app.js"></script>
 </body>

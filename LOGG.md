@@ -183,6 +183,12 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ## Øktlogg
 
+### 2026-11-01 – Nytt utseende: auksjonskatalog, loppislapp og skjæra
+**Bakgrunn:** Brukeren: A–C er ok, men font og stil virker AI-laget. Ønsket en maskot som følger prosessen; valgte skjære.
+**Gjort på designlerretet:** D Auksjonskatalog (Spectral + Archivo Narrow, skarpe hjørner, linjer, lotnummer, rødt blekk). E Loppislapp (Courier Prime + Permanent Marker, teip, neonklistremerke, harde skygger). F Skjæra i E-stilen: figurark med fire tilstander (hei, leser stempelet, har prisen, vet ikke), og skjermene start, analyse (hakkeanimasjon som venter, med sjekkliste), resultat (skjæra kommer med neonlappen, prisen i en snakkeboble), «fant ingenting» (trekker på skuldrene, gjetter ikke, foreslår neste bilde) og «Reiret» (samlingen av funn).
+**Regler for skjæra:** tusjstrek, aldri glatt 3D; bare i de små øyeblikkene; sier aldri en pris selv, henter bare lappen med kilde.
+**Neste:** Brukeren velger; så bygges valgt stil inn i nettversjonen. «Reiret» (samlinger) er en ny funksjon og står fortsatt som parkert idé.
+
 ### 2026-11-01 – Forslag til nytt utseende
 **Bakgrunn:** Brukeren: steampunk-stilen er utdatert med alt det nye.
 **Gjort:** Tre retninger på et designlerret (claude.ai-artefakt «InformAntikk – nytt utseende»), hver med start- og resultatskjerm i mobilformat: A Loppisfunn (lyst og rolig, grønn aksent, Manrope), B Prislapp (kraftpapir og etikett, IBM Plex Mono/Sans, rust), C Kamera først (mørkt, søker med siktemerker, gul aksent). Alle har prisen øverst på resultatet, med «Til salgs for» og «Solgt for» adskilt, og lenkede enkeltpriser.

@@ -39,7 +39,9 @@ export function describeItem(facts, { brandName = null, itemType = "pocket_watch
   if (facts.case_number) details.push(`case no. ${facts.case_number}`);
   const marks = (facts.case_stamps ?? []).slice(0, 6);
   if (marks.length) details.push(`marks: ${marks.join("; ")}`);
-  return `${parts.join(" ")}${details.length ? ` (${details.join(", ")})` : ""}`;
+  const focus = { book_paper: " – the printed book itself, not a film, series or other adaptation of it",
+                  music: " – the physical music release itself", film: " – the physical film release itself (disc or tape)" }[itemType] ?? "";
+  return `${parts.join(" ")}${details.length ? ` (${details.join(", ")})` : ""}${focus}`;
 }
 
 const SYSTEM = `You help people at flea markets, antique shops and charity shops in Norway find out what an item is and what it sells for. Use Google Search.
@@ -49,7 +51,8 @@ Rules:
 - Two kinds of prices: "sold" = a price actually achieved (auction hammer price, "sold for", completed sale); "listed" = an asking price in a current or recent ad or shop listing. Never report estimates.
 - Search Norwegian and Nordic sources first (finn.no, tise.com, auctionet.com, blomqvist.no, gwpa.no, lauritz.com, tradera.com), then international ones (ebay.com, catawiki.com, worthpoint.com, auction houses).
 - Prefer the same maker, model, type, material and era. Mark how similar each one is.
-- Books, comics, records, films and games: match title and author/artist first, then edition or printing, publisher, year printed and binding. A different book by the same author is "similar", not "same_model". Book sources: finn.no, tise.com, antikvariat.net, boklibris.no, bokborsen.no, abebooks.com, ebay.com; records, CDs and cassettes: discogs.com, finn.no, tise.com, ebay.com; films: finn.no, tise.com, ebay.com. For music and film, match artist/director and title first, then format, label or studio, catalogue number and pressing.
+- Books, comics, records, films and games: match title and author/artist first, then edition or printing, publisher, year printed and binding. A different book by the same author is "similar", not "same_model". Book sources: finn.no, tise.com, antikvariat.net, boklibris.no, bokborsen.no, abebooks.com, ebay.com, and for books still in print the Norwegian bookstores ark.no, norli.no, adlibris.com/no, bokkilden.no and haugenbok.no (a bookstore price is "listed"); records, CDs and cassettes: discogs.com, finn.no, tise.com, ebay.com; films: finn.no, tise.com, ebay.com. For music and film, match artist/director and title first, then format, label or studio, catalogue number and pressing.
+- Only report a price from a page that appears in your search results, and give that page's exact URL. If you cannot find the page in the search results, leave the price out.
 - Copy price, currency, date and URL exactly from the page. Never invent or estimate a price, date or URL.
 - Background facts must be about the maker, model, pattern or marks (for books and records: the work, its author or artist, and the edition), each with the page it came from. Write them in Norwegian (bokmål), at most two sentences each. You may give the years a mark, stamp, pattern or model was in use when the page says so, but never state a production year for this specific item yourself.
 - Reply with JSON only, no other text.`;
@@ -98,7 +101,9 @@ export function verified(url, domains, titles = []) {
   for (const d of domains) if (h === d || h.endsWith(`.${d}`) || d.endsWith(`.${h}`)) return true;
   const labels = h.split(".");
   const name = labels.length >= 2 ? labels[labels.length - 2] : labels[0];
-  return name.length >= 3 && titles.some((t) => t.includes(name));
+  if (name.length < 3) return false;
+  const word = new RegExp(`(^|[^\\p{L}\\p{N}])${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^\\p{L}\\p{N}])`, "u");
+  return titles.some((t) => word.test(t));   // «ark» skal ikke godkjennes av «Markens grøde»
 }
 
 /** «kr 1 200», «1.200,-», «1,200.50» → tall. */
@@ -134,7 +139,7 @@ export function parseWebSales(data, fx) {
   const meta = candidate?.groundingMetadata ?? {};
   const domains = groundedDomains(meta);
   const titles = sourceTitles(meta);
-  const stats = { sources: (meta.groundingChunks ?? []).length, proposed: 0, noPrice: 0, unverified: 0, json: false };
+  const stats = { sources: (meta.groundingChunks ?? []).length, proposed: 0, noPrice: 0, unverified: 0, unverifiedSites: [], json: false };
   const json = extractJson(text);
   stats.json = !!json;
   const parsed = json ?? { sales: [], background: [] };
@@ -146,7 +151,12 @@ export function parseWebSales(data, fx) {
     stats.proposed += 1;
     const price = parsePrice(s?.price);
     if (!(price > 0)) { stats.noPrice += 1; dropped += 1; continue; }
-    if (!s?.url || !verified(s.url, domains, titles)) { stats.unverified += 1; dropped += 1; continue; }
+    if (!s?.url || !verified(s.url, domains, titles)) {
+      stats.unverified += 1; dropped += 1;
+      const h = host(s?.url ?? "");
+      if (h && !stats.unverifiedSites.includes(h)) stats.unverifiedSites.push(h);
+      continue;
+    }
     const currency = String(s.currency ?? "").toUpperCase();
     const rate = rates[currency];
     sales.push({

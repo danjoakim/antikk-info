@@ -192,6 +192,17 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ## Øktlogg
 
+### 2026-11-01 – Økt 29: Bokpriser – holde søket på boka, bokhandlene med, strengere kildekontroll
+**Bakgrunn:** «Markens grøde» (Antares 2024) via Nasjonalbiblioteket: «Google ga 4 kilder; søket foreslo 5 priser, 5 fra nettsteder som ikke var blant kildene». Bakgrunnen kom fra filmmagasinet.no – søket ble dratt mot den nye filmen. Tittelen sto som «[Markens grøde]».
+**Gjort:**
+- Hakeparenteser fra Nasjonalbibliotekets titler fjernes.
+- Beskrivelsen til prissøket sier for bøker «the printed book itself, not a film, series or other adaptation» (tilsvarende for musikk og film: den fysiske utgivelsen).
+- Instruksen nevner norske bokhandler for bøker i salg (ark.no, norli.no, adlibris.com/no, bokkilden.no, haugenbok.no; bokhandelpris = «listed»), og sier at en pris bare kan rapporteres fra en side som finnes i søkeresultatene.
+- Den grå feilsøkingslinjen viser hvilke nettsteder de forkastede prisene kom fra.
+- Kildekontrollen krever at nettstedsnavnet står som eget ord i kildetittelen («ark» godkjennes ikke av «Markens grøde»).
+**Tester:** 60 JS-tester (3 nye) og 63 Python-tester bestått; nettlesertester for bok, PS5 (nytt søkeforsøk), Discogs og identifisering kjørt på nytt uten feil.
+**Neste:** Brukeren tester «Markens grøde» igjen. Hvis prisene fortsatt kastes, viser linjen hvilke nettsteder det gjelder.
+
 ### 2026-11-01 – Økt 28: Nasjonalbiblioteket for norske bøker
 **Bakgrunn:** Brukeren åpnet api.nb.no i Safari: katalogen svarer med åpen JSON uten nøkkel. Søket «Sult Hamsun» ga først en artikkel om boka, så det må filtreres på bøker.
 **Gjort:** Ny `docs/js/nb.js`. For bøker søker appen først i Nasjonalbiblioteket (ISBN hvis lest, ellers tittel og forfatter; bare medietypen «bøker»). Utgaver vises som kort i «Er det en av disse?» med år og forlag; «Sjekk» peker på trykkeåret (eller forlaget) på tittelbladet. Valgt utgave går til prissøket, og utgivelsesåret vises på resultatet med nb.no som kilde. Feil eller ingen treff: Gemini-identifiseringen som før.

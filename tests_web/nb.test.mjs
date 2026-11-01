@@ -36,3 +36,9 @@ test("toCandidates: ett treff er avgjort; feil tittel gir ingenting", () => {
   assert.equal(toCandidates([item("b1", "Sult", ["Hamsun, Knut"], "1957")], { title: "Sult" }).decided, true);
   assert.equal(toCandidates([item("x", "Markens grøde", ["Hamsun, Knut"], "1917")], { title: "Sult" }).candidates.length, 0);
 });
+
+test("Hakeparenteser fra katalogen fjernes fra tittelen", () => {
+  const r = toCandidates([item("m1", "[Markens grøde]", ["Hamsun, Knut"], "2024", ["bøker"], "Antares")], { title: "Markens grøde" });
+  assert.equal(r.candidates[0].title, "Markens grøde");
+  assert.equal(r.candidates[0].name, "Markens grøde – Knut Hamsun (2024)");
+});

@@ -594,7 +594,7 @@ function renderWebSales({ sales, background, range, listedRange, dropped, stats,
     summary = sales.length
       ? `<p class="meta">For få priser til et intervall (minst 3 av samme slag). Se enkeltprisene under.</p>`
       : `<p>Fant ingen priser med sikker kilde denne gangen.</p>
-         <p class="meta">Google ga ${stats?.sources ?? 0} kilder; søket foreslo ${stats?.proposed ?? 0} priser${stats?.noPrice ? `, ${stats.noPrice} uten lesbar pris` : ""}${stats?.unverified ? `, ${stats.unverified} fra nettsteder som ikke var blant kildene` : ""}${stats && !stats.json ? "; svaret hadde ikke riktig format" : ""}.</p>`;
+         <p class="meta">Google ga ${stats?.sources ?? 0} kilder; søket foreslo ${stats?.proposed ?? 0} priser${stats?.noPrice ? `, ${stats.noPrice} uten lesbar pris` : ""}${stats?.unverified ? `, ${stats.unverified} fra nettsteder som ikke var blant kildene${stats.unverifiedSites?.length ? ` (${stats.unverifiedSites.slice(0, 4).join(", ")})` : ""}` : ""}${stats && !stats.json ? "; svaret hadde ikke riktig format" : ""}.</p>`;
   }
   const list = sales.map((s) => `
     <li><span class="web-sale-title">${esc(s.title)}</span>
@@ -716,7 +716,7 @@ function setSummary(args = {}) {
     if (none) {
       const st = web?.stats;
       $("#none-detail").textContent = st
-        ? `Google ga ${st.sources ?? 0} kilder; søket foreslo ${st.proposed ?? 0} priser${st.noPrice ? `, ${st.noPrice} uten lesbar pris` : ""}${st.unverified ? `, ${st.unverified} fra nettsteder som ikke var blant kildene` : ""}${st.json === false ? "; svaret hadde ikke riktig format" : ""}.`
+        ? `Google ga ${st.sources ?? 0} kilder; søket foreslo ${st.proposed ?? 0} priser${st.noPrice ? `, ${st.noPrice} uten lesbar pris` : ""}${st.unverified ? `, ${st.unverified} fra nettsteder som ikke var blant kildene${st.unverifiedSites?.length ? ` (${st.unverifiedSites.slice(0, 4).join(", ")})` : ""}` : ""}${st.json === false ? "; svaret hadde ikke riktig format" : ""}.`
         : "";
     }
   }

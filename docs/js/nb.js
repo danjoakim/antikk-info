@@ -38,7 +38,7 @@ export function toCandidates(items, q = {}, { exact = false } = {}) {
   for (const it of items ?? []) {
     const m = it?.metadata ?? {};
     if (!(m.mediaTypes ?? []).some((t) => /bøker|books/i.test(t))) continue;
-    const title = String(m.title ?? m.titleInfos?.[0]?.title ?? "").trim();
+    const title = String(m.title ?? m.titleInfos?.[0]?.title ?? "").replace(/[[\]]/g, "").trim();   // «[Markens grøde]» → «Markens grøde»
     if (!title) continue;
     if (words.length && !words.some((w) => title.toLowerCase().includes(w))) continue;
     const creator = personName((m.creators ?? [])[0]);

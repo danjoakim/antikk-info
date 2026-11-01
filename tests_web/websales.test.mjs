@@ -125,3 +125,17 @@ test("callGrounded prøver én gang til når modellen svarte uten å søke", asy
 test("Instruksen sier at det alltid skal søkes, også for kjente ting", () => {
   assert.match(buildWebSalesRequest("x").systemInstruction.parts[0].text, /Always run Google Search/);
 });
+
+test("Nettstedsnavn må stå som eget ord i kildetittelen", async () => {
+  const { verified } = await import("../docs/js/websales.js");
+  assert.equal(verified("https://www.ark.no/bok/1", new Set(), ["markens grøde – knut hamsun"]), false);
+  assert.equal(verified("https://www.ark.no/bok/1", new Set(), ["markens grøde | ark bokhandel"]), true);
+  assert.equal(verified("https://www.finn.no/1", new Set(), ["finn.no – markens grøde"]), true);
+});
+
+test("Bøker: søket holdes på boka, og bokhandlene er med", () => {
+  assert.match(describeItem({ title: "Markens grøde", creator: "Knut Hamsun" }, { itemType: "book_paper" }), /not a film/);
+  const sys = buildWebSalesRequest("x").systemInstruction.parts[0].text;
+  for (const site of ["ark.no", "norli.no", "bokkilden.no"]) assert.ok(sys.includes(site), site);
+  assert.match(sys, /Only report a price from a page that appears in your search results/);
+});

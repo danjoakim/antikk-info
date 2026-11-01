@@ -164,6 +164,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-11-01 | Nettsøket henter både oppnådde priser («Solgt for») og utsalgspriser i annonser («Til salgs for»), norske kilder først (finn.no, tise, auctionet m.fl.) | For brukte hverdagsting er annonsepriser det folk faktisk trenger; holdes adskilt og merket |
 | 2026-11-01 | Ny kategori: Elektronikk, spill og media | Brukerens test med PS5-kontroller |
 | 2026-11-01 | Maskoten er en lisensiert stockillustrasjon av en skjære (brukeren har kjøpt lisens). Brukes som maskot i appen, ikke som logo | Egne tegninger i kode ble for geometriske, og bildegenerering bommet på arten. Stocklisenser tillater normalt ikke bruk som logo/varemerke |
+| 2026-11-01 | Bildesøk med Google Cloud Vision Web Detection (som Google Lens) som spor for nettsøket; sidene det finner godtas som kilder | Tekstsøk alene bommer når Gemini ikke leser nok; Lens fant boka straks |
 | 2026-11-01 | Appen heter **Funn** | Brukerens valg. Kort og norsk, og passer til flyten: du gjør et funn, skjæra samler funnene i reiret. Ingen varemerkeregistrering nå |
 | 2026-11-01 | Ny skjære fra Kuraplan erstatter stockskjæra, som ikke ble godkjent for bruken. Creative Commons-lisens uten krav om kreditering (ifølge brukeren), så merket trenger ikke være med | Brukerens nye fil |
 | 2026-11-01 | Skjæra har monokkel og tversoversløyfe og sitter i en loppiskasse (kaffekoppen er droppet) | Rekvisitter gir personlighet uten å tegne om fuglen; kassa skjuler klørne og knytter skjæra til loppis |
@@ -186,6 +187,19 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-11-01 – Økt 24: Bildesøk som Google Lens (Cloud Vision Web Detection)
+**Bakgrunn:** Brukeren viste at Google Lens straks fant boka (tittel, FINN-annonser med pris). Appen søkte bare på teksten Gemini leste. Brukeren: vi må ha muligheten til å søke med bildet, ikke legge inn nettsteder for hver ting vi tester.
+**Gjort:**
+- Ny modul `docs/js/lens.js`: sender det første bildet til Google Cloud Vision «Web Detection» med samme nøkkel, samtidig med bildeanalysen. Gir beste gjetning, entiteter og sider med samme eller lignende bilde.
+- «Stemmer dette?» viser hva bildesøket fant. Virker ikke bildesøket (API av, nøkkel blokkert, fakturering), vises en tydelig melding, og appen søker videre på teksten.
+- Nettsøket får bildesøkets gjetning og sidene som spor. Sidene bildesøket fant regnes som kilder (de kommer fra Google). Prisprinsippet står: bare priser fra sider med kilde.
+- Resultatet viser «Samme bilde på nettet» med lenker.
+- Meny: av/på for bildesøk (på som standard), veiledning for å slå på Cloud Vision API og legge det til nøkkelens API-begrensninger, og «Test nøkkelen» tester også bildesøket.
+- Bildeforslag for bøker: forsiden/tittelbladet og baksiden av tittelbladet i stedet for «under bunnen» (JS og Python).
+**Kostnad:** Web Detection er gratis for de første 1000 bildene per måned, deretter 3,50 dollar per 1000 (cloud.google.com/vision/pricing, sjekket 01.11.2026).
+**Tester:** 38 JS-tester (3 nye for bildesøk) og 63 Python-tester bestått. Nettlesertest med simulert Vision: bok uten lesbar tittel får priser via sidene bildesøket fant; med API avslått vises meldingen og appen går videre.
+**Brukeren må:** slå på Cloud Vision API i samme Google Cloud-prosjekt som nøkkelen, og tillate API-et på nøkkelen.
 
 ### 2026-11-01 – Økt 23: Bøker, plater og trykk – tittel og forfatter
 **Bakgrunn:** Brukeren testet en bok fra NLM Gjenbruken (bilde av forsiden). Appen fant ingenting. Bildeanalysen hadde ingen felt for tittel og forfatter, så nettsøket fikk bare «bok» og forlaget, og søket kjente ikke boksidene.

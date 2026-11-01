@@ -256,6 +256,9 @@ input[name$="serial"], input[name="case_number"] { font-variant-numeric: tabular
 .status.ok { background: var(--ok-soft); }
 .status.bad { background: var(--bad-soft); color: var(--bad); }
 .badge { font: 700 12px/1 var(--mono); padding: 4px 8px; border: 2px solid var(--ink); background: #FFE14D; }
+.howto { margin: 0 0 14px; font-size: 14px; }
+.howto ol { margin: 4px 0 0; padding-left: 1.3em; }
+.howto li { margin: 0 0 6px; }
 .mock-panel { margin-top: 18px; border: 2px dashed var(--ink); padding: 12px; }
 .mock-panel label { display: block; font: 700 14px var(--mono); margin-bottom: 6px; }
 .mock-panel .fineprint { margin: 8px 0 0; }

@@ -7,9 +7,9 @@ const STORE = "lommeur.settings.v1";
 export function loadSettings() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORE) ?? "{}");
-    return { key: saved.key ?? "", model: saved.model || DEFAULT_MODEL, demo: saved.demo === true };
+    return { key: saved.key ?? "", model: saved.model || DEFAULT_MODEL, demo: saved.demo === true, lens: saved.lens !== false };
   } catch {
-    return { key: "", model: DEFAULT_MODEL, demo: false };
+    return { key: "", model: DEFAULT_MODEL, demo: false, lens: true };
   }
 }
 

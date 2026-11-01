@@ -26,6 +26,15 @@ def suggest_photos(conn: sqlite3.Connection, facts: VisionFacts, n: NormalizedFa
         if location not in seen and all(loc != location for loc, _ in wanted):
             wanted.append((location, reason))
 
+    if n.category == "book_paper":
+        # Bøker og trykksaker: tittel og forfatter foran, forlag, opplag og trykkeår på tittelbladet.
+        if not facts.title and not facts.creator:
+            want("front", "Forsiden eller tittelbladet: der står tittel og forfatter.")
+        if not n.brand:
+            want("inside", "Baksiden av tittelbladet: der står forlag, opplag og trykkeår.")
+        return [Suggestion(location=loc, label=LOCATION_LABELS.get(loc, loc), reason=why)
+                for loc, why in wanted[:MAX_SUGGESTIONS]]
+
     if n.category not in WATCH_CATEGORIES:
         # Generelt: merker og stempler sitter oftest under eller bak.
         has_marks = any(m.type in ("fineness", "hallmark_symbol", "maker_mark", "factory_mark", "signature", "label")

@@ -22,6 +22,12 @@ export function suggestPhotos(ranges, facts, n) {
     if (!have.has(location) && !wanted.some((w) => w.location === location)) wanted.push({ location, reason });
   };
 
+  if (n.category === "book_paper") {
+    // Bøker og trykksaker: tittel og forfatter foran, forlag, opplag og trykkeår på tittelbladet.
+    if (!facts.title && !facts.creator) want("front", "Forsiden eller tittelbladet: der står tittel og forfatter.");
+    if (!n.brand) want("inside", "Baksiden av tittelbladet: der står forlag, opplag og trykkeår.");
+    return wanted.slice(0, MAX_SUGGESTIONS).map((w) => ({ ...w, label: LOCATION_LABELS[w.location] ?? w.location }));
+  }
   if (!isWatch(n.category)) {
     // Generelt: merker og stempler sitter oftest under eller bak.
     const markTypes = new Set(["fineness", "hallmark_symbol", "maker_mark", "factory_mark", "signature", "label"]);

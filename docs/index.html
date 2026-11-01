@@ -245,6 +245,18 @@
           <small>Bytt hvis Google har pensjonert modellen.</small>
         </div>
         <div class="field field-check">
+          <label><input type="checkbox" name="lens"> Bildesøk, som Google Lens</label>
+          <small>Det første bildet sendes til Google Cloud Vision, som finner sider med samme eller lignende bilde. Krever at Cloud Vision API er slått på for nøkkelen (se under). De første 1000 søkene hver måned er gratis.</small>
+        </div>
+        <details class="howto">
+          <summary>Slik slår du på bildesøk</summary>
+          <ol>
+            <li>Åpne <a href="https://console.cloud.google.com/apis/library/vision.googleapis.com" target="_blank" rel="noopener">Cloud Vision API</a> i Google Cloud og velg det samme prosjektet som Gemini-nøkkelen hører til. Trykk «Aktiver».</li>
+            <li>Gå til <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Legitimasjon</a>, åpne nøkkelen, og legg til «Cloud Vision API» under API-begrensninger. Lagre.</li>
+            <li>Kom tilbake hit og trykk «Test nøkkelen».</li>
+          </ol>
+        </details>
+        <div class="field field-check">
           <label><input type="checkbox" name="demo"> Demomodus (ingen kall til Gemini)</label>
         </div>
         <p id="settings-status" class="status" role="status" hidden></p>

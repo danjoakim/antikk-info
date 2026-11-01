@@ -74,7 +74,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ### Prioritert rekkefølge (oppdatert 01.11.2026 kl. 23.20)
 1. [x] Nytt utseende (Funn, skjæra), identifisering før prissøk, bøker, musikk/film med Discogs
-2. [ ] **Åpne API-er uten nøkkel først:** sjekk vilkår, kostnad og om de virker direkte fra telefonen (CORS), skriv oversikten inn i prosjektet, bygg én kilde om gangen og test hver. Kandidater: Nasjonalbiblioteket og Open Library (bøker), MusicBrainz (musikk), Wikidata (produsenter, designere, kunstnere), Met Museum (kunst/antikviteter).
+2. [~] **Åpne API-er uten nøkkel først** (sjekket; Wikidata bygget; Nasjonalbiblioteket må testes fra telefonen): sjekk vilkår, kostnad og om de virker direkte fra telefonen (CORS), skriv oversikten inn i prosjektet, bygg én kilde om gangen og test hver. Kandidater: Nasjonalbiblioteket og Open Library (bøker), MusicBrainz (musikk), Wikidata (produsenter, designere, kunstnere), Met Museum (kunst/antikviteter).
 3. [ ] **Nøkler på server (Supabase Edge Function)** før kilder som krever nøkkel: alle nøkler legges inn én gang der, appen trenger ingen. Gratisdelen holder mens vi tester.
 4. [ ] Deretter kilder med gratis nøkkel, i rekkefølge: DigitaltMuseum (norsk design), LEGO (Rebrickable/Brickset), BoardGameGeek, Numista (mynter), TMDB (film), Comic Vine, RAWG/IGDB (spill), eBay Browse (priser til salgs).
 5. [ ] Felles base over bekreftede funn (idé 3) – krever beslutninger om lagring, bilder og godkjenning.
@@ -191,6 +191,12 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-11-01 – Økt 27: Åpne kilder sjekket; Wikidata i «Om navnet»
+**Sjekket (oversikt i prosjektet: `claude/APNE-KILDER.md`):** Open Library (ingen nøkkel, 1 forespørsel/s, bare `search.json` bekreftet åpent for nettlesere, tynn på norske utgaver); Nasjonalbiblioteket (kunne ikke nås herfra – må testes fra telefonen); MusicBrainz (krever User-Agent nettlesere ikke kan sette, og kommersiell bruk krever avtale – droppes, Discogs dekker musikk); Wikidata (ingen nøkkel, CC0, virker fra nettleseren via samme API som Wikipedia); Met Museum (lav relevans for norsk loppis).
+**Gjort:** Ny `docs/js/wikidata.js`. «Om navnet / forfatteren / kunstneren» slår først opp i Wikidata og godtar bare treff som er et menneske eller et firma/merke/forlag/plateselskap/band (eller beskrives slik, og ikke er et sted). Kortet viser beskrivelse, årstall (grunnlagt/født–død) og land, og Wikipedia-innledningen hentes med nøyaktig artikkeltittel fra Wikidata – ingen ordfilter. Finner ikke Wikidata noe, brukes det gamle Wikipedia-søket.
+**Tester:** 53 JS-tester (4 nye) og 63 Python-tester bestått. Nettlesertest med simulert Wikidata: PlayStation velges foran en pekerside, med «merke for spillkonsoller fra Sony · grunnlagt 1994 · Japan»; uten treff faller appen tilbake til Wikipedia.
+**Neste:** Teste Nasjonalbiblioteket fra telefonen; deretter nøkler på server.
 
 ### 2026-11-01 – Økt 26: Musikk og film som egne kategorier, Discogs for plater
 **Bakgrunn:** Brukeren: mange går i bruktbutikker etter film og musikk; musikk skal kobles mot Discogs og være egen kategori.

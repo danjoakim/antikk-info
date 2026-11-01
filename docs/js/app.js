@@ -8,6 +8,7 @@ import { suggestPhotos } from "./suggest.js";
 import { describeItem, searchWebSales } from "./websales.js";
 import { describeObserved, identifyItem, mockIdentity } from "./identify.js";
 import { discogsIdentify, discogsStats } from "./discogs.js";
+import { lookupWikidata } from "./wikidata.js";
 import { valueItem } from "./valuation.js";
 import { analyzeWithGemini, mockFacts, testKey, VisionError } from "./vision.js";
 
@@ -797,9 +798,20 @@ function renderMaker(maker) {
     const person = name === c.creator;
     const heading = !person ? "Om navnet" : c.item_type === "book_paper" ? "Om forfatteren" : c.item_type === "art" ? "Om kunstneren" : "Om opphavet";
     card.innerHTML = `<h2>${heading}</h2><p class="maker-name">${esc(name)}</p>
-      <p class="meta wiki-status">${person ? "" : "Navnet står ikke i listen vår. "}Slår opp i Wikipedia …</p>`;
+      <p class="meta wiki-status">${person ? "" : "Navnet står ikke i listen vår. "}Slår opp i Wikidata og Wikipedia …</p>`;
     const category = state.confirmed?.item_type ?? "pocket_watch";
-    lookupWikipedia(name, category).then((hit) => {
+    // Wikidata først: vet om treffet er et firma, merke eller menneske. Ellers Wikipedia-søket som før.
+    lookupWikidata(name).catch(() => null).then((wd) => {
+      if ($("#maker-card") !== card || state.confirmed !== c) return true;
+      if (!wd) return false;
+      $(".wiki-status", card).outerHTML = `
+        ${wd.line ? `<p class="meta">${esc(wd.line)}</p>` : ""}
+        ${wd.extract ? `<p>${esc(wd.extract.text)}</p>` : ""}
+        <p class="meta">Kilde: <a href="${esc(wd.url)}" target="_blank" rel="noopener">Wikidata</a>${wd.extract
+          ? ` og <a href="${esc(wd.extract.url)}" target="_blank" rel="noopener">Wikipedia: ${esc(wd.extract.title)}</a> (CC BY-SA)` : ""}.
+          Sjekk at det er riktig ${person ? "person" : "merke"}.</p>`;
+      return true;
+    }).then((done) => done || lookupWikipedia(name, category).then((hit) => {
       if ($("#maker-card") !== card || state.confirmed !== c) return;
       $(".wiki-status", card).outerHTML = hit
         ? `<p>${esc(hit.extract)}</p>
@@ -809,7 +821,7 @@ function renderMaker(maker) {
           ? `<p class="meta">Vi fant ingenting om «${esc(name)}». Det kan være et lite forhandler- eller handelsnavn.
              <a href="https://www.mikrolisk.de/" target="_blank" rel="noopener">Mikrolisk</a> har et stort register over urmerker.</p>`
           : `<p class="meta">Fant ingen Wikipedia-artikkel som passet om «${esc(name)}».</p>`;
-    });
+    }));
     return;
   }
   const facts = [maker.place, maker.country !== maker.place ? maker.country : null].filter(Boolean).join(", ");

@@ -22,6 +22,13 @@ export function suggestPhotos(ranges, facts, n) {
     if (!have.has(location) && !wanted.some((w) => w.location === location)) wanted.push({ location, reason });
   };
 
+  if (n.category === "music" || n.category === "film") {
+    // Plater og filmer: katalognummer og strekkode avgjør hvilken utgave det er.
+    const coded = (facts.numbers ?? []).some((x) => /cat|ean|upc/i.test(x.prefix ?? ""));
+    if (!coded) want("back", "Baksiden eller ryggen: der står katalognummer og strekkode, som viser hvilken utgave det er.");
+    if (n.category === "music" && !n.brand) want("label", "Etiketten midt på plata: plateselskap og katalognummer.");
+    return wanted.slice(0, MAX_SUGGESTIONS).map((w) => ({ ...w, label: LOCATION_LABELS[w.location] ?? w.location }));
+  }
   if (n.category === "book_paper") {
     // Bøker og trykksaker: tittel og forfatter foran, forlag, opplag og trykkeår på tittelbladet.
     if (!facts.title && !facts.creator) want("front", "Forsiden eller tittelbladet: der står tittel og forfatter.");

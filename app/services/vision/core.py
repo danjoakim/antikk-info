@@ -58,6 +58,8 @@ Marks (`marks`), each with `location` and `type`:
 
 brand_signed: the maker, factory, designer or retailer name as written anywhere on the object; for books and records the publisher or record label. Otherwise null.
 
+Music and film (records, CDs, cassettes, DVDs, Blu-ray, VHS): title = album or film title, creator = artist, band or director, brand_signed = record label or film studio/distributor. object_type names the format in Norwegian (e.g. "LP-plate", "singel (7\")", "CD", "kassett", "DVD", "Blu-ray", "VHS"). Report the catalogue number in `numbers` with prefix "Cat. no" and the barcode digits with prefix "EAN" or "UPC"; both are usually on the spine, the back or the record label.
+
 Books and printed matter: report ISBN and catalogue numbers in `numbers` (prefix "ISBN" etc.), and printed edition, printing, place and year exactly as printed (e.g. "2. opplag", "Oslo 1952", "Første utgave") as "inscription" marks. These are facts printed on the item, not estimates.
 
 Only for pocket watches and wristwatches (otherwise use "unknown", null and empty values):

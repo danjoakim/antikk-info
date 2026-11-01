@@ -144,7 +144,7 @@ export const CATEGORY_LABELS = {
   pocket_watch: "Lommeur", wristwatch: "Armbåndsur", clock: "Klokke (vegg, bord, gulv)",
   silver_metal: "Sølv og metall", porcelain_ceramics: "Porselen og keramikk", glass: "Glass",
   jewelry: "Smykker", furniture: "Møbler", art: "Kunst (malerier, grafikk, skulptur)",
-  textile: "Tekstiler", toy: "Leker", electronics: "Elektronikk, spill og media", book_paper: "Bøker og papir", lighting: "Lamper og lys", other: "Annet",
+  textile: "Tekstiler", toy: "Leker", electronics: "Elektronikk og spill", music: "Musikk (LP, CD, kassett)", film: "Film (DVD, Blu-ray, VHS)", book_paper: "Bøker og papir", lighting: "Lamper og lys", other: "Annet",
 };
 export const WATCH_CATEGORIES = new Set(["pocket_watch", "wristwatch"]);
 export const isWatch = (category) => WATCH_CATEGORIES.has(category ?? "pocket_watch");

@@ -166,6 +166,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-11-01 | Maskoten er en lisensiert stockillustrasjon av en skjære (brukeren har kjøpt lisens). Brukes som maskot i appen, ikke som logo | Egne tegninger i kode ble for geometriske, og bildegenerering bommet på arten. Stocklisenser tillater normalt ikke bruk som logo/varemerke |
 | 2026-11-01 | ~~Bildesøk med Cloud Vision~~ – forkastet samme kveld: ga plakater i stedet for boka. Bare Gemini | Cloud Vision matcher utseende, ikke hva tingen er |
 | 2026-11-01 | Identifisering med kilde før prissøk; brukeren velger bare når bildet ikke avgjør det | Presist navn gir bedre pristreff; ingen spørsmål om det som synes |
+| 2026-11-01 | Musikk og film er egne kategorier; plater slås opp i Discogs (pressing og pris nå) | Mange leter etter musikk og film i bruktbutikker; Discogs er databasen for utgivelser |
 | 2026-11-01 | Appen heter **Funn** | Brukerens valg. Kort og norsk, og passer til flyten: du gjør et funn, skjæra samler funnene i reiret. Ingen varemerkeregistrering nå |
 | 2026-11-01 | Ny skjære fra Kuraplan erstatter stockskjæra, som ikke ble godkjent for bruken. Creative Commons-lisens uten krav om kreditering (ifølge brukeren), så merket trenger ikke være med | Brukerens nye fil |
 | 2026-11-01 | Skjæra har monokkel og tversoversløyfe og sitter i en loppiskasse (kaffekoppen er droppet) | Rekvisitter gir personlighet uten å tegne om fuglen; kassa skjuler klørne og knytter skjæra til loppis |
@@ -188,6 +189,18 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-11-01 – Økt 26: Musikk og film som egne kategorier, Discogs for plater
+**Bakgrunn:** Brukeren: mange går i bruktbutikker etter film og musikk; musikk skal kobles mot Discogs og være egen kategori.
+**Gjort:**
+- Nye kategorier `music` («Musikk (LP, CD, kassett)») og `film` («Film (DVD, Blu-ray, VHS)») i Python og JS; «Elektronikk og spill» for resten. Bildeinstruksen: tittel = album/film, creator = artist/band/regissør, brand_signed = plateselskap/studio, format i «Hva er det?», katalognummer («Cat. no») og strekkode («EAN»/«UPC») i nummer. Bildeforslag: baksiden/ryggen og etiketten på plata.
+- Ny `docs/js/discogs.js`: søker i Discogs på strekkode, deretter katalognummer (med og uten selskap), deretter artist + tittel. Pressinger vises som kort i «Er det en av disse?» med omslagsbilde, år, land, selskap, katalognummer og format; «Sjekk» peker på det som skiller dem (katalognummer, ellers land, ellers år). Ett treff eller treff på strekkode = avgjort.
+- Resultatet: Discogs-kort med laveste pris nå og antall til salgs (EUR, omregnet til kroner), merket som utsalgspriser, lenke til utgivelsen; utgivelsesåret fra Discogs i undertittelen; prislappen viser «fra … kr» når nettsøket ikke ga intervall.
+- Uten Discogs-nøkkel eller ved feil brukes Gemini-identifiseringen som før, med en tydelig melding. Nøkkelfelt «Discogs-nøkkel (musikk)» i menyen med veiledning (discogs.com → Settings → Developers → Generate new token).
+- Nettsøket kjenner discogs.com, FINN, Tise og eBay for plater og film.
+**Fakta sjekket:** Søk i Discogs-databasen krever autentisering; NOK er ikke en Discogs-valuta, så EUR brukes og omregnes.
+**Tester:** 49 JS-tester (6 nye) og 63 Python-tester bestått. Nettlesertest med simulert Discogs: flere pressinger, ett treff, uten nøkkel, feil nøkkel.
+**Ikke testet:** Ekte Discogs fra nettleseren (CORS). Feiler det, sier appen «Fikk ikke kontakt med Discogs» og går videre. Discogs gir ikke historikk over solgte priser i API-et.
 
 ### 2026-11-01 – Tvunget søk og bedre Wikipedia-treff
 **Bakgrunn:** Brukerens test med ekte nøkkel: boka fikk priser (hele kjeden virker). PS5-kontrolleren ga «Google ga 0 kilder; søket foreslo 6 priser, 6 fra nettsteder som ikke var blant kildene» – Gemini svarte fra hukommelsen uten å søke, og appen forkastet alle (riktig). Wikipedia-artikkelen om PlayStation ble forkastet fordi teksten sier «produsert», ikke «produsent». Brukeren: priser er flyktige, så det må alltid søkes.

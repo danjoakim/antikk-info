@@ -17,7 +17,7 @@ const pick = (v, allowed, fallback = "unknown") => (allowed.includes(v) ? v : fa
 const LOCATIONS = ["dial", "outer_lid_outside", "outer_lid_inside", "cuvette_outside", "cuvette_inside", "movement", "case_rim",
   "front", "back", "base", "inside", "lid", "side", "handle", "label", "unknown"];
 const CATEGORIES = ["pocket_watch", "wristwatch", "clock", "silver_metal", "porcelain_ceramics", "glass", "jewelry",
-  "furniture", "art", "textile", "toy", "electronics", "book_paper", "lighting", "other"];
+  "furniture", "art", "textile", "toy", "electronics", "music", "film", "book_paper", "lighting", "other"];
 const METHODS = ["stamped", "engraved", "scratched", "unknown"];
 const MARK_TYPES = ["fineness", "hallmark_symbol", "maker_mark", "factory_mark", "signature", "label", "inscription",
   "owner_engraving", "repair_mark", "other"];

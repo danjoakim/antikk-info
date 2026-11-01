@@ -7,6 +7,7 @@ import { clearSettings, isLive, loadSettings, saveSettings } from "./settings.js
 import { suggestPhotos } from "./suggest.js";
 import { describeItem, searchWebSales } from "./websales.js";
 import { describeObserved, identifyItem, mockIdentity } from "./identify.js";
+import { discogsIdentify, discogsStats } from "./discogs.js";
 import { valueItem } from "./valuation.js";
 import { analyzeWithGemini, mockFacts, testKey, VisionError } from "./vision.js";
 
@@ -20,7 +21,7 @@ const MIN_SALES = 5;
 
 const MAX_PHOTOS = 8;
 // Kategorier der tittel og forfatter/kunstner betyr mest.
-const WORK_CATEGORIES = new Set(["book_paper", "art", "electronics"]);
+const WORK_CATEGORIES = new Set(["book_paper", "art", "electronics", "music", "film"]);
 
 const PLACEHOLDER_SVG = `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
   <circle cx="32" cy="36" r="20"/><path d="M32 8v8M27 10h10M32 36V24M32 36l8 5"/></svg>`;
@@ -283,11 +284,22 @@ async function analyze() {
     if (controller.signal.aborted) return;
     // Steg 2: finn ut nøyaktig hva det er, med kilder. Feiler det, går appen videre uten forslag.
     loadingIdentify();
-    const identity = live
-      ? await identifyItem(describeObserved(facts, normalized),
-          { key: state.settings.key, model: state.settings.model, signal: controller.signal })
-          .catch((err) => ({ candidates: [], decided: false, error: err.message }))
-      : mockIdentity($("#mock-scenario").value);
+    // Musikk: Discogs først (riktig pressing), ellers Gemini med Google-søk.
+    let identity = null;
+    if (live && normalized.category === "music" && state.settings.discogsKey) {
+      identity = await discogsIdentify(facts, normalized, state.settings.discogsKey, { signal: controller.signal })
+        .catch((err) => ({ candidates: [], decided: false, source: "discogs", error: err.message }));
+      if (!identity.candidates.length) identity = { ...identity, discogsError: identity.error, discogsEmpty: !identity.error };
+    }
+    if (!identity?.candidates?.length) {
+      const before = identity;
+      identity = live
+        ? await identifyItem(describeObserved(facts, normalized),
+            { key: state.settings.key, model: state.settings.model, signal: controller.signal })
+            .catch((err) => ({ candidates: [], decided: false, error: err.message }))
+        : mockIdentity($("#mock-scenario").value);
+      if (before) Object.assign(identity, { discogsError: before.discogsError, discogsEmpty: before.discogsEmpty });
+    }
     state.analysis = { mode: live ? "live" : "mock", facts, normalized, suggestions, identity,
       chosen: identity.decided ? identity.candidates[0] : null,
       seconds: live ? (performance.now() - started) / 1000 : null, photos: images.length,
@@ -369,6 +381,12 @@ function renderConfirm() {
   });
 
   const notices = [];
+  const idn = state.analysis.identity;
+  if (normalized.category === "music" && isLive(state.settings)) {
+    if (!state.settings.discogsKey) notices.push(`<div class="notice notice-hint"><p>Legg inn en Discogs-nøkkel under «meny», så finner appen riktig pressing og prisene på Discogs.</p></div>`);
+    else if (idn?.discogsError) notices.push(`<div class="notice notice-warn"><p>${esc(idn.discogsError)}</p></div>`);
+    else if (idn?.discogsEmpty) notices.push(`<div class="notice notice-hint"><p>Discogs fant ingen utgivelse som passet. Et bilde av baksiden med katalognummer eller strekkode hjelper.</p></div>`);
+  }
   if (normalized.warnings.length) {
     notices.push(`<div class="notice notice-warn">${normalized.warnings.map((w) => `<p>${esc(w)}</p>`).join("")}</div>`);
   }
@@ -393,7 +411,8 @@ function renderIdentity() {
   box.hidden = !list.length;
   if (!list.length) { box.innerHTML = ""; return; }
   const card = (c, i) => `
-    <li><button type="button" class="id-card${chosen === c ? " picked" : ""}" data-pick="${i}" aria-pressed="${chosen === c}">
+    <li><button type="button" class="id-card${chosen === c ? " picked" : ""}${c.thumb ? " has-thumb" : ""}" data-pick="${i}" aria-pressed="${chosen === c}">
+      ${c.thumb ? `<img class="id-thumb" src="${esc(c.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}
       <span class="id-name">${esc(c.name)}${c.demo ? ` <span class="badge badge-demo">eksempel</span>` : ""}</span>
       ${c.why ? `<span class="id-why">${esc(c.why)}</span>` : ""}
       ${!identity.decided && c.check ? `<span class="id-check">Sjekk: ${esc(c.check)}</span>` : ""}
@@ -481,6 +500,7 @@ function lookup(event) {
     item_type: category,
     object_type: form.object_type.value.trim() || null,
     identified: state.analysis.chosen?.name ?? null,
+    released: state.analysis.chosen?.discogs?.year ?? null,
     identified_url: state.analysis.chosen?.demo ? null : state.analysis.chosen?.url ?? null,
     identified_site: state.analysis.chosen?.site ?? null,
     title: form.elements.work_title.value.trim() || null,
@@ -509,6 +529,7 @@ function lookup(event) {
   // Uten egne salg er nettsøket priskortet; et tomt «Markedsverdi»-kort skjules ved ekte bruk.
   $("#value-card").hidden = !valuation && isLive(state.settings);
   startWebSales(facts, maker, dating);
+  startDiscogs();
   show("result");
 }
 
@@ -594,6 +615,41 @@ function renderWebSales({ sales, background, range, listedRange, dropped, stats,
 
 // --- Resultat ------------------------------------------------------------------
 
+// --- Discogs: markedet akkurat nå for den valgte utgivelsen -------------------------
+
+let discogsController = null;
+
+async function startDiscogs() {
+  const card = $("#discogs-card");
+  const release = state.analysis?.chosen?.discogs;
+  state.discogs = null;
+  discogsController?.abort();
+  card.hidden = !release;
+  if (!release || !state.settings.discogsKey || !isLive(state.settings)) { card.hidden = true; return; }
+  const chosen = state.analysis.chosen;
+  card.innerHTML = `<h2>Discogs</h2><p class="meta">Henter markedet på Discogs …</p>`;
+  const controller = discogsController = new AbortController();
+  try {
+    const stats = await discogsStats(release.id, state.settings.discogsKey, { signal: controller.signal });
+    if (controller !== discogsController) return;
+    state.discogs = { stats };
+    const rate = state.data.fx?.rates?.[stats.lowest?.currency];
+    const nokLow = stats.lowest && rate ? Math.round(stats.lowest.value * rate) : null;
+    state.discogs.nokLow = nokLow;
+    card.innerHTML = `<h2>Discogs</h2>
+      <p><b>${esc(chosen.name)}</b>${release.year ? ` · utgitt ${esc(release.year)}` : ""}${release.country ? ` · ${esc(release.country)}` : ""}</p>
+      ${stats.forSale && stats.lowest
+        ? `<p class="big">fra ${kr(nokLow ?? stats.lowest.value)}</p>
+           <p class="meta">${stats.forSale} til salgs nå · laveste pris ${esc(stats.lowest.value.toLocaleString("nb-NO"))} ${esc(stats.lowest.currency)}${nokLow ? ", omregnet til kroner" : ""}. Det er utsalgspriser, ikke solgte.</p>`
+        : `<p>Ingen til salgs på Discogs akkurat nå.</p>`}
+      <p><a href="${esc(chosen.url)}" target="_blank" rel="noopener">Se utgivelsen på Discogs</a></p>`;
+    setSummary(state.summaryArgs ?? {});
+  } catch (err) {
+    if (err.name === "AbortError" || controller !== discogsController) return;
+    card.innerHTML = `<h2>Discogs</h2><p class="meta">${esc(err.message)}</p>`;
+  }
+}
+
 // --- Toppen av resultatet: bildet, navnet, prislappen og det skjæra sier --------------
 
 function renderResultHead(valuation) {
@@ -606,7 +662,8 @@ function renderResultHead(valuation) {
   idLine.innerHTML = !c.identified ? ""
     : c.title ? `Identifisert som «${esc(c.identified)}» – kilde: ${source}`   // overskriften er boktittelen
     : `Navnet er hentet fra ${source}`;
-  $("#result-sub").textContent = [c.creator, c.title ? c.object_type : null, c.brand, ...(c.materials ?? [])].filter(Boolean).join(" · ");
+  $("#result-sub").textContent = [c.creator, c.title ? c.object_type : null, c.brand, c.released ? `utgitt ${c.released}` : null,
+    ...(c.materials ?? [])].filter(Boolean).join(" · ");
   const photo = state.photos.find((p) => p.url);
   const box = $("#result-photo");
   box.hidden = !photo;
@@ -618,15 +675,19 @@ function renderResultHead(valuation) {
 const span = (r) => `${nok.format(r.min)}–${kr(r.max)}`;
 
 /** Prislappen og snakkeboblen. Viser «Fant ingenting» når verken nettsøket eller egne salg ga priser. */
-function setSummary({ waiting = false, web = null, error = null } = {}) {
+function setSummary(args = {}) {
+  state.summaryArgs = args;
+  const { waiting = false, web = null, error = null } = args;
   const own = state.ownValuation;
+  const dc = state.discogs?.stats?.forSale && state.discogs.stats.lowest ? state.discogs : null;
+  const discogsLine = dc ? `<p>På Discogs er ${dc.stats.forSale} til salgs nå, fra <b>${dc.nokLow ? kr(dc.nokLow) : `${dc.stats.lowest.value} ${dc.stats.lowest.currency}`}</b>.</p>` : "";
   const sticker = $("#price-sticker");
   const bubble = $("#result-bubble");
   let none = false;
   let range = null;
   let html = "";
   if (waiting) {
-    html = `<p>Leter etter priser med kilde …</p>`;
+    html = `<p>Leter etter priser med kilde …</p>${discogsLine}`;
   } else if (error) {
     html = `<p>Nettsøket stoppet: ${esc(error)}</p>`;
   } else {
@@ -639,6 +700,7 @@ function setSummary({ waiting = false, web = null, error = null } = {}) {
     else if (web && web.stats?.sources === 0) html = `<p>Google-søket ble ikke gjennomført denne gangen, så jeg har ingen priser å vise.</p>
       <button type="button" class="link" data-action="retry-search">Prøv søket igjen</button>`;
     else if (web?.background?.length) html = `<p>Fant ingen priser med kilde denne gangen, men litt om bakgrunnen under.</p>`;
+    html += discogsLine;
     if (own) {
       range ??= own;
       html += `<p>${own.is_demo ? "I demotabellen" : "I tabellen vår"} er ${own.n_sales} lignende solgt for <b>${span(own)}</b>.</p>`;
@@ -653,7 +715,10 @@ function setSummary({ waiting = false, web = null, error = null } = {}) {
   }
   bubble.innerHTML = html;
   sticker.classList.toggle("empty", !range);
-  sticker.innerHTML = range ? `<span>${nok.format(range.min)}–<br>${nok.format(range.max)} kr</span>` : `<span>${waiting ? "…" : "?"}</span>`;
+  const from = !range && dc?.nokLow ? dc.nokLow : null;
+  sticker.classList.toggle("empty", !range && !from);
+  sticker.innerHTML = range ? `<span>${nok.format(range.min)}–<br>${nok.format(range.max)} kr</span>`
+    : from ? `<span>fra<br>${nok.format(from)} kr</span>` : `<span>${waiting ? "…" : "?"}</span>`;
   $("#result-found").hidden = none;
   $("#result-none").hidden = !none;
   $("#none-add").hidden = !none;
@@ -777,6 +842,9 @@ const WIKI_CONTEXT = {
                 term: { no: "forfatter", en: "author" } },
   electronics: { no: /(spill|konsoll|elektronikk|datamaskin|merke|produsert|produsent|selskap|konsern)/i,
                  en: /(video game|console|electronic|computer|brand|company|manufacturer|developed|produced)/i, term: { no: "", en: "" } },
+  music: { no: /(band|artist|musiker|sanger|album|plate|plateselskap|gruppe)/i, en: /(band|musician|singer|album|record|label|group|artist)/i,
+           term: { no: "", en: "" } },
+  film: { no: /(film|regissør|skuespiller)/i, en: /(film|director|actor|movie)/i, term: { no: "film", en: "film" } },
   other: { no: /(produsent|produsert|fabrikk|firma|selskap|konsern|konglomerat|merke|designer|bedrift)/i,
            en: /(company|manufacturer|designer|factory|maker|brand|conglomerate|corporation|produced)/i,
            term: { no: "", en: "" } },
@@ -889,6 +957,7 @@ function openSettings() {
   form.key.value = state.settings.key;
   form.model.value = state.settings.model;
   form.demo.checked = state.settings.demo;
+  form.discogsKey.value = state.settings.discogsKey;
   setStatus(null);
   show("settings");
 }
@@ -903,7 +972,8 @@ function setStatus(message, ok = true) {
 function readSettingsForm() {
   const form = $("#settings-form");
   const key = form.key.value.trim();
-  return { key, model: form.model.value.trim() || state.settings.model, demo: form.demo.checked };
+  return { key, model: form.model.value.trim() || state.settings.model, demo: form.demo.checked,
+    discogsKey: form.discogsKey.value.trim() };
 }
 
 function onSaveSettings(event) {

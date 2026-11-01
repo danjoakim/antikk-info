@@ -92,6 +92,14 @@
   "electronics": {
    "sv": "",
    "en": ""
+  },
+  "music": {
+   "sv": "vinylskiva",
+   "en": "vinyl record"
+  },
+  "film": {
+   "sv": "film",
+   "en": "film"
   }
  },
  "materials": {

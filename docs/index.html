@@ -201,6 +201,7 @@
         </div>
         <div class="bubble bubble-up" id="result-bubble" aria-live="polite"></div>
 
+        <article class="card" id="discogs-card" hidden></article>
         <article class="card" id="web-card" hidden></article>
         <article class="card" id="value-card"></article>
       </div>
@@ -245,6 +246,11 @@
           <label for="s-model">Modell</label>
           <input id="s-model" name="model" autocomplete="off" autocapitalize="off" spellcheck="false">
           <small>Bytt hvis Google har pensjonert modellen.</small>
+        </div>
+        <div class="field">
+          <label for="s-discogs">Discogs-nøkkel (musikk)</label>
+          <input id="s-discogs" name="discogsKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Valgfri">
+          <small>Gir riktig pressing og prisene på Discogs for LP, CD og kassett. Lag en gratis på discogs.com: logg inn, åpne Settings → Developers og trykk «Generate new token». Nøkkelen lagres bare i denne nettleseren.</small>
         </div>
         <div class="field field-check">
           <label><input type="checkbox" name="demo"> Demomodus (ingen kall til Gemini)</label>

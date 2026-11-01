@@ -257,6 +257,9 @@ input[name$="serial"], input[name="case_number"] { font-variant-numeric: tabular
 .id-card.picked .id-name::before { content: "✓ "; }
 .id-card:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--ink); }
 .id-name { font-weight: 700; font-size: 17px; }
+.id-card.has-thumb { display: grid; grid-template-columns: 64px 1fr; column-gap: 12px; align-items: start; }
+.id-card.has-thumb > :not(.id-thumb) { grid-column: 2; }
+.id-thumb { grid-row: 1 / span 3; width: 64px; height: 64px; object-fit: cover; border: 2px solid var(--ink); background: var(--photo); }
 .id-why { font-size: 14px; }
 .id-check { font-size: 14px; font-weight: 700; background: var(--tape); padding: 4px 6px; align-self: flex-start; }
 .id-source { display: inline-block; margin: 6px 0 0 2px; font-size: 13px; color: var(--muted); }

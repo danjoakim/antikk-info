@@ -4,6 +4,7 @@ Ingen modell her. Ett godt kjennetegn kan være nok, så appen foreslår høyst 
 og ingenting når det den vet holder til en vurdering.
 """
 
+import re
 import sqlite3
 
 from app.models import LOCATION_LABELS, WATCH_CATEGORIES, NormalizedFacts, Suggestion, VisionFacts
@@ -25,6 +26,16 @@ def suggest_photos(conn: sqlite3.Connection, facts: VisionFacts, n: NormalizedFa
     def want(location: str, reason: str) -> None:
         if location not in seen and all(loc != location for loc, _ in wanted):
             wanted.append((location, reason))
+
+    if n.category in ("music", "film"):
+        # Plater og filmer: katalognummer og strekkode avgjør hvilken utgave det er.
+        coded = any(re.search(r"cat|ean|upc", x.prefix or "", re.I) for x in facts.numbers)
+        if not coded:
+            want("back", "Baksiden eller ryggen: der står katalognummer og strekkode, som viser hvilken utgave det er.")
+        if n.category == "music" and not n.brand:
+            want("label", "Etiketten midt på plata: plateselskap og katalognummer.")
+        return [Suggestion(location=loc, label=LOCATION_LABELS.get(loc, loc), reason=why)
+                for loc, why in wanted[:MAX_SUGGESTIONS]]
 
     if n.category == "book_paper":
         # Bøker og trykksaker: tittel og forfatter foran, forlag, opplag og trykkeår på tittelbladet.

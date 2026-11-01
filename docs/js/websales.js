@@ -10,7 +10,7 @@ const MIN_FOR_RANGE = 3;
 const ITEM_LABELS = {
   pocket_watch: "pocket watch", wristwatch: "wristwatch", clock: "clock", silver_metal: "silver or metal object",
   porcelain_ceramics: "porcelain or ceramic object", glass: "glass object", jewelry: "jewellery", furniture: "furniture",
-  art: "artwork", textile: "textile", toy: "toy", electronics: "electronics, game or media item", book_paper: "book or paper item", lighting: "lamp", other: "object",
+  art: "artwork", textile: "textile", toy: "toy", electronics: "electronics or game item", music: "music release (vinyl record, CD or cassette)", film: "film release (DVD, Blu-ray or VHS)", book_paper: "book or paper item", lighting: "lamp", other: "object",
 };
 const MATERIAL_EN = {
   gold_18k: "18k gold", gold_14k: "14k gold", gold_filled: "gold filled", silver_935: "silver 0.935",
@@ -49,7 +49,7 @@ Rules:
 - Two kinds of prices: "sold" = a price actually achieved (auction hammer price, "sold for", completed sale); "listed" = an asking price in a current or recent ad or shop listing. Never report estimates.
 - Search Norwegian and Nordic sources first (finn.no, tise.com, auctionet.com, blomqvist.no, gwpa.no, lauritz.com, tradera.com), then international ones (ebay.com, catawiki.com, worthpoint.com, auction houses).
 - Prefer the same maker, model, type, material and era. Mark how similar each one is.
-- Books, comics, records, films and games: match title and author/artist first, then edition or printing, publisher, year printed and binding. A different book by the same author is "similar", not "same_model". Book sources: finn.no, tise.com, antikvariat.net, boklibris.no, bokborsen.no, abebooks.com, ebay.com; records: discogs.com, finn.no, tise.com.
+- Books, comics, records, films and games: match title and author/artist first, then edition or printing, publisher, year printed and binding. A different book by the same author is "similar", not "same_model". Book sources: finn.no, tise.com, antikvariat.net, boklibris.no, bokborsen.no, abebooks.com, ebay.com; records, CDs and cassettes: discogs.com, finn.no, tise.com, ebay.com; films: finn.no, tise.com, ebay.com. For music and film, match artist/director and title first, then format, label or studio, catalogue number and pressing.
 - Copy price, currency, date and URL exactly from the page. Never invent or estimate a price, date or URL.
 - Background facts must be about the maker, model, pattern or marks (for books and records: the work, its author or artist, and the edition), each with the page it came from. Write them in Norwegian (bokmål), at most two sentences each. You may give the years a mark, stamp, pattern or model was in use when the page says so, but never state a production year for this specific item yourself.
 - Reply with JSON only, no other text.`;

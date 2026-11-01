@@ -164,6 +164,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-11-01 | Nettsøket henter både oppnådde priser («Solgt for») og utsalgspriser i annonser («Til salgs for»), norske kilder først (finn.no, tise, auctionet m.fl.) | For brukte hverdagsting er annonsepriser det folk faktisk trenger; holdes adskilt og merket |
 | 2026-11-01 | Ny kategori: Elektronikk, spill og media | Brukerens test med PS5-kontroller |
 | 2026-11-01 | Maskoten er en lisensiert stockillustrasjon av en skjære (brukeren har kjøpt lisens). Brukes som maskot i appen, ikke som logo | Egne tegninger i kode ble for geometriske, og bildegenerering bommet på arten. Stocklisenser tillater normalt ikke bruk som logo/varemerke |
+| 2026-11-01 | Appen heter **Funn** | Brukerens valg. Kort og norsk, og passer til flyten: du gjør et funn, skjæra samler funnene i reiret. Ingen varemerkeregistrering nå |
 | 2026-10-29 | Standardmodeller: `gpt-6-astra` (OpenAIs anbefalte), `gemini-3.8-flash` (Googles anbefalte stabile Flash) | Hentet fra leverandørenes modelloversikter 29.10.2026; overstyres med `VISION_MODEL` |
 
 ---
@@ -178,11 +179,17 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 9. **Vacheron-uret:** Siste siffer i kassenummeret (233243 eller 233245) og teksten på balansebroen er ikke lest sikkert. Ikke avgjørende for dateringen, som går på verksnummeret.
 7. **Monard-uret – G.S og monogram:** «G.S» ved 0.800 i lokk og cuvette er trolig kassemakerens punselmerke (slås opp i Mikrolisk / registre over kassemakere). Bokstavene i det graverte monogrammet er ikke lest sikkert; kan være eier, giver eller unntaksvis produsent.
 5. **Leverandørkall er ikke kjørt live.** Koden følger leverandørenes dokumentasjon, men første ekte kall per leverandør kan avdekke detaljer (f.eks. skjemastøtte i Gemini eller lokale modeller).
-8. **Navn:** Avgjort: InformAntikk. Gjenstår å sjekke Patentstyret, Brønnøysundregistrene, Norid og appbutikkene før eventuell lansering.
+8. **Navn:** Avgjort: Funn (fra 01.11.2026, tidligere InformAntikk). Varemerke er ikke aktuelt nå.
 
 ---
 
 ## Øktlogg
+
+### 2026-11-01 – Designflyten med skjæra, og nytt navn: Funn
+**Gjort på designlerretet (side «Skjæra – hele flyten»):** sju skjermer i rekkefølge: start, bilder, analyse, stemmer dette?, resultat, fant ingenting, reiret. Lerretet delt i to sider (flyten og tidligere utkast A–G).
+**Tekstendringer etter brukeren:** startskjermen: «Har du funnet noe du liker? Vis meg det!» (snu-meldingen fjernet); bildeskjermen: «Hele funnet, forfra». Ordet «funn» brukes gjennom appen.
+**Avgjort:** Appen heter **Funn**. Navnet er byttet i designet; selve appen får nytt navn når designet bygges inn.
+**Foreslått, ikke gjort:** bildetipset tilpasses det appen ser (stempel for porselen og sølv, logo eller tekst under bunnen for plast, signatur for kunst).
 
 ### 2026-11-01 – Skjæra på kaffekoppen
 **Gjort:** Greinen fjernet fra den lisensierte skjæra; ny kaffekopp tegnet i samme illustrerte stil (kontur, skygge, gullkant, håndmalte blå blomster, kaffe, skål) og satt sammen til `skjaere_kopp.png` med gjennomsiktig bakgrunn. Lagt inn i H-skjermene på designlerretet.

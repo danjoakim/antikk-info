@@ -30,7 +30,7 @@ The photos come in any order, and the user sends whatever they have: one photo o
 
 What the object is:
 - category: the closest category. Use "other" if none fits.
-- object_type: what it is, in Norwegian, short and specific (e.g. "kaffekanne", "spiseskje", "lommeur", "vase", "lysestake", "kommode").
+- object_type: what it is, in Norwegian, as specific as you can: include the product, model, series or pattern name when it is written on the object or the design is unmistakable (e.g. "PS5-kontroller (DualSense)", "kaffekanne", "spiseskje", "lommeur", "Kubus lysestake"). Never guess a model you cannot see.
 - description: one or two neutral sentences in Norwegian about what is visible: shape, decoration, colours, technique. No age, value or praise.
 - materials: visible materials in Norwegian (e.g. "porselen", "steintøy", "sølv", "forsølvet metall", "messing", "tinn", "glass", "eik", "teak"). Only what you can see or read; when unsure, leave it out.
 - style_cues: observable style or manufacturing features in Norwegian (e.g. "håndmalt underglasurdekor", "trykt dekor", "maskinsydd", "svalehalesammenføyning"). Never years or periods.

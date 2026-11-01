@@ -483,7 +483,9 @@ function lookup(event) {
   };
   const { serial_ranges, hallmarks, auction_results, period_rules } = state.data;
   const facts = normalize(hallmarks, state.confirmed, "confirmed");
-  const valuation = valueItem(auction_results, facts, { minSales: MIN_SALES });
+  // Egne salg bare for riktig kategori, og aldri de oppdiktede demosalgene ved ekte bruk.
+  const ownSales = isLive(state.settings) ? auction_results.filter((r) => !r.is_demo) : auction_results;
+  const valuation = valueItem(ownSales, facts, { itemType: facts.category, minSales: MIN_SALES });
   const maker = makerInfo(facts.brand);
   const dating = dateItem(serial_ranges, facts, period_rules);
   renderResult({
@@ -491,6 +493,8 @@ function lookup(event) {
     valuation_message: valuation ? null : noSalesMessage(facts),
     sale_searches: saleSearchLinks(state.data.sale_search, facts, maker?.display_name ?? facts.brand_display ?? null, facts.category),
   });
+  // Uten egne salg er nettsøket priskortet; et tomt «Markedsverdi»-kort skjules ved ekte bruk.
+  $("#value-card").hidden = !valuation && isLive(state.settings);
   startWebSales(facts, maker, dating);
   show("result");
 }
@@ -508,7 +512,7 @@ async function startWebSales(facts, maker, dating) {
   webSearchController?.abort();
   if (!isLive(state.settings)) { card.hidden = true; return; }
   card.hidden = false;
-  card.innerHTML = `<h2>Funnet på nettet nå</h2><p class="meta web-wait">Søker etter solgte eksemplarer og bakgrunn …</p>`;
+  card.innerHTML = `<h2>Priser funnet på nettet</h2><p class="meta web-wait">Søker etter priser og bakgrunn …</p>`;
   const description = describeItem({ ...facts, observed: state.analysis?.normalized?.description }, {
     brandName: maker?.display_name ?? facts.brand_display ?? null, itemType: facts.category,
     period: dating.status === "dated" ? `${dating.estimate}` : dating.period?.display?.replace(/^ca\. /, "") || null,
@@ -523,32 +527,39 @@ async function startWebSales(facts, maker, dating) {
     renderWebSales(result, (performance.now() - started) / 1000);
   } catch (err) {
     if (controller !== webSearchController) return;
-    card.innerHTML = `<h2>Funnet på nettet nå</h2><p class="meta">${esc(err.message ?? "Nettsøket feilet.")}</p>`;
+    card.innerHTML = `<h2>Priser funnet på nettet</h2><p class="meta">${esc(err.message ?? "Nettsøket feilet.")}</p>`;
   } finally {
     clearTimeout(timer);
   }
 }
 
-function renderWebSales({ sales, background, range, dropped, entryPoint }, seconds) {
+function renderWebSales({ sales, background, range, listedRange, dropped, stats, entryPoint }, seconds) {
   const card = $("#web-card");
-  const summary = range
-    ? `<p class="big">${range.min.toLocaleString("nb-NO")}–${kr(range.max)}</p>
-       <p class="meta">Median ${kr(range.median)} · ${range.n} salg med pris, omregnet til kroner</p>`
-    : sales.length ? `<p class="meta">For få salg med pris til et intervall (minst 3).</p>`
-      : `<p>Fant ingen solgte eksemplarer med sikker kilde.</p>`;
+  const rangeHtml = (r, label) => `<p class="web-range-label">${label}</p>
+    <p class="big">${r.min.toLocaleString("nb-NO")}–${kr(r.max)}</p>
+    <p class="meta">Median ${kr(r.median)} · ${r.n} priser, omregnet til kroner</p>`;
+  let summary = "";
+  if (range) summary += rangeHtml(range, "Solgt for");
+  if (listedRange) summary += rangeHtml(listedRange, "Til salgs for (utsalgspris)");
+  if (!summary) {
+    summary = sales.length
+      ? `<p class="meta">For få priser til et intervall (minst 3 av samme slag). Se enkeltprisene under.</p>`
+      : `<p>Fant ingen priser med sikker kilde denne gangen.</p>
+         <p class="meta">Google ga ${stats?.sources ?? 0} kilder; søket foreslo ${stats?.proposed ?? 0} priser${stats?.noPrice ? `, ${stats.noPrice} uten lesbar pris` : ""}${stats?.unverified ? `, ${stats.unverified} fra nettsteder som ikke var blant kildene` : ""}${stats && !stats.json ? "; svaret hadde ikke riktig format" : ""}.</p>`;
+  }
   const list = sales.map((s) => `
     <li><span class="web-sale-title">${esc(s.title)}</span>
-      <span class="web-sale-price">${esc(s.price.toLocaleString("nb-NO"))} ${esc(s.currency)}${s.nok && s.currency !== "NOK" ? ` · ca. ${kr(s.nok)}` : ""}</span>
+      <span class="web-sale-price">${s.kind === "listed" ? "Til salgs: " : "Solgt: "}${esc(s.price.toLocaleString("nb-NO"))} ${esc(s.currency)}${s.nok && s.currency !== "NOK" ? ` · ca. ${kr(s.nok)}` : ""}</span>
       <span class="meta">${esc(SIMILARITY_LABELS[s.similarity])}${BASIS_LABELS[s.basis] ? ` · ${BASIS_LABELS[s.basis]}` : ""}${s.date ? ` · ${esc(s.date)}` : ""} ·
         <a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.seller)}</a></span></li>`).join("");
   const facts = background.map((b) => `<li>${esc(b.text)} <span class="meta">(<a href="${esc(b.url)}" target="_blank" rel="noopener">${esc(b.source)}</a>)</span></li>`).join("");
   card.innerHTML = `
-    <h2>Funnet på nettet nå</h2>
+    <h2>Priser funnet på nettet</h2>
     ${summary}
     ${list ? `<ul class="web-sales">${list}</ul>` : ""}
     ${facts ? `<h3>Bakgrunn</h3><ul class="web-facts">${facts}</ul>` : ""}
-    <p class="meta web-note">Hentet med Google-søk på ${Math.round(seconds)} s. Ikke kontrollert av InformAntikk – åpne salget og sjekk at det ligner.
-      ${dropped ? `${dropped} treff uten bekreftet kilde ble utelatt.` : ""}</p>
+    <p class="meta web-note">Hentet med Google-søk på ${Math.round(seconds)} s. Ikke kontrollert av InformAntikk – åpne lenken og sjekk at det ligner.
+      ${dropped ? `${dropped} treff uten bekreftet kilde eller pris ble utelatt.` : ""}</p>
     <div class="web-suggestions"></div>`;
   if (entryPoint) {
     // Googles søkeforslag skal vises når søkeresultater brukes; isolert i en egen ramme.

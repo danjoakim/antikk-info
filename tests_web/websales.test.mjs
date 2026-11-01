@@ -61,3 +61,30 @@ test("uten kildemetadata vises ingenting", () => {
   assert.equal(r.dropped, 1);
   assert.equal(r.range, null);
 });
+
+test("priser i mange formater", async () => {
+  const { parsePrice } = await import("../docs/js/websales.js");
+  assert.equal(parsePrice("kr 1 200"), 1200);
+  assert.equal(parsePrice("1.200,-"), 1200);
+  assert.equal(parsePrice("1,200.50"), 1200.5);
+  assert.equal(parsePrice("450"), 450);
+  assert.equal(parsePrice("99,90"), 99.9);
+  assert.ok(Number.isNaN(parsePrice("gratis")));
+});
+
+test("utsalgspriser og solgte holdes adskilt; kilde godtas via navn i tittelen", () => {
+  const data = { candidates: [{ content: { parts: [{ text: JSON.stringify({ sales: [
+    { title: "PS5 DualSense", kind: "listed", price: "kr 450", currency: "NOK", url: "https://www.finn.no/recommerce/forsale/item/1", similarity: "same_model" },
+    { title: "PS5 DualSense hvit", kind: "listed", price: "500", currency: "NOK", url: "https://www.finn.no/recommerce/forsale/item/2", similarity: "same_model" },
+    { title: "DualSense", kind: "listed", price: "39,99", currency: "EUR", url: "https://www.ebay.de/itm/3", similarity: "same_model" },
+    { title: "DualSense sold", kind: "sold", price: 35, currency: "USD", url: "https://www.ebay.com/itm/4", similarity: "same_model" },
+  ], background: [] }) }] },
+  groundingMetadata: { groundingChunks: [
+    { web: { uri: "https://vertexaisearch.cloud.google.com/grounding-api-redirect/a", title: "FINN.no – PS5-kontroller til salgs" } },
+    { web: { uri: "https://vertexaisearch.cloud.google.com/grounding-api-redirect/b", title: "ebay.com" } }] } }] };
+  const r = parseWebSales(data, fx);
+  assert.equal(r.sales.length, 4);
+  assert.equal(r.stats.sources, 2);
+  assert.deepEqual(r.listedRange, { min: 440, median: 450, max: 500, n: 3 });
+  assert.equal(r.range, null);
+});

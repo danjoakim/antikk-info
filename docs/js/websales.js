@@ -10,7 +10,7 @@ const MIN_FOR_RANGE = 3;
 const ITEM_LABELS = {
   pocket_watch: "pocket watch", wristwatch: "wristwatch", clock: "clock", silver_metal: "silver or metal object",
   porcelain_ceramics: "porcelain or ceramic object", glass: "glass object", jewelry: "jewellery", furniture: "furniture",
-  art: "artwork", textile: "textile", toy: "toy", book_paper: "book or paper item", lighting: "lamp", other: "object",
+  art: "artwork", textile: "textile", toy: "toy", electronics: "electronics, game or media item", book_paper: "book or paper item", lighting: "lamp", other: "object",
 };
 const MATERIAL_EN = {
   gold_18k: "18k gold", gold_14k: "14k gold", gold_filled: "gold filled", silver_935: "silver 0.935",
@@ -37,10 +37,12 @@ export function describeItem(facts, { brandName = null, itemType = "pocket_watch
   return `${parts.join(" ")}${details.length ? ` (${details.join(", ")})` : ""}`;
 }
 
-const SYSTEM = `You research the market for antiques and collectibles. Use Google Search.
+const SYSTEM = `You help people at flea markets, antique shops and charity shops in Norway find out what an item is and what it sells for. Use Google Search.
 Rules:
-- Only report sales where the page states a price actually achieved (hammer price, sold price, or "sold for"). Skip estimates, asking prices and unsold lots.
-- Prefer the same maker, type, material and era. Mark how similar each sale is.
+- Find prices for the same item or the closest comparable items, second-hand or antique.
+- Two kinds of prices: "sold" = a price actually achieved (auction hammer price, "sold for", completed sale); "listed" = an asking price in a current or recent ad or shop listing. Never report estimates.
+- Search Norwegian and Nordic sources first (finn.no, tise.com, auctionet.com, blomqvist.no, gwpa.no, lauritz.com, tradera.com), then international ones (ebay.com, catawiki.com, worthpoint.com, auction houses).
+- Prefer the same maker, model, type, material and era. Mark how similar each one is.
 - Copy price, currency, date and URL exactly from the page. Never invent or estimate a price, date or URL.
 - Background facts must be about the maker, model, pattern or marks, each with the page it came from. Write them in Norwegian (bokmål), at most two sentences each. You may give the years a mark, stamp, pattern or model was in use when the page says so, but never state a production year for this specific item yourself.
 - Reply with JSON only, no other text.`;
@@ -48,9 +50,9 @@ Rules:
 export function buildWebSalesRequest(description, { thinkingLevel = null } = {}) {
   const prompt = `Item: ${description}
 
-Find up to 8 realized sales of comparable items and up to 4 background facts.
-Return exactly this JSON shape:
-{"sales":[{"title":"","price":0,"currency":"ISO 4217","price_basis":"hammer|incl_premium|unknown","date":"YYYY-MM-DD or YYYY","seller":"auction house or marketplace","url":"","similarity":"same_model|same_maker|similar"}],
+Find up to 10 prices (sold and listed) for comparable items and up to 4 background facts.
+Return exactly this JSON shape (price as a plain number):
+{"sales":[{"title":"","kind":"sold|listed","price":0,"currency":"ISO 4217","price_basis":"hammer|incl_premium|unknown","date":"YYYY-MM-DD or YYYY","seller":"site, shop or auction house","url":"","similarity":"same_model|same_maker|similar"}],
  "background":[{"text":"","url":""}]}
 If nothing reliable is found, return empty lists.`;
   const generationConfig = { temperature: 0 };
@@ -67,7 +69,7 @@ function host(url) {
   try { return new URL(url).hostname.toLowerCase().replace(/^www\./, ""); } catch { return null; }
 }
 
-/** Domener Google faktisk returnerte. Kildelenkene er ofte omdirigeringer, så tittelen (domenet) brukes også. */
+/** Kildene Google faktisk returnerte. Lenkene er ofte omdirigeringer, så tittelen brukes også. */
 export function groundedDomains(metadata) {
   const out = new Set();
   for (const chunk of metadata?.groundingChunks ?? []) {
@@ -80,11 +82,27 @@ export function groundedDomains(metadata) {
   return out;
 }
 
-function verified(url, domains) {
+const sourceTitles = (metadata) => (metadata?.groundingChunks ?? []).map((c) => (c.web?.title ?? "").toLowerCase());
+
+/** Nettstedet må være blant kildene: samme domene, eller navnet (f.eks. «finn», «ebay») i en kildetittel. */
+function verified(url, domains, titles = []) {
   const h = host(url);
   if (!h) return false;
   for (const d of domains) if (h === d || h.endsWith(`.${d}`) || d.endsWith(`.${h}`)) return true;
-  return false;
+  const labels = h.split(".");
+  const name = labels.length >= 2 ? labels[labels.length - 2] : labels[0];
+  return name.length >= 3 && titles.some((t) => t.includes(name));
+}
+
+/** «kr 1 200», «1.200,-», «1,200.50» → tall. */
+export function parsePrice(value) {
+  if (typeof value === "number") return value;
+  let t = String(value ?? "").replace(/[^\d.,]/g, "").replace(/^[.,]+|[.,]+$/g, "");
+  if (!t) return NaN;
+  if (/^\d{1,3}([.,\s]\d{3})+$/.test(t)) t = t.replace(/[.,]/g, "");        // tusenskille
+  else if (/,\d{1,2}$/.test(t)) t = t.replace(/\./g, "").replace(",", ".");   // desimalkomma
+  else t = t.replace(/,/g, "");
+  return Number(t);
 }
 
 function extractJson(text) {
@@ -108,18 +126,24 @@ export function parseWebSales(data, fx) {
   const text = (candidate?.content?.parts ?? []).filter((p) => !p.thought).map((p) => p.text ?? "").join("");
   const meta = candidate?.groundingMetadata ?? {};
   const domains = groundedDomains(meta);
-  const parsed = extractJson(text) ?? { sales: [], background: [] };
+  const titles = sourceTitles(meta);
+  const stats = { sources: (meta.groundingChunks ?? []).length, proposed: 0, noPrice: 0, unverified: 0, json: false };
+  const json = extractJson(text);
+  stats.json = !!json;
+  const parsed = json ?? { sales: [], background: [] };
   const rates = fx?.rates ?? {};
   let dropped = 0;
 
   const sales = [];
   for (const s of Array.isArray(parsed.sales) ? parsed.sales : []) {
-    const price = Number(s?.price);
-    if (!s?.url || !(price > 0) || !verified(s.url, domains)) { dropped += 1; continue; }
+    stats.proposed += 1;
+    const price = parsePrice(s?.price);
+    if (!(price > 0)) { stats.noPrice += 1; dropped += 1; continue; }
+    if (!s?.url || !verified(s.url, domains, titles)) { stats.unverified += 1; dropped += 1; continue; }
     const currency = String(s.currency ?? "").toUpperCase();
     const rate = rates[currency];
     sales.push({
-      title: String(s.title ?? "").slice(0, 160), price, currency,
+      title: String(s.title ?? "").slice(0, 160), price, currency, kind: s.kind === "listed" ? "listed" : "sold",
       nok: rate ? round(price * rate) : null,
       basis: ["hammer", "incl_premium"].includes(s.price_basis) ? s.price_basis : "unknown",
       date: String(s.date ?? ""), seller: String(s.seller ?? host(s.url)), url: s.url,
@@ -131,17 +155,21 @@ export function parseWebSales(data, fx) {
 
   const background = [];
   for (const b of Array.isArray(parsed.background) ? parsed.background : []) {
-    if (!b?.text || !b?.url || !verified(b.url, domains)) { dropped += 1; continue; }
+    if (!b?.text || !b?.url || !verified(b.url, domains, titles)) { dropped += 1; continue; }
     background.push({ text: String(b.text).slice(0, 400), url: b.url, source: host(b.url) });
   }
 
-  const priced = sales.filter((s) => s.nok);
-  const range = priced.length >= MIN_FOR_RANGE
-    ? { min: Math.min(...priced.map((s) => s.nok)), median: round(median(priced.map((s) => s.nok))),
-        max: Math.max(...priced.map((s) => s.nok)), n: priced.length }
-    : null;
+  const rangeOf = (list) => {
+    const priced = list.filter((s) => s.nok);
+    return priced.length >= MIN_FOR_RANGE
+      ? { min: Math.min(...priced.map((s) => s.nok)), median: round(median(priced.map((s) => s.nok))),
+          max: Math.max(...priced.map((s) => s.nok)), n: priced.length }
+      : null;
+  };
+  const range = rangeOf(sales.filter((s) => s.kind === "sold"));
+  const listedRange = rangeOf(sales.filter((s) => s.kind === "listed"));
 
-  return { sales, background, range, dropped, queries: meta.webSearchQueries ?? [],
+  return { sales, background, range, listedRange, dropped, stats, queries: meta.webSearchQueries ?? [],
            entryPoint: meta.searchEntryPoint?.renderedContent ?? null };
 }
 

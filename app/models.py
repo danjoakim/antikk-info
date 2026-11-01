@@ -13,14 +13,14 @@ ImageRole = Literal["photo", "dial", "caseback", "caseback_closeup", "cuvette", 
 
 # Hva slags gjenstand det er. Ur har egne felt og tabeller; de andre kategoriene bruker de generelle feltene.
 Category = Literal["pocket_watch", "wristwatch", "clock", "silver_metal", "porcelain_ceramics", "glass", "jewelry",
-                   "furniture", "art", "textile", "toy", "book_paper", "lighting", "other"]
+                   "furniture", "art", "textile", "toy", "electronics", "book_paper", "lighting", "other"]
 WATCH_CATEGORIES = {"pocket_watch", "wristwatch"}
 
 CATEGORY_LABELS: dict[str, str] = {
     "pocket_watch": "Lommeur", "wristwatch": "Armbåndsur", "clock": "Klokke (vegg, bord, gulv)",
     "silver_metal": "Sølv og metall", "porcelain_ceramics": "Porselen og keramikk", "glass": "Glass",
     "jewelry": "Smykker", "furniture": "Møbler", "art": "Kunst (malerier, grafikk, skulptur)",
-    "textile": "Tekstiler", "toy": "Leker", "book_paper": "Bøker og papir", "lighting": "Lamper og lys",
+    "textile": "Tekstiler", "toy": "Leker", "electronics": "Elektronikk, spill og media", "book_paper": "Bøker og papir", "lighting": "Lamper og lys",
     "other": "Annet",
 }
 

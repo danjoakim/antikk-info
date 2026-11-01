@@ -160,6 +160,9 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-11-01 | Bildeanalysen er generell: kategori (14 stk.), gjenstandstype, beskrivelse, materialer, stiltrekk og merker (fabrikkmerke, signatur, etikett) med generelle plasseringer. Urfeltene brukes bare for lommeur og armbåndsur | Brukeren: appen skal bygges for alle som går på loppis, ikke etter det som ligger på bordet. Ur er én kategori med ekstra felt og tabeller |
 | 2026-11-01 | For kategorier uten egne tabeller sier appen ærlig at den ikke har dateringstabeller eller egne salg, og viser i stedet nettsøket med kilder. Nettsøket kan gi årene et merke eller stempel var i bruk når kilden sier det | Ingen gjetting, men nyttig innhold for alle kategorier |
 | 2026-11-01 | Norsk sølvstandard 830 lagt til i stempeltabellen | Vanligste lødighet på norsk sølv |
+| 2026-11-01 | Ved ekte bruk vises aldri de oppdiktede demosalgene, og egne salg brukes bare for samme kategori | Feil: en PS5-kontroller fikk «350 kr, demo» fra lommeurenes demosalg |
+| 2026-11-01 | Nettsøket henter både oppnådde priser («Solgt for») og utsalgspriser i annonser («Til salgs for»), norske kilder først (finn.no, tise, auctionet m.fl.) | For brukte hverdagsting er annonsepriser det folk faktisk trenger; holdes adskilt og merket |
+| 2026-11-01 | Ny kategori: Elektronikk, spill og media | Brukerens test med PS5-kontroller |
 | 2026-10-29 | Standardmodeller: `gpt-6-astra` (OpenAIs anbefalte), `gemini-3.8-flash` (Googles anbefalte stabile Flash) | Hentet fra leverandørenes modelloversikter 29.10.2026; overstyres med `VISION_MODEL` |
 
 ---
@@ -179,6 +182,21 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-11-01 – Økt 21: Priser for alt, og feilen med demopriser
+**Bakgrunn:** Brukeren testet en PS5-kontroller: appen viste «spillkontroller» og «350 kr i demo», og ingen priser fra nettet. «Jeg forstår ikke hvordan dette skal hjelpe folk på loppemarked.»
+**Årsaker:**
+- Nettversjonen kalte prisberegningen uten kategori, så alle ting ble sammenlignet med lommeurenes oppdiktede demosalg.
+- Nettsøket lette bare etter auksjonstilslag, krevde at prisen var et rent tall, og godtok bare kilder der Google-tittelen var et domenenavn. Trolig ble alt forkastet.
+**Gjort:**
+- Egne salg bare for samme kategori; demosalg aldri ved ekte bruk; tomt «Markedsverdi»-kort skjules når nettsøket er priskortet.
+- Nettsøket ber om «sold» og «listed» priser, norske kilder først, og viser to intervaller: «Solgt for» og «Til salgs for (utsalgspris)».
+- Priser leses i mange formater («kr 1 200», «1.200,-», «39,99»). Kilden godtas også når nettstedets navn (f.eks. «finn», «ebay») står i en kildetittel fra Google.
+- Når ingenting vises, sier kortet hvorfor: antall kilder fra Google, antall foreslåtte priser, hvor mange som manglet pris eller kilde, og om svaret hadde feil format.
+- Ny kategori «Elektronikk, spill og media». «Hva er det?» tar med modellnavn når det står på tingen eller formen er umiskjennelig (f.eks. «PS5-kontroller (DualSense)»).
+- Installert jadx 1.5.1 og apktool 2.10.0 i arbeidsområdet (reverse engineering-tillegget); mitmproxy og androguard lot seg ikke installere (pakkeregisteret svarte ikke).
+**Tester:** JavaScript 33, Python 62 bestått. Mobilnettleser med simulert svar for PS5-kontroller: kategori elektronikk, «Til salgs for 400–500 kr», ett solgt på eBay (ca. 360 kr), bakgrunn med kilde, ingen demopris.
+**Ikke testet:** Ekte Google-søk (kan ikke nås herfra). Diagnoselinjen gjør at en skjermdump viser hvor det stopper.
 
 ### 2026-11-01 – Økt 20: Appen tar imot alle slags gjenstander
 **Bakgrunn:** Brukeren: «Du må bygge for andre enn bare meg.» Analysen, skjemaet og søket var bygget for lommeur.

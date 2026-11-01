@@ -72,18 +72,20 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 - [ ] Verifisere periodereglene (`period_rules`) mot faglitteratur
 - [ ] Legge til salgsdata for nøkkeloppstrekk vs. kroneoppstrekk (påvirker prisen)
 
-### Prioritert rekkefølge (avtalt 01.11.2026)
-1. [x] Søkeknapper etter solgte på Auctionet, Barnebys og eBay fra resultatsiden (enkelt, gratis, gjelder alle kategorier)
-2. [ ] Frontlokk (savonnette) i skjemaet
-3. [ ] Neste kategori etter lommeur (porselen/keramikk eller sølv – brukeren velger)
-4. [ ] Felles salgsdatabase med godkjenningskø (Supabase). Nettsøket via Gemini er bygget (økt 19)
+### Prioritert rekkefølge (oppdatert 01.11.2026 kl. 23.20)
+1. [x] Nytt utseende (Funn, skjæra), identifisering før prissøk, bøker, musikk/film med Discogs
+2. [ ] **Åpne API-er uten nøkkel først:** sjekk vilkår, kostnad og om de virker direkte fra telefonen (CORS), skriv oversikten inn i prosjektet, bygg én kilde om gangen og test hver. Kandidater: Nasjonalbiblioteket og Open Library (bøker), MusicBrainz (musikk), Wikidata (produsenter, designere, kunstnere), Met Museum (kunst/antikviteter).
+3. [ ] **Nøkler på server (Supabase Edge Function)** før kilder som krever nøkkel: alle nøkler legges inn én gang der, appen trenger ingen. Gratisdelen holder mens vi tester.
+4. [ ] Deretter kilder med gratis nøkkel, i rekkefølge: DigitaltMuseum (norsk design), LEGO (Rebrickable/Brickset), BoardGameGeek, Numista (mynter), TMDB (film), Comic Vine, RAWG/IGDB (spill), eBay Browse (priser til salgs).
+5. [ ] Felles base over bekreftede funn (idé 3) – krever beslutninger om lagring, bilder og godkjenning.
+6. [ ] Frontlokk (savonnette) i skjemaet; serverversjonen (`app/`) henger etter nettversjonen.
 
 ### Parkerte idéer (ikke start før det over er ferdig)
 - Samlinger («Mine funn») med lagrede analyser, som i Curio
 - Skannefunksjon: smart søker med skarphetsmåler, gjenskinnsvarsel og automatisk avtrykk (nivå 1); levende guide med Gemini Live API (nivå 2). Usikker gevinst: bilder fra videostrøm er dårligere enn stillbilder til å lese små stempler.
-- Lignende bilder fra nettet (Google Cloud Vision Web Detection)
+- ~~Lignende bilder fra nettet (Google Cloud Vision Web Detection)~~ – prøvd og forkastet 01.11.2026 (ga plakater i stedet for boka). Ekte Google Lens finnes bare via betalte tjenester (SerpApi) med offentlig bildeadresse og server.
 - Henvisning til urmaker/auksjonshus for verdifulle funn
-- Nøkkel på server og betaling per analyse
+- Betaling per analyse (nøkkel på server er flyttet opp i prioriteringen)
 - Serienummertabell for Vacheron Constantin (kildene er motstridende over 400 000)
 
 ### Senere (utenfor MVP)

@@ -6,6 +6,7 @@ import { ESCAPEMENT_LABELS, LAYOUT_LABELS, LOCATION_LABELS, makerInfo, MATERIAL_
 import { clearSettings, isLive, loadSettings, saveSettings } from "./settings.js";
 import { suggestPhotos } from "./suggest.js";
 import { saleSearchLinks } from "./salesearch.js";
+import { describeItem, searchWebSales } from "./websales.js";
 import { valueItem } from "./valuation.js";
 import { analyzeWithGemini, mockFacts, testKey, VisionError } from "./vision.js";
 
@@ -54,9 +55,9 @@ async function loadJson(name) {
 }
 
 async function loadData() {
-  const [serial_ranges, hallmarks, auction_results, period_rules, makers, contract, sale_search] = await Promise.all(
-    ["serial_ranges", "hallmarks", "auction_results", "period_rules", "makers", "vision_contract", "sale_search"].map(loadJson));
-  return { serial_ranges, hallmarks, auction_results, period_rules, makers, contract, sale_search };
+  const [serial_ranges, hallmarks, auction_results, period_rules, makers, contract, sale_search, fx] = await Promise.all(
+    ["serial_ranges", "hallmarks", "auction_results", "period_rules", "makers", "vision_contract", "sale_search", "fx_nok"].map(loadJson));
+  return { serial_ranges, hallmarks, auction_results, period_rules, makers, contract, sale_search, fx };
 }
 
 // --- Bildebehandling i nettleseren -------------------------------------------------
@@ -461,12 +462,79 @@ function lookup(event) {
   const facts = normalize(hallmarks, state.confirmed, "confirmed");
   const valuation = valueItem(auction_results, facts, { minSales: MIN_SALES });
   const maker = makerInfo(facts.brand);
+  const dating = dateItem(serial_ranges, facts, period_rules);
   renderResult({
-    dating: dateItem(serial_ranges, facts, period_rules), valuation, maker,
+    dating, valuation, maker,
     valuation_message: valuation ? null : noSalesMessage(facts),
     sale_searches: saleSearchLinks(state.data.sale_search, facts, maker?.display_name ?? facts.brand_display ?? null),
   });
+  startWebSales(facts, maker, dating);
   show("result");
+}
+
+
+// --- Nettsøk etter solgte eksemplarer (Gemini + Google-søk) -----------------------
+
+let webSearchController = null;
+
+const SIMILARITY_LABELS = { same_model: "Samme modell", same_maker: "Samme merke", similar: "Lignende" };
+const BASIS_LABELS = { hammer: "tilslag", incl_premium: "inkl. salær", unknown: "" };
+
+async function startWebSales(facts, maker, dating) {
+  const card = $("#web-card");
+  webSearchController?.abort();
+  if (!isLive(state.settings)) { card.hidden = true; return; }
+  card.hidden = false;
+  card.innerHTML = `<h2>Funnet på nettet nå</h2><p class="meta web-wait">Søker etter solgte eksemplarer og bakgrunn …</p>`;
+  const description = describeItem(facts, {
+    brandName: maker?.display_name ?? facts.brand_display ?? null,
+    period: dating.status === "dated" ? `${dating.estimate}` : dating.period?.display?.replace(/^ca\. /, "") ?? null,
+  });
+  const controller = webSearchController = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 60_000);
+  const started = performance.now();
+  try {
+    const result = await searchWebSales(description, state.data.fx,
+      { key: state.settings.key, model: state.settings.model, signal: controller.signal });
+    if (controller !== webSearchController) return;
+    renderWebSales(result, (performance.now() - started) / 1000);
+  } catch (err) {
+    if (controller !== webSearchController) return;
+    card.innerHTML = `<h2>Funnet på nettet nå</h2><p class="meta">${esc(err.message ?? "Nettsøket feilet.")}</p>`;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function renderWebSales({ sales, background, range, dropped, entryPoint }, seconds) {
+  const card = $("#web-card");
+  const summary = range
+    ? `<p class="big">${range.min.toLocaleString("nb-NO")}–${kr(range.max)}</p>
+       <p class="meta">Median ${kr(range.median)} · ${range.n} salg med pris, omregnet til kroner</p>`
+    : sales.length ? `<p class="meta">For få salg med pris til et intervall (minst 3).</p>`
+      : `<p>Fant ingen solgte eksemplarer med sikker kilde.</p>`;
+  const list = sales.map((s) => `
+    <li><span class="web-sale-title">${esc(s.title)}</span>
+      <span class="web-sale-price">${esc(s.price.toLocaleString("nb-NO"))} ${esc(s.currency)}${s.nok && s.currency !== "NOK" ? ` · ca. ${kr(s.nok)}` : ""}</span>
+      <span class="meta">${esc(SIMILARITY_LABELS[s.similarity])}${BASIS_LABELS[s.basis] ? ` · ${BASIS_LABELS[s.basis]}` : ""}${s.date ? ` · ${esc(s.date)}` : ""} ·
+        <a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.seller)}</a></span></li>`).join("");
+  const facts = background.map((b) => `<li>${esc(b.text)} <span class="meta">(<a href="${esc(b.url)}" target="_blank" rel="noopener">${esc(b.source)}</a>)</span></li>`).join("");
+  card.innerHTML = `
+    <h2>Funnet på nettet nå</h2>
+    ${summary}
+    ${list ? `<ul class="web-sales">${list}</ul>` : ""}
+    ${facts ? `<h3>Bakgrunn</h3><ul class="web-facts">${facts}</ul>` : ""}
+    <p class="meta web-note">Hentet med Google-søk på ${Math.round(seconds)} s. Ikke kontrollert av InformAntikk – åpne salget og sjekk at det ligner.
+      ${dropped ? `${dropped} treff uten bekreftet kilde ble utelatt.` : ""}</p>
+    <div class="web-suggestions"></div>`;
+  if (entryPoint) {
+    // Googles søkeforslag skal vises når søkeresultater brukes; isolert i en egen ramme.
+    const frame = document.createElement("iframe");
+    frame.title = "Google-søkeforslag";
+    frame.setAttribute("sandbox", "allow-popups allow-popups-to-escape-sandbox");
+    frame.srcdoc = `<base target="_blank">${entryPoint}`;
+    $(".web-suggestions", card).append(frame);
+  }
 }
 
 // --- Resultat ------------------------------------------------------------------

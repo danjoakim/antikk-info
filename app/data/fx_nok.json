@@ -1,0 +1,15 @@
+{
+ "_beskrivelse": "Omtrentlige kurser til norske kroner for omregning av salg funnet på nettet. Snitt januar–oktober 2026 fra DNBs tabell over månedlige og årlige snittkurser (CHF oppgitt per 100 der, her per 1). Brukes bare til veiledende omregning; originalbeløpet vises alltid.",
+ "source": "DNB Markets, månedlige og årlige snittkurser 2026 (jan–okt): https://dnb.no/en/markets/fx-and-ir/fx-rates/monthly-yearly-averages",
+ "rates": {
+  "NOK": 1,
+  "EUR": 11.0527,
+  "USD": 9.5448,
+  "GBP": 12.8268,
+  "CHF": 11.9625,
+  "AUD": 6.7135,
+  "SEK": 1.0129,
+  "DKK": 1.4786,
+  "JPY": 0.060261
+ }
+}

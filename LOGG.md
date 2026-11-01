@@ -76,7 +76,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 1. [x] Søkeknapper etter solgte på Auctionet, Barnebys og eBay fra resultatsiden (enkelt, gratis, gjelder alle kategorier)
 2. [ ] Frontlokk (savonnette) i skjemaet
 3. [ ] Neste kategori etter lommeur (porselen/keramikk eller sølv – brukeren velger)
-4. [ ] Felles salgsdatabase med godkjenningskø (Supabase) og nettsøk etter salg via Gemini
+4. [ ] Felles salgsdatabase med godkjenningskø (Supabase). Nettsøket via Gemini er bygget (økt 19)
 
 ### Parkerte idéer (ikke start før det over er ferdig)
 - Samlinger («Mine funn») med lagrede analyser, som i Curio
@@ -155,6 +155,8 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-11-01 | Vi tar det beste fra de andre appene: rask bildeflyt og samlinger (Curio), salgsdata med kilde (WorthPoint, Barnebys, AntiqBot), lignende bilder (Google Lens), fagperson ved verdifulle funn (Mearto, ValueMyStuff), betaling per analyse (AntiqBot). Det vi beholder selv: år og pris bare fra tabeller og lenkede salg | Brukerens strategi. Ærlighet om kilder er det som skiller oss fra konkurrentene |
 | 2026-11-01 | Gemini-nøkkelen er betalt (fakturering på) | Brukerens opplysning. Gratisnivåets køer er ikke årsak til ventetid, og nettsøk via Gemini kan brukes uten ekstra oppsett |
 | 2026-11-01 | Tenkenivå «low» for Gemini 3-modellene, med nytt forsøk uten hvis modellen avviser det | Analysen ble treg; standardnivået er «medium»/«high». Avlesning av bilder trenger lite resonnering |
+| 2026-11-01 | Priser og bakgrunn fra nettet hentes inne i appen med Gemini og Google-søk; et salg eller en fakta vises bare når domenet finnes blant kildene Google returnerte, og alt merkes «ikke kontrollert» | Lenker ut fjernet poenget med appen (brukeren). Slik gjør de andre appene det inne i appen, men vi gjetter ikke og krever kilde |
+| 2026-11-01 | Omregning til kroner med DNBs snittkurser 2026 (`app/data/fx_nok.json`); originalbeløpet vises alltid | Salg kommer i CHF, GBP, EUR, SEK osv. |
 | 2026-10-29 | Standardmodeller: `gpt-6-astra` (OpenAIs anbefalte), `gemini-3.8-flash` (Googles anbefalte stabile Flash) | Hentet fra leverandørenes modelloversikter 29.10.2026; overstyres med `VISION_MODEL` |
 
 ---
@@ -174,6 +176,20 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-11-01 – Økt 19: Funnet på nettet nå (priser og bakgrunn i appen)
+**Bakgrunn:** Brukeren: lite å se når klokka søkes opp, og lenker ut fjerner poenget med appen.
+**Gjort:** Etter «Stemmer dette?» viser resultatsiden et nytt kort, «Funnet på nettet nå». Appen sender en beskrivelse bygget bare av bekreftede fakta (merke, materiale, gang, oppstrekk, periode, nummer, stempler) til Gemini med Google-søk (`tools: google_search`, tenkenivå lavt). Svaret tolkes slik:
+- Salg tas med bare når de har pris over null, og når nettstedet finnes blant kildene Google returnerte (`groundingChunks`). Resten forkastes og telles («N treff uten bekreftet kilde ble utelatt»).
+- Pris i original valuta pluss ca. kroner (DNB-snitt 2026). Minst tre salg med pris gir intervall og median.
+- Sortert «samme modell», «samme merke», «lignende»; tilslag eller inkl. salær vises.
+- Bakgrunn: inntil fire korte fakta, hver med kilde. Modellen får ikke oppgi produksjonsår for tingen.
+- Googles søkeforslag vises i en isolert ramme.
+Søkelenkene ligger igjen nederst som «Se hva lignende er solgt for».
+**Filer:** `docs/js/websales.js` (ny), `app/data/fx_nok.json` (ny), `docs/data/fx_nok.json`, `tools/export_data.py`, `docs/js/app.js`, `docs/index.html`, `docs/styles.css`, `tests_web/websales.test.mjs` (ny), `LOGG.md`.
+**Tester:** JavaScript 29, Python 59 bestått. Mobilnettleser med simulert Google-svar: tre salg vist og omregnet (13 000–75 000 kr, median 42 000), et oppdiktet salg forkastet, bakgrunn med kilde, søkeforslag vist.
+**Ikke testet:** Ekte kall med Google-søk (kan ikke nås herfra). Formatet følger `generateContent` med `google_search`; Googles dokumentasjon viser nå mest det nye Interactions-API-et, så første ekte kjøring må sjekkes. Serverversjonen har ikke nettsøket ennå.
+**Lærdom:** `node --check` på en `.js`-fil fanger ikke dobbeltdeklarasjoner i ES-moduler; sjekk som `.mjs`.
 
 ### 2026-11-01 – Økt 18: Raskere bildeanalyse
 **Bakgrunn:** Brukeren melder at analysen tar veldig lang tid.

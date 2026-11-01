@@ -11,6 +11,7 @@ const VISION = { responses: [{ webDetection: {
     { url: "https://www.finn.no/recommerce/forsale/item/1", pageTitle: "duplikat" },
     { url: "https://boklibris.no/b/2", pageTitle: "Kama Sutra – Ananga-Ranga" },
   ],
+  visuallySimilarImages: [{ url: "https://img.example/a.jpg" }, { url: "https://img.example/a.jpg" }, { url: "data:x" }, { url: "https://img.example/b.jpg" }],
 } }] };
 
 test("parseWebDetection: beste gjetning, entiteter over terskel, sider uten duplikater og HTML", () => {
@@ -22,6 +23,7 @@ test("parseWebDetection: beste gjetning, entiteter over terskel, sider uten dupl
   assert.equal(r.pages[0].title, "DEN ILLUSTRERTE KAMA SUTRA | FINN");
   assert.equal(r.pages[0].site, "finn.no");
   assert.deepEqual(lensDomains(r), ["finn.no", "boklibris.no"]);
+  assert.deepEqual(r.similar, ["https://img.example/a.jpg", "https://img.example/b.jpg"], "lignende bilder uten duplikater, bare http(s)");
 });
 
 test("lensError: forklarer avslått API, blokkert nøkkel og fakturering", () => {

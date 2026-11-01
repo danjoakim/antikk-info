@@ -3,7 +3,7 @@
 
 import { dateItem } from "./dating.js";
 import { CATEGORY_LABELS, ESCAPEMENT_LABELS, isWatch, LAYOUT_LABELS, LOCATION_LABELS, makerInfo, MATERIAL_LABELS, noSalesMessage, normalize, setMakers, WINDING_LABELS } from "./normalize.js";
-import { clearSettings, isLive, loadSettings, saveSettings } from "./settings.js";
+import { clearSettings, isLive, lensKey, loadSettings, saveSettings } from "./settings.js";
 import { suggestPhotos } from "./suggest.js";
 import { describeItem, searchWebSales } from "./websales.js";
 import { lensDomains, lensLeads, webDetect } from "./lens.js";
@@ -269,7 +269,7 @@ async function analyze() {
     const images = state.photos.map((p) => ({ role: "photo", blob: p.blob }));
     // Bildesøket (som Google Lens) går samtidig med bildeanalysen, med det første bildet.
     const lensJob = live && state.settings.lens
-      ? webDetect(state.photos[0].blob, state.settings.key, { signal: controller.signal })
+      ? webDetect(state.photos[0].blob, lensKey(state.settings), { signal: controller.signal })
       : Promise.resolve(null);
     const [facts, lens] = await Promise.all([
       live
@@ -346,6 +346,7 @@ function renderConfirm() {
     ? fineness.map((m) => `<span class="stamp">${esc(m.text)} <small>${esc(place(m.location))}</small></span>`).join("")
     : `<small>Ingen stempler lest.</small>`;
   renderFound(normalized, facts);
+  renderLens("#lens-box");
   toggleWatchFields();
 
   document.querySelectorAll("[data-conf]").forEach((chip) => {
@@ -411,11 +412,6 @@ function renderFound(normalized, facts) {
     ...normalized.repair_marks.map((r) => `Reparasjonsmerke: ${r}`),
     ...normalized.owner_engravings.map((r) => `Eiergravering: ${r}`),
   ];
-  const lens = state.analysis?.lens;
-  if (lens?.ok && (lens.guess.length || lens.pages.length)) {
-    rows.unshift(`<li>Bildesøk: ${lens.guess.length ? `«${esc(lens.guess[0])}»` : "fant lignende bilder"}
-      ${lens.pages.length ? `<br><small>Samme bilde på ${lens.pages.length} ${lens.pages.length === 1 ? "side" : "sider"}, bl.a. ${esc([...new Set(lens.pages.map((p) => p.site))].slice(0, 3).join(", "))}</small>` : ""}</li>`);
-  }
   $("#found").innerHTML = rows.length || ignored.length
     ? `<ul class="found-list">${rows.join("")}</ul>` +
       (ignored.length ? `<details class="found-ignored"><summary>Brukes ikke i vurderingen (${ignored.length})</summary>
@@ -527,7 +523,6 @@ function renderWebSales({ sales, background, range, listedRange, dropped, stats,
     ${summary}
     ${list ? `<ul class="web-sales">${list}</ul>` : ""}
     ${facts ? `<h3>Bakgrunn</h3><ul class="web-facts">${facts}</ul>` : ""}
-    ${lensPagesHtml()}
     <p class="meta web-note">Hentet med Google-søk på ${Math.round(seconds)} s. Ikke kontrollert av Funn – åpne lenken og sjekk at det ligner.
       ${dropped ? `${dropped} treff uten bekreftet kilde eller pris ble utelatt.` : ""}</p>
     <div class="web-suggestions"></div>`;
@@ -541,12 +536,30 @@ function renderWebSales({ sales, background, range, listedRange, dropped, stats,
   }
 }
 
-/** Sider der bildesøket fant samme bilde – ekte lenker fra Google, uten pris. */
-function lensPagesHtml() {
-  const pages = state.analysis?.lens?.ok ? state.analysis.lens.pages.slice(0, 6) : [];
-  if (!pages.length) return "";
-  return `<h3>Samme bilde på nettet</h3><ul class="web-facts">${pages.map((p) =>
-    `<li><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.title)}</a> <span class="meta">(${esc(p.site)})</span></li>`).join("")}</ul>`;
+/** Bildesøket: beskrivelser som merkelapper, nettsider med samme bilde som kort, lignende bilder som galleri. */
+function lensHtml() {
+  const lens = state.analysis?.lens;
+  if (!lens?.ok) return "";
+  const names = [...new Set([...lens.guess, ...lens.entities.map((e) => e.name)])];
+  const tags = names.length
+    ? `<ul class="tags">${names.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : "";
+  const cards = lens.pages.length
+    ? `<h3>Nettsider med samme bilde</h3><ul class="lens-cards">${lens.pages.map((p) => `
+        <li><a href="${esc(p.url)}" target="_blank" rel="noopener"><span class="lens-card-title">${esc(p.title)}</span>
+          <span class="lens-card-site">${esc(p.site)}</span></a></li>`).join("")}</ul>` : "";
+  const gallery = lens.similar.length
+    ? `<h3>Lignende bilder</h3><div class="lens-gallery">${lens.similar.map((u) => `
+        <a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="" loading="lazy" referrerpolicy="no-referrer"
+          onerror="this.parentElement.remove()"></a>`).join("")}</div>` : "";
+  if (!tags && !cards && !gallery) return `<h2>Bildesøk</h2><p class="meta">Bildesøket fant ingen treff på dette bildet.</p>`;
+  return `<h2>Bildesøk</h2>${tags}${cards}${gallery}`;
+}
+
+function renderLens(target) {
+  const box = $(target);
+  const html = lensHtml();
+  box.hidden = !html;
+  box.innerHTML = html;
 }
 
 // --- Resultat ------------------------------------------------------------------
@@ -562,6 +575,7 @@ function renderResultHead(valuation) {
   box.hidden = !photo;
   box.style.backgroundImage = photo ? `url('${photo.url}')` : "";
   state.ownValuation = valuation;
+  renderLens("#lens-result");
   setSummary(isLive(state.settings) ? { waiting: true } : {});
 }
 
@@ -833,6 +847,7 @@ function openSettings() {
   form.model.value = state.settings.model;
   form.demo.checked = state.settings.demo;
   form.lens.checked = state.settings.lens;
+  form.visionKey.value = state.settings.visionKey;
   setStatus(null);
   show("settings");
 }
@@ -847,7 +862,8 @@ function setStatus(message, ok = true) {
 function readSettingsForm() {
   const form = $("#settings-form");
   const key = form.key.value.trim();
-  return { key, model: form.model.value.trim() || state.settings.model, demo: form.demo.checked, lens: form.lens.checked };
+  return { key, model: form.model.value.trim() || state.settings.model, demo: form.demo.checked, lens: form.lens.checked,
+    visionKey: form.visionKey.value.trim() };
 }
 
 function onSaveSettings(event) {
@@ -862,14 +878,14 @@ function onSaveSettings(event) {
 const form = () => $("#settings-form");
 
 async function onTestKey() {
-  const { key, model } = readSettingsForm();
+  const { key, model, visionKey } = readSettingsForm();
   if (!key) return setStatus("Lim inn en nøkkel først.", false);
   setStatus("Tester …");
   const result = await testKey(key, model);
   if (!result.ok || !form().lens.checked) return setStatus(result.message, result.ok);
   // Bildesøket testes med et lite hvitt bilde (teller som ett søk, innenfor gratiskvoten).
   const tiny = await (await fetch("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==")).blob();
-  const lens = await webDetect(tiny, key);
+  const lens = await webDetect(tiny, visionKey || key);
   setStatus(`${result.message} ${lens.ok ? "Bildesøket virker også." : `Bildesøk: ${lens.message}`}`, lens.ok);
 }
 

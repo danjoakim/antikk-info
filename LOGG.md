@@ -188,6 +188,15 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ## Øktlogg
 
+### 2026-11-01 – Bildesøket vises: beskrivelser, nettsider og lignende bilder
+**Bakgrunn:** Brukeren har laget en egen nøkkel «Funn» låst til Cloud Vision API, og ba om at appen henter og viser `webEntities`, `pagesWithMatchingImages` og `visuallySimilarImages`. Appen skal bygges rundt bildesøket.
+**Gjort:**
+- Feltet «Nøkkel for bildesøk (Cloud Vision)» i menyen er tilbake (nøkkelen ligger bare i nettleseren).
+- Bildesøket vises på «Stemmer dette?» og på resultatet: beskrivelser som merkelapper (beste gjetning først), nettsider med samme bilde som klikkbare kort, lignende bilder som galleri (bilder som ikke laster, skjules).
+- Nettsøket etter priser bruker fortsatt bildesøkets treff som spor og kilder.
+**Tester:** 38 JS-tester bestått (lignende bilder testet). Nettlesertest: bildesøket bruker Funn-nøkkelen, kortene og galleriet vises.
+**Neste:** Brukeren tester boka med ekte nøkkel. Hvis Cloud Vision gir for få treff sammenlignet med Google Lens, kan et Lens-API (SerpApi, Serper) vurderes – først etter brukerens beslutning.
+
 ### 2026-11-01 – Rullet tilbake: eget nøkkelfelt for bildesøk fjernet
 **Bakgrunn:** Feltet ble lagt inn uten at brukeren ba om det. Brukeren ba om tilbakerulling.
 **Gjort:** `docs/` satt tilbake til versjonen med bildesøk (commit c00e6d4). Bildesøket bruker Gemini-nøkkelen.

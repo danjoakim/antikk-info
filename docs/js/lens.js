@@ -20,7 +20,8 @@ export function parseWebDetection(data) {
   const entities = (wd.webEntities ?? [])
     .filter((e) => e.description && (e.score ?? 0) >= 0.3)
     .map((e) => ({ name: strip(e.description), score: e.score ?? 0 }))
-    .slice(0, 6);
+    .slice(0, 8);
+  const similar = [...new Set((wd.visuallySimilarImages ?? []).map((i) => i.url).filter((u) => /^https?:\/\//.test(u ?? "")))].slice(0, 12);
   const seen = new Set();
   const pages = [];
   for (const p of wd.pagesWithMatchingImages ?? []) {
@@ -30,7 +31,7 @@ export function parseWebDetection(data) {
     pages.push({ url: p.url, title: strip(p.pageTitle) || h, site: h, full: (p.fullMatchingImages ?? []).length > 0 });
   }
   pages.sort((a, b) => Number(b.full) - Number(a.full));
-  return { ok: true, guess, entities, pages: pages.slice(0, 10) };
+  return { ok: true, guess, entities, pages: pages.slice(0, 10), similar };
 }
 
 /** Feilmelding fra Google → kort forklaring på norsk. */

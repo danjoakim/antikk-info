@@ -316,6 +316,26 @@ summary { cursor: pointer; font-weight: 700; min-height: 44px; display: flex; al
 .maker-name { font: 700 20px/1.2 var(--mono); margin: 0 0 6px; }
 .sources { padding-left: 1.1em; margin: 6px 0 0; font-size: 14px; }
 
+/* --- Bildesøk ------------------------------------------------------------------------------- */
+
+.lens { margin: 4px 0 16px; }
+.lens h2 { margin: 0 0 8px; font: 400 22px/1.2 var(--marker); }
+.lens h3 { margin: 14px 0 6px; font: 700 13px var(--mono); text-transform: uppercase; }
+.tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.tags li { background: var(--tape); padding: 5px 10px; font-size: 14px; font-weight: 700; }
+.tags li:first-child { background: var(--sticker); border: 2px solid var(--ink); transform: rotate(-1.5deg); }
+.lens-cards { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.lens-cards a {
+  display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; text-decoration: none;
+  border: 2px solid var(--ink); background: var(--white); box-shadow: 3px 3px 0 var(--ink);
+}
+.lens-cards a:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+.lens-card-title { font-weight: 700; overflow-wrap: anywhere; }
+.lens-card-site { font-size: 13px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.lens-gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.lens-gallery a { display: block; aspect-ratio: 1; border: 2px solid var(--ink); background: var(--photo); overflow: hidden; }
+.lens-gallery img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
 /* --- Fant ingenting ------------------------------------------------------------------------- */
 
 .result-none { display: flex; flex-direction: column; }

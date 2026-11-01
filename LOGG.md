@@ -188,6 +188,11 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ## Øktlogg
 
+### 2026-11-01 – Egen nøkkel for bildesøket
+**Bakgrunn:** Gemini-nøkkelen er laget i AI Studio og bundet til en tjenestekonto; API-begrensningene kan ikke endres i Google Cloud, så den kan ikke få tilgang til Cloud Vision. Cloud Vision API er slått på i prosjektet «Antikk-sjekker».
+**Gjort:** Nytt felt «Nøkkel for bildesøk» i menyen (lagres bare i nettleseren). Tomt felt = Gemini-nøkkelen brukes. «Test nøkkelen» tester bildesøket med denne nøkkelen. Veiledningen i menyen forklarer hvordan nøkkelen lages og begrenses (bare Cloud Vision API, bare danjoakim.github.io).
+**Tester:** 38 JS-tester bestått; nettlesertest viser at bildesøket bruker den egne nøkkelen.
+
 ### 2026-11-01 – Økt 24: Bildesøk som Google Lens (Cloud Vision Web Detection)
 **Bakgrunn:** Brukeren viste at Google Lens straks fant boka (tittel, FINN-annonser med pris). Appen søkte bare på teksten Gemini leste. Brukeren: vi må ha muligheten til å søke med bildet, ikke legge inn nettsteder for hver ting vi tester.
 **Gjort:**

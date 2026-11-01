@@ -248,12 +248,18 @@
           <label><input type="checkbox" name="lens"> Bildesøk, som Google Lens</label>
           <small>Det første bildet sendes til Google Cloud Vision, som finner sider med samme eller lignende bilde. Krever at Cloud Vision API er slått på for nøkkelen (se under). De første 1000 søkene hver måned er gratis.</small>
         </div>
+        <div class="field">
+          <label for="s-vision-key">Nøkkel for bildesøk</label>
+          <input id="s-vision-key" name="visionKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Tom = bruk Gemini-nøkkelen">
+          <small>Trengs når Gemini-nøkkelen er laget i AI Studio, for den kan ikke få tilgang til Cloud Vision.</small>
+        </div>
         <details class="howto">
-          <summary>Slik slår du på bildesøk</summary>
+          <summary>Slik lager du nøkkel for bildesøk</summary>
           <ol>
-            <li>Åpne <a href="https://console.cloud.google.com/apis/library/vision.googleapis.com" target="_blank" rel="noopener">Cloud Vision API</a> i Google Cloud og velg det samme prosjektet som Gemini-nøkkelen hører til. Trykk «Aktiver».</li>
-            <li>Gå til <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Legitimasjon</a>, åpne nøkkelen, og legg til «Cloud Vision API» under API-begrensninger. Lagre.</li>
-            <li>Kom tilbake hit og trykk «Test nøkkelen».</li>
+            <li>Slå på <a href="https://console.cloud.google.com/apis/library/vision.googleapis.com" target="_blank" rel="noopener">Cloud Vision API</a> i prosjektet ditt («Enable»).</li>
+            <li>Gå til <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Credentials</a>, trykk «Create credentials» og velg «API key».</li>
+            <li>Begrens nøkkelen: under «API restrictions» bare «Cloud Vision API», og under «Application restrictions» «Websites» med <code>danjoakim.github.io/*</code>.</li>
+            <li>Kopier nøkkelen inn i feltet over, trykk «Lagre» og så «Test nøkkelen».</li>
           </ol>
         </details>
         <div class="field field-check">

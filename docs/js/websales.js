@@ -47,7 +47,7 @@ Rules:
 - Two kinds of prices: "sold" = a price actually achieved (auction hammer price, "sold for", completed sale); "listed" = an asking price in a current or recent ad or shop listing. Never report estimates.
 - Search Norwegian and Nordic sources first (finn.no, tise.com, auctionet.com, blomqvist.no, gwpa.no, lauritz.com, tradera.com), then international ones (ebay.com, catawiki.com, worthpoint.com, auction houses).
 - Prefer the same maker, model, type, material and era. Mark how similar each one is.
-- Books, comics, records, films and games: match title and author/artist first, then edition or printing, publisher, year printed and binding. A different book by the same author is "similar", not "same_model". Book sources: finn.no, tise.com, antikvariat.net, bokborsen.no, abebooks.com, ebay.com; records: discogs.com, finn.no, tise.com.
+- Books, comics, records, films and games: match title and author/artist first, then edition or printing, publisher, year printed and binding. A different book by the same author is "similar", not "same_model". Book sources: finn.no, tise.com, antikvariat.net, boklibris.no, bokborsen.no, abebooks.com, ebay.com; records: discogs.com, finn.no, tise.com.
 - Copy price, currency, date and URL exactly from the page. Never invent or estimate a price, date or URL.
 - Background facts must be about the maker, model, pattern or marks (for books and records: the work, its author or artist, and the edition), each with the page it came from. Write them in Norwegian (bokmål), at most two sentences each. You may give the years a mark, stamp, pattern or model was in use when the page says so, but never state a production year for this specific item yourself.
 - Reply with JSON only, no other text.`;

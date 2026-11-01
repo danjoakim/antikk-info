@@ -106,7 +106,6 @@
       <p class="lead">Dette leste jeg. Rett det som er feil før jeg leter etter priser.</p>
       <p class="meta" id="analysis-time"></p>
 
-      <section id="lens-box" class="lens" hidden></section>
       <div id="confirm-notices"></div>
       <section class="box found" aria-labelledby="found-title">
         <h2 id="found-title" class="box-label">Funnet <span class="chip" data-conf="numbers"></span></h2>
@@ -220,7 +219,6 @@
         <p class="meta" id="none-detail"></p>
       </div>
 
-      <section id="lens-result" class="lens card" hidden></section>
       <article class="card" id="dating-card"></article>
       <article class="card" id="maker-card" hidden></article>
 
@@ -246,24 +244,6 @@
           <input id="s-model" name="model" autocomplete="off" autocapitalize="off" spellcheck="false">
           <small>Bytt hvis Google har pensjonert modellen.</small>
         </div>
-        <div class="field field-check">
-          <label><input type="checkbox" name="lens"> Bildesøk, som Google Lens</label>
-          <small>Det første bildet sendes til Google Cloud Vision, som finner sider med samme eller lignende bilde. Krever at Cloud Vision API er slått på for nøkkelen (se under). De første 1000 søkene hver måned er gratis.</small>
-        </div>
-        <div class="field">
-          <label for="s-vision-key">Nøkkel for bildesøk (Cloud Vision)</label>
-          <input id="s-vision-key" name="visionKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Tom = bruk Gemini-nøkkelen">
-          <small>Lim inn nøkkelen som er låst til Cloud Vision API. Tomt felt = Gemini-nøkkelen brukes.</small>
-        </div>
-        <details class="howto">
-          <summary>Slik lager du nøkkel for bildesøk</summary>
-          <ol>
-            <li>Slå på <a href="https://console.cloud.google.com/apis/library/vision.googleapis.com" target="_blank" rel="noopener">Cloud Vision API</a> i prosjektet ditt («Enable»).</li>
-            <li>Gå til <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Credentials</a>, trykk «Create credentials» og velg «API key».</li>
-            <li>Begrens nøkkelen: under «API restrictions» bare «Cloud Vision API», og under «Application restrictions» «Websites» med <code>danjoakim.github.io/*</code>.</li>
-            <li>Kopier nøkkelen inn i feltet over, trykk «Lagre» og så «Test nøkkelen».</li>
-          </ol>
-        </details>
         <div class="field field-check">
           <label><input type="checkbox" name="demo"> Demomodus (ingen kall til Gemini)</label>
         </div>

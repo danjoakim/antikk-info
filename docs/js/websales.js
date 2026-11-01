@@ -52,9 +52,9 @@ Rules:
 - Background facts must be about the maker, model, pattern or marks (for books and records: the work, its author or artist, and the edition), each with the page it came from. Write them in Norwegian (bokmål), at most two sentences each. You may give the years a mark, stamp, pattern or model was in use when the page says so, but never state a production year for this specific item yourself.
 - Reply with JSON only, no other text.`;
 
-export function buildWebSalesRequest(description, { thinkingLevel = null, leads = "" } = {}) {
+export function buildWebSalesRequest(description, { thinkingLevel = null } = {}) {
   const prompt = `Item: ${description}
-${leads ? `\nLeads from an image search with the user's photo (use them to identify the item and to find prices; open the pages and check them):\n${leads}\n` : ""}
+
 Find up to 10 prices (sold and listed) for comparable items and up to 4 background facts.
 Return exactly this JSON shape (price as a plain number):
 {"sales":[{"title":"","kind":"sold|listed","price":0,"currency":"ISO 4217","price_basis":"hammer|incl_premium|unknown","date":"YYYY-MM-DD or YYYY","seller":"site, shop or auction house","url":"","similarity":"same_model|same_maker|similar"}],
@@ -126,12 +126,11 @@ function median(values) {
 const round = (nok) => (nok >= 10000 ? Math.round(nok / 500) * 500 : nok >= 1000 ? Math.round(nok / 50) * 50 : Math.round(nok / 10) * 10);
 
 /** Tolker svaret: beholder bare salg og fakta med kilde fra et domene Google returnerte. */
-export function parseWebSales(data, fx, { extraDomains = [] } = {}) {
+export function parseWebSales(data, fx) {
   const candidate = data?.candidates?.[0];
   const text = (candidate?.content?.parts ?? []).filter((p) => !p.thought).map((p) => p.text ?? "").join("");
   const meta = candidate?.groundingMetadata ?? {};
   const domains = groundedDomains(meta);
-  for (const d of extraDomains) domains.add(d);   // sider bildesøket fant, også fra Google
   const titles = sourceTitles(meta);
   const stats = { sources: (meta.groundingChunks ?? []).length, proposed: 0, noPrice: 0, unverified: 0, json: false };
   const json = extractJson(text);
@@ -179,7 +178,7 @@ export function parseWebSales(data, fx, { extraDomains = [] } = {}) {
            entryPoint: meta.searchEntryPoint?.renderedContent ?? null };
 }
 
-export async function searchWebSales(description, fx, { key, model, signal, leads = "", extraDomains = [] } = {}) {
+export async function searchWebSales(description, fx, { key, model, signal } = {}) {
   const url = `${API}/models/${encodeURIComponent(model)}:generateContent`;
   const send = async (body) => {
     let res;
@@ -192,9 +191,9 @@ export async function searchWebSales(description, fx, { key, model, signal, lead
     return { res, data: await res.json().catch(() => ({})) };
   };
   const level = /^gemini-3/i.test(model ?? "") ? "low" : null;
-  let { res, data } = await send(buildWebSalesRequest(description, { thinkingLevel: level, leads }));
+  let { res, data } = await send(buildWebSalesRequest(description, { thinkingLevel: level }));
   if (res.status === 400 && level && /thinking/i.test(data?.error?.message ?? "")) {
-    ({ res, data } = await send(buildWebSalesRequest(description, { leads })));
+    ({ res, data } = await send(buildWebSalesRequest(description)));
   }
   if (!res.ok) {
     const msg = data?.error?.message ?? "";
@@ -202,5 +201,5 @@ export async function searchWebSales(description, fx, { key, model, signal, lead
     if (/search|grounding|tool/i.test(msg)) throw new VisionError("Nettsøk er ikke tilgjengelig for denne nøkkelen eller modellen.");
     throw new VisionError(`Nettsøket feilet (HTTP ${res.status}).`);
   }
-  return parseWebSales(data, fx, { extraDomains });
+  return parseWebSales(data, fx);
 }

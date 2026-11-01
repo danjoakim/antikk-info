@@ -164,7 +164,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-11-01 | Nettsøket henter både oppnådde priser («Solgt for») og utsalgspriser i annonser («Til salgs for»), norske kilder først (finn.no, tise, auctionet m.fl.) | For brukte hverdagsting er annonsepriser det folk faktisk trenger; holdes adskilt og merket |
 | 2026-11-01 | Ny kategori: Elektronikk, spill og media | Brukerens test med PS5-kontroller |
 | 2026-11-01 | Maskoten er en lisensiert stockillustrasjon av en skjære (brukeren har kjøpt lisens). Brukes som maskot i appen, ikke som logo | Egne tegninger i kode ble for geometriske, og bildegenerering bommet på arten. Stocklisenser tillater normalt ikke bruk som logo/varemerke |
-| 2026-11-01 | Bildesøk med Google Cloud Vision Web Detection (som Google Lens) som spor for nettsøket; sidene det finner godtas som kilder | Tekstsøk alene bommer når Gemini ikke leser nok; Lens fant boka straks |
+| 2026-11-01 | ~~Bildesøk med Cloud Vision~~ – forkastet samme kveld: ga plakater i stedet for boka. Bare Gemini | Cloud Vision matcher utseende, ikke hva tingen er |
 | 2026-11-01 | Appen heter **Funn** | Brukerens valg. Kort og norsk, og passer til flyten: du gjør et funn, skjæra samler funnene i reiret. Ingen varemerkeregistrering nå |
 | 2026-11-01 | Ny skjære fra Kuraplan erstatter stockskjæra, som ikke ble godkjent for bruken. Creative Commons-lisens uten krav om kreditering (ifølge brukeren), så merket trenger ikke være med | Brukerens nye fil |
 | 2026-11-01 | Skjæra har monokkel og tversoversløyfe og sitter i en loppiskasse (kaffekoppen er droppet) | Rekvisitter gir personlighet uten å tegne om fuglen; kassa skjuler klørne og knytter skjæra til loppis |
@@ -187,6 +187,12 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-11-01 – Bildesøket fjernet igjen
+**Bakgrunn:** Med ekte nøkkel ga Cloud Vision plakater og postere for boka i stedet for boka (den matcher utseendet, omslagsmaleriet, ikke hva tingen er). Brukeren har testet andre apper (Antiqum, 59 kr/uke): de bruker bare en AI-modell og fyller på med gjetning. Beslutning: bare Gemini, men vi må finne på noe smart.
+**Gjort:** `docs/js/lens.js`, nøkkelfeltet, veiledningen og visningen av bildesøk er fjernet; appen er som før bildesøket (commit e2b3e5f), med bokstøtte og bildeforslag for bøker beholdt. `tests_web/lens.test.mjs` fjernet.
+**Tester:** 35 JS-tester og 63 Python-tester bestått; nettlesertest med simulert bok virker.
+**Merk:** Cloud Vision API er fortsatt slått på i Google Cloud-prosjektet, og nøkkelen «Funn» finnes der. De kan slås av/slettes av brukeren.
 
 ### 2026-11-01 – Bildesøket vises: beskrivelser, nettsider og lignende bilder
 **Bakgrunn:** Brukeren har laget en egen nøkkel «Funn» låst til Cloud Vision API, og ba om at appen henter og viser `webEntities`, `pagesWithMatchingImages` og `visuallySimilarImages`. Appen skal bygges rundt bildesøket.

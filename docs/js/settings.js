@@ -7,9 +7,9 @@ const STORE = "lommeur.settings.v1";
 export function loadSettings() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORE) ?? "{}");
-    return { key: saved.key ?? "", model: saved.model || DEFAULT_MODEL, demo: saved.demo === true, lens: saved.lens !== false, visionKey: saved.visionKey ?? "" };
+    return { key: saved.key ?? "", model: saved.model || DEFAULT_MODEL, demo: saved.demo === true };
   } catch {
-    return { key: "", model: DEFAULT_MODEL, demo: false, lens: true, visionKey: "" };
+    return { key: "", model: DEFAULT_MODEL, demo: false };
   }
 }
 
@@ -27,7 +27,4 @@ export function clearSettings() {
 }
 
 // Uten nøkkel er det alltid demo; med nøkkel kan demo slås på manuelt.
-/** Nøkkelen bildesøket bruker: egen nøkkel hvis den finnes, ellers Gemini-nøkkelen. */
-export const lensKey = (s) => s.visionKey || s.key;
-
 export const isLive = (s) => !s.demo && !!s.key;

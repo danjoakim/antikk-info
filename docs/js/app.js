@@ -3,10 +3,9 @@
 
 import { dateItem } from "./dating.js";
 import { CATEGORY_LABELS, ESCAPEMENT_LABELS, isWatch, LAYOUT_LABELS, LOCATION_LABELS, makerInfo, MATERIAL_LABELS, noSalesMessage, normalize, setMakers, WINDING_LABELS } from "./normalize.js";
-import { clearSettings, isLive, lensKey, loadSettings, saveSettings } from "./settings.js";
+import { clearSettings, isLive, loadSettings, saveSettings } from "./settings.js";
 import { suggestPhotos } from "./suggest.js";
 import { describeItem, searchWebSales } from "./websales.js";
-import { lensDomains, lensLeads, webDetect } from "./lens.js";
 import { valueItem } from "./valuation.js";
 import { analyzeWithGemini, mockFacts, testKey, VisionError } from "./vision.js";
 
@@ -267,20 +266,13 @@ async function analyze() {
   const started = performance.now();
   try {
     const images = state.photos.map((p) => ({ role: "photo", blob: p.blob }));
-    // Bildesøket (som Google Lens) går samtidig med bildeanalysen, med det første bildet.
-    const lensJob = live && state.settings.lens
-      ? webDetect(state.photos[0].blob, lensKey(state.settings), { signal: controller.signal })
-      : Promise.resolve(null);
-    const [facts, lens] = await Promise.all([
-      live
-        ? analyzeWithGemini(images, state.data.contract,
-          { key: state.settings.key, model: state.settings.model, signal: controller.signal })
-        : mockFacts(state.data.contract, $("#mock-scenario").value),
-      lensJob,
-    ]);
+    const facts = live
+      ? await analyzeWithGemini(images, state.data.contract,
+        { key: state.settings.key, model: state.settings.model, signal: controller.signal })
+      : mockFacts(state.data.contract, $("#mock-scenario").value);
     const normalized = normalize(state.data.hallmarks, facts, "vision");
     const suggestions = suggestPhotos(state.data.serial_ranges, facts, normalized);
-    state.analysis = { mode: live ? "live" : "mock", facts, normalized, suggestions, lens,
+    state.analysis = { mode: live ? "live" : "mock", facts, normalized, suggestions,
       seconds: live ? (performance.now() - started) / 1000 : null, photos: images.length,
       bytes: images.reduce((sum, i) => sum + i.blob.size, 0) };
     if (controller.signal.aborted) return;
@@ -346,7 +338,6 @@ function renderConfirm() {
     ? fineness.map((m) => `<span class="stamp">${esc(m.text)} <small>${esc(place(m.location))}</small></span>`).join("")
     : `<small>Ingen stempler lest.</small>`;
   renderFound(normalized, facts);
-  renderLens("#lens-box");
   toggleWatchFields();
 
   document.querySelectorAll("[data-conf]").forEach((chip) => {
@@ -359,11 +350,6 @@ function renderConfirm() {
   });
 
   const notices = [];
-  const lens = state.analysis.lens;
-  if (lens && !lens.ok && !["aborted", "format"].includes(lens.reason)) {
-    notices.push(`<div class="notice notice-warn"><p><strong>Bildesøket virket ikke.</strong> ${esc(lens.message)}</p>
-      <p>Appen leter likevel etter priser ut fra det den leste. Se «meny» for hvordan du slår på bildesøk.</p></div>`);
-  }
   if (normalized.warnings.length) {
     notices.push(`<div class="notice notice-warn">${normalized.warnings.map((w) => `<p>${esc(w)}</p>`).join("")}</div>`);
   }
@@ -482,10 +468,8 @@ async function startWebSales(facts, maker, dating) {
   const timer = setTimeout(() => controller.abort(), 60_000);
   const started = performance.now();
   try {
-    const lens = state.analysis?.lens;
     const result = await searchWebSales(description, state.data.fx,
-      { key: state.settings.key, model: state.settings.model, signal: controller.signal,
-        leads: lensLeads(lens), extraDomains: lensDomains(lens) });
+      { key: state.settings.key, model: state.settings.model, signal: controller.signal });
     if (controller !== webSearchController) return;
     renderWebSales(result, (performance.now() - started) / 1000);
     setSummary({ web: result });
@@ -536,32 +520,6 @@ function renderWebSales({ sales, background, range, listedRange, dropped, stats,
   }
 }
 
-/** Bildesøket: beskrivelser som merkelapper, nettsider med samme bilde som kort, lignende bilder som galleri. */
-function lensHtml() {
-  const lens = state.analysis?.lens;
-  if (!lens?.ok) return "";
-  const names = [...new Set([...lens.guess, ...lens.entities.map((e) => e.name)])];
-  const tags = names.length
-    ? `<ul class="tags">${names.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : "";
-  const cards = lens.pages.length
-    ? `<h3>Nettsider med samme bilde</h3><ul class="lens-cards">${lens.pages.map((p) => `
-        <li><a href="${esc(p.url)}" target="_blank" rel="noopener"><span class="lens-card-title">${esc(p.title)}</span>
-          <span class="lens-card-site">${esc(p.site)}</span></a></li>`).join("")}</ul>` : "";
-  const gallery = lens.similar.length
-    ? `<h3>Lignende bilder</h3><div class="lens-gallery">${lens.similar.map((u) => `
-        <a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="" loading="lazy" referrerpolicy="no-referrer"
-          onerror="this.parentElement.remove()"></a>`).join("")}</div>` : "";
-  if (!tags && !cards && !gallery) return `<h2>Bildesøk</h2><p class="meta">Bildesøket fant ingen treff på dette bildet.</p>`;
-  return `<h2>Bildesøk</h2>${tags}${cards}${gallery}`;
-}
-
-function renderLens(target) {
-  const box = $(target);
-  const html = lensHtml();
-  box.hidden = !html;
-  box.innerHTML = html;
-}
-
 // --- Resultat ------------------------------------------------------------------
 
 // --- Toppen av resultatet: bildet, navnet, prislappen og det skjæra sier --------------
@@ -575,7 +533,6 @@ function renderResultHead(valuation) {
   box.hidden = !photo;
   box.style.backgroundImage = photo ? `url('${photo.url}')` : "";
   state.ownValuation = valuation;
-  renderLens("#lens-result");
   setSummary(isLive(state.settings) ? { waiting: true } : {});
 }
 
@@ -601,7 +558,6 @@ function setSummary({ waiting = false, web = null, error = null } = {}) {
     if (parts.length) html = `<p>Fant ${web.sales.length} priser! ${capitalize(parts.join(", og "))}.</p>`;
     else if (web?.sales?.length) html = `<p>Fant ${web.sales.length} ${web.sales.length === 1 ? "pris" : "priser"}, men for få til et intervall. Se dem under.</p>`;
     else if (web?.background?.length) html = `<p>Fant ingen priser med kilde denne gangen, men litt om bakgrunnen under.</p>`;
-    else if (web && state.analysis?.lens?.ok && state.analysis.lens.pages.length) html = `<p>Fant ingen priser med kilde, men samme bilde ligger på sidene under. Der kan det stå mer.</p>`;
     if (own) {
       range ??= own;
       html += `<p>${own.is_demo ? "I demotabellen" : "I tabellen vår"} er ${own.n_sales} lignende solgt for <b>${span(own)}</b>.</p>`;
@@ -846,8 +802,6 @@ function openSettings() {
   form.key.value = state.settings.key;
   form.model.value = state.settings.model;
   form.demo.checked = state.settings.demo;
-  form.lens.checked = state.settings.lens;
-  form.visionKey.value = state.settings.visionKey;
   setStatus(null);
   show("settings");
 }
@@ -862,8 +816,7 @@ function setStatus(message, ok = true) {
 function readSettingsForm() {
   const form = $("#settings-form");
   const key = form.key.value.trim();
-  return { key, model: form.model.value.trim() || state.settings.model, demo: form.demo.checked, lens: form.lens.checked,
-    visionKey: form.visionKey.value.trim() };
+  return { key, model: form.model.value.trim() || state.settings.model, demo: form.demo.checked };
 }
 
 function onSaveSettings(event) {
@@ -875,18 +828,12 @@ function onSaveSettings(event) {
     : "Kunne ikke lagre i denne nettleseren (privat vindu?). Innstillingen gjelder til siden lukkes.", stored);
 }
 
-const form = () => $("#settings-form");
-
 async function onTestKey() {
-  const { key, model, visionKey } = readSettingsForm();
+  const { key, model } = readSettingsForm();
   if (!key) return setStatus("Lim inn en nøkkel først.", false);
   setStatus("Tester …");
   const result = await testKey(key, model);
-  if (!result.ok || !form().lens.checked) return setStatus(result.message, result.ok);
-  // Bildesøket testes med et lite hvitt bilde (teller som ett søk, innenfor gratiskvoten).
-  const tiny = await (await fetch("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==")).blob();
-  const lens = await webDetect(tiny, visionKey || key);
-  setStatus(`${result.message} ${lens.ok ? "Bildesøket virker også." : `Bildesøk: ${lens.message}`}`, lens.ok);
+  setStatus(result.message, result.ok);
 }
 
 function onClearKey() {

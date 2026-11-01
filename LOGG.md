@@ -200,7 +200,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 - Nettsøket kjenner discogs.com, FINN, Tise og eBay for plater og film.
 **Fakta sjekket:** Søk i Discogs-databasen krever autentisering; NOK er ikke en Discogs-valuta, så EUR brukes og omregnes.
 **Tester:** 49 JS-tester (6 nye) og 63 Python-tester bestått. Nettlesertest med simulert Discogs: flere pressinger, ett treff, uten nøkkel, feil nøkkel.
-**Ikke testet:** Ekte Discogs fra nettleseren (CORS). Feiler det, sier appen «Fikk ikke kontakt med Discogs» og går videre. Discogs gir ikke historikk over solgte priser i API-et.
+**Testet av brukeren 01.11.2026 kl. 23.17:** CD-plate med ekte Discogs-nøkkel «gikk som en drøm» – Discogs virker direkte fra nettleseren på telefonen. Discogs gir ikke historikk over solgte priser i API-et.
 
 ### 2026-11-01 – Tvunget søk og bedre Wikipedia-treff
 **Bakgrunn:** Brukerens test med ekte nøkkel: boka fikk priser (hele kjeden virker). PS5-kontrolleren ga «Google ga 0 kilder; søket foreslo 6 priser, 6 fra nettsteder som ikke var blant kildene» – Gemini svarte fra hukommelsen uten å søke, og appen forkastet alle (riktig). Wikipedia-artikkelen om PlayStation ble forkastet fordi teksten sier «produsert», ikke «produsent». Brukeren: priser er flyktige, så det må alltid søkes.

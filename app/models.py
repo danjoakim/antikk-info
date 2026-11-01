@@ -75,6 +75,8 @@ class PhotoObservation(BaseModel):
 class VisionFacts(BaseModel):
     category: Category = "other"
     object_type: str | None = Field(None, description="Hva gjenstanden er, på norsk, f.eks. «kaffekanne»")
+    title: str | None = Field(None, description="Tittel på bok, plate, film, spill eller trykk, slik den står")
+    creator: str | None = Field(None, description="Forfatter, kunstner, komponist eller band, slik det står")
     description: str | None = Field(None, description="Kort, nøktern beskrivelse av det som synes")
     materials: list[str] = Field(default_factory=list, description="Synlige materialer, på norsk")
     style_cues: list[str] = Field(default_factory=list, description="Synlige stil- og utførelsestrekk, uten årstall")
@@ -112,6 +114,8 @@ class NumberGroup(BaseModel):
 class NormalizedFacts(BaseModel):
     category: str = "pocket_watch"
     object_type: str | None = None
+    title: str | None = None
+    creator: str | None = None
     description: str | None = None
     materials: list[str] = Field(default_factory=list)
     other_numbers: list[str] = Field(default_factory=list)   # modell-, mønster- og dekornummer o.l.
@@ -147,6 +151,8 @@ class ConfirmedFacts(BaseModel):
     case_stamps: list[str] = Field(default_factory=list)
     item_type: str = "pocket_watch"        # kategori, se Category
     object_type: str | None = None
+    title: str | None = None
+    creator: str | None = None
     materials: list[str] = Field(default_factory=list)
 
 

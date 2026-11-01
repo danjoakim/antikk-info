@@ -88,3 +88,19 @@ test("utsalgspriser og solgte holdes adskilt; kilde godtas via navn i tittelen",
   assert.deepEqual(r.listedRange, { min: 440, median: 450, max: 500, n: 3 });
   assert.equal(r.range, null);
 });
+
+test("describeItem: bøker beskrives med tittel, forfatter, trykte opplysninger og ISBN", () => {
+  const d = describeItem({ object_type: "bok", title: "Sult", creator: "Knut Hamsun", materials: [],
+    printed: ["Gyldendal Norsk Forlag", "Oslo 1957"], other_numbers: ["ISBN 82-05-12345-6"] },
+    { brandName: "Gyldendal", itemType: "book_paper" });
+  assert.match(d, /titled «Sult» by Knut Hamsun/);
+  assert.match(d, /Oslo 1957/);
+  assert.match(d, /ISBN 82-05-12345-6/);
+  assert.doesNotMatch(d, /unsigned/);
+});
+
+test("Nettsøket kjenner bok- og platesider og ber om tittel og forfatter først", () => {
+  const text = buildWebSalesRequest("x").systemInstruction.parts[0].text;
+  for (const site of ["antikvariat.net", "bokborsen.no", "abebooks.com", "discogs.com"]) assert.ok(text.includes(site), site);
+  assert.match(text, /match title and author\/artist first/);
+});

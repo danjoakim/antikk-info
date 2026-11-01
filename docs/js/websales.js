@@ -24,12 +24,16 @@ const WINDING_EN = { key: "key wind", stem: "keyless (stem wind)" };
 export function describeItem(facts, { brandName = null, itemType = "pocket_watch", period = null } = {}) {
   const parts = [ITEM_LABELS[itemType] ?? itemType];
   if (facts.object_type) parts.push(`– «${facts.object_type}» (Norwegian name)`);
+  if (facts.title) parts.push(`titled «${facts.title}»${facts.creator ? ` by ${facts.creator}` : ""}`);
+  else if (facts.creator) parts.push(`by ${facts.creator}`);
   if (brandName) parts.unshift(brandName);
-  else parts.unshift("unsigned");
+  else if (!facts.title && !facts.creator) parts.unshift("unsigned");
   const details = [MATERIAL_EN[facts.material], ESCAPEMENT_EN[facts.escapement], WINDING_EN[facts.winding]].filter(Boolean);
   if (facts.materials?.length) details.push(`materials (Norwegian): ${facts.materials.join(", ")}`);
   if (facts.observed) details.push(`seen (Norwegian): ${facts.observed}`);
   if (period) details.push(`approx. ${period}`);
+  if (facts.printed?.length) details.push(`printed on it: ${facts.printed.slice(0, 4).join("; ")}`);
+  if (facts.other_numbers?.length) details.push(`numbers on it: ${facts.other_numbers.slice(0, 4).join(", ")}`);
   if (facts.movement_serial) details.push(`movement no. ${facts.movement_serial}`);
   if (facts.case_number) details.push(`case no. ${facts.case_number}`);
   const marks = (facts.case_stamps ?? []).slice(0, 6);
@@ -43,8 +47,9 @@ Rules:
 - Two kinds of prices: "sold" = a price actually achieved (auction hammer price, "sold for", completed sale); "listed" = an asking price in a current or recent ad or shop listing. Never report estimates.
 - Search Norwegian and Nordic sources first (finn.no, tise.com, auctionet.com, blomqvist.no, gwpa.no, lauritz.com, tradera.com), then international ones (ebay.com, catawiki.com, worthpoint.com, auction houses).
 - Prefer the same maker, model, type, material and era. Mark how similar each one is.
+- Books, comics, records, films and games: match title and author/artist first, then edition or printing, publisher, year printed and binding. A different book by the same author is "similar", not "same_model". Book sources: finn.no, tise.com, antikvariat.net, bokborsen.no, abebooks.com, ebay.com; records: discogs.com, finn.no, tise.com.
 - Copy price, currency, date and URL exactly from the page. Never invent or estimate a price, date or URL.
-- Background facts must be about the maker, model, pattern or marks, each with the page it came from. Write them in Norwegian (bokmål), at most two sentences each. You may give the years a mark, stamp, pattern or model was in use when the page says so, but never state a production year for this specific item yourself.
+- Background facts must be about the maker, model, pattern or marks (for books and records: the work, its author or artist, and the edition), each with the page it came from. Write them in Norwegian (bokmål), at most two sentences each. You may give the years a mark, stamp, pattern or model was in use when the page says so, but never state a production year for this specific item yourself.
 - Reply with JSON only, no other text.`;
 
 export function buildWebSalesRequest(description, { thinkingLevel = null } = {}) {

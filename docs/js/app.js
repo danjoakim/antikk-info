@@ -18,6 +18,8 @@ const REQUEST_TIMEOUT = 90_000;
 const MIN_SALES = 5;
 
 const MAX_PHOTOS = 8;
+// Kategorier der tittel og forfatter/kunstner betyr mest.
+const WORK_CATEGORIES = new Set(["book_paper", "art", "electronics"]);
 
 const PLACEHOLDER_SVG = `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
   <circle cx="32" cy="36" r="20"/><path d="M32 8v8M27 10h10M32 36V24M32 36l8 5"/></svg>`;
@@ -313,6 +315,8 @@ function renderConfirm() {
   form.category.innerHTML = options(state.meta.categories);
   form.category.value = normalized.category ?? "other";
   form.object_type.value = normalized.object_type ?? "";
+  form.elements.work_title.value = normalized.title ?? "";
+  form.elements.creator.value = normalized.creator ?? "";
   $("#object-description").textContent = normalized.description ?? "";
   form.materials.value = (normalized.materials ?? []).join(", ");
   form.brand.value = normalized.brand_display ?? "";
@@ -409,6 +413,8 @@ function lookup(event) {
   state.confirmed = {
     item_type: category,
     object_type: form.object_type.value.trim() || null,
+    title: form.elements.work_title.value.trim() || null,
+    creator: form.elements.creator.value.trim() || null,
     materials: form.materials.value.split(",").map((m) => m.trim()).filter(Boolean),
     brand: form.brand.value.trim() || null,
     movement_serial: watch ? form.movement_serial.value.trim() || null : null,
@@ -451,7 +457,10 @@ async function startWebSales(facts, maker, dating) {
   card.hidden = false;
   card.innerHTML = `<h2>Priser funnet på nettet</h2><p class="meta web-wait">Søker etter priser og bakgrunn …</p>`;
   setSummary({ waiting: true });
-  const description = describeItem({ ...facts, observed: state.analysis?.normalized?.description }, {
+  const seen = state.analysis;
+  const printed = (seen?.facts?.marks ?? []).filter((m) => ["inscription", "label"].includes(m.type)).map((m) => m.text);
+  const description = describeItem({ ...facts, observed: seen?.normalized?.description, printed,
+    other_numbers: seen?.normalized?.other_numbers ?? [] }, {
     brandName: maker?.display_name ?? facts.brand_display ?? null, itemType: facts.category,
     period: dating.status === "dated" ? `${dating.estimate}` : dating.period?.display?.replace(/^ca\. /, "") || null,
   });
@@ -517,8 +526,8 @@ function renderWebSales({ sales, background, range, listedRange, dropped, stats,
 
 function renderResultHead(valuation) {
   const c = state.confirmed;
-  $("#result-title").textContent = capitalize(c.object_type || CATEGORY_LABELS[c.item_type] || "Funnet");
-  $("#result-sub").textContent = [c.brand, ...(c.materials ?? [])].filter(Boolean).join(" · ");
+  $("#result-title").textContent = c.title ? `«${c.title}»` : capitalize(c.object_type || CATEGORY_LABELS[c.item_type] || "Funnet");
+  $("#result-sub").textContent = [c.creator, c.title ? c.object_type : null, c.brand, ...(c.materials ?? [])].filter(Boolean).join(" · ");
   const photo = state.photos.find((p) => p.url);
   const box = $("#result-photo");
   box.hidden = !photo;
@@ -632,20 +641,24 @@ function renderResult({ dating, valuation, valuation_message, maker }) {
 
 function renderMaker(maker) {
   const card = $("#maker-card");
-  const name = state.confirmed?.brand;
+  const c = state.confirmed ?? {};
+  const name = c.creator && WORK_CATEGORIES.has(c.item_type) ? c.creator : c.brand;
+  if (name !== c.brand) maker = null;   // forfatteren/kunstneren står ikke i produsentlisten
   const retailer = state.analysis?.normalized?.retailer;
   card.hidden = !maker && !name;
   if (!maker) {
     if (!name) { card.innerHTML = ""; return; }
-    card.innerHTML = `<h2>Om navnet</h2><p class="maker-name">${esc(name)}</p>
-      <p class="meta wiki-status">Navnet står ikke i listen vår. Slår opp i Wikipedia …</p>`;
+    const person = name === c.creator;
+    const heading = !person ? "Om navnet" : c.item_type === "book_paper" ? "Om forfatteren" : c.item_type === "art" ? "Om kunstneren" : "Om opphavet";
+    card.innerHTML = `<h2>${heading}</h2><p class="maker-name">${esc(name)}</p>
+      <p class="meta wiki-status">${person ? "" : "Navnet står ikke i listen vår. "}Slår opp i Wikipedia …</p>`;
     const category = state.confirmed?.item_type ?? "pocket_watch";
     lookupWikipedia(name, category).then((hit) => {
-      if ($("#maker-card") !== card || state.confirmed?.brand !== name) return;
+      if ($("#maker-card") !== card || state.confirmed !== c) return;
       $(".wiki-status", card).outerHTML = hit
         ? `<p>${esc(hit.extract)}</p>
            <p class="meta">Hentet automatisk fra <a href="${esc(hit.url)}" target="_blank" rel="noopener">Wikipedia: ${esc(hit.title)}</a>
-           (CC BY-SA). Sjekk at det er riktig merke.</p>`
+           (CC BY-SA). Sjekk at det er riktig ${person ? "person" : "merke"}.</p>`
         : isWatch(category)
           ? `<p class="meta">Vi fant ingenting om «${esc(name)}». Det kan være et lite forhandler- eller handelsnavn.
              <a href="https://www.mikrolisk.de/" target="_blank" rel="noopener">Mikrolisk</a> har et stort register over urmerker.</p>`
@@ -679,6 +692,8 @@ const WIKI_CONTEXT = {
   glass: { no: /glass/i, en: /glass/i, term: { no: "glassverk", en: "glassworks" } },
   furniture: { no: /(møbel|snekker|design)/i, en: /(furniture|cabinet|design)/i, term: { no: "møbler", en: "furniture" } },
   art: { no: /(kunstner|maler|grafiker|billedhugger|kunst)/i, en: /(artist|painter|printmaker|sculptor)/i, term: { no: "kunstner", en: "artist" } },
+  book_paper: { no: /(forfatter|skribent|lyriker|dikter|roman|tegneserie|illustratør|forlag)/i, en: /(author|writer|novelist|poet|cartoonist|illustrator|publisher)/i,
+                term: { no: "forfatter", en: "author" } },
   other: { no: /(produsent|fabrikk|firma|selskap|designer|bedrift)/i, en: /(company|manufacturer|designer|factory|maker)/i,
            term: { no: "", en: "" } },
 };
@@ -772,6 +787,7 @@ function toggleWatchFields() {
   const form = $("#confirm-form");
   const category = form.category.value;
   $("#watch-fields").hidden = !isWatch(category);
+  $("#work-fields").hidden = !(WORK_CATEGORIES.has(category) || form.elements.work_title.value || form.elements.creator.value);
   $("#material-field").hidden = !(isWatch(category) || ["silver_metal", "jewelry"].includes(category) || form.material.value);
 }
 

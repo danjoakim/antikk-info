@@ -187,6 +187,16 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ## Øktlogg
 
+### 2026-11-01 – Økt 23: Bøker, plater og trykk – tittel og forfatter
+**Bakgrunn:** Brukeren testet en bok fra NLM Gjenbruken (bilde av forsiden). Appen fant ingenting. Bildeanalysen hadde ingen felt for tittel og forfatter, så nettsøket fikk bare «bok» og forlaget, og søket kjente ikke boksidene.
+**Gjort:**
+- Bildeanalysen har to nye felt: `title` (tittel på bok, blad, tegneserie, plate, film, spill eller trykk) og `creator` (forfatter, kunstner, komponist eller band). For bøker er forlaget `brand_signed`; ISBN og katalognummer går i `numbers`, og opplag, trykkested og trykkeår slik de står trykt, som inskripsjoner. Ny konfidens for tittel. Kontrakten er eksportert på nytt.
+- «Stemmer dette?» viser feltene Tittel og Forfatter eller kunstner for bøker, kunst og elektronikk/media, eller når de er fylt ut.
+- Nettsøket får tittel, forfatter, trykt tekst og ISBN, matcher tittel og forfatter først og kjenner antikvariat.net, bokborsen.no, abebooks.com og discogs.com i tillegg til FINN og Tise. En annen bok av samme forfatter regnes som «lignende».
+- Resultatet viser «tittel» som overskrift og forfatteren i undertittelen; kortet «Om forfatteren» / «Om kunstneren» slår opp personen i Wikipedia.
+**Tester:** 35 JS-tester og 63 Python-tester bestått (2 nye JS, 1 ny Python). Nettlesertest med simulert bok («Sult», Knut Hamsun): feltene fylles ut, søket får tittel og forfatter, prisene vises.
+**Venter på:** Ny test fra brukeren med samme bok på telefonen.
+
 ### 2026-11-01 – Økt 22: Nytt utseende bygget inn – appen heter nå Funn
 **Gjort (nettversjonen i `docs/`):**
 - Hele appen i loppislapp-stilen fra designlerretet (Courier Prime + Permanent Marker, teip, neonrosa, harde skygger), bare lyst tema.

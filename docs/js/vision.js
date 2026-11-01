@@ -34,7 +34,7 @@ export function toFacts(raw) {
   }
   const list = (v) => (Array.isArray(v) ? v.filter((x) => x && typeof x === "object") : []);
   return {
-    category: pick(raw.category, CATEGORIES, "other"), object_type: str(raw.object_type), description: str(raw.description),
+    category: pick(raw.category, CATEGORIES, "other"), object_type: str(raw.object_type), title: str(raw.title), creator: str(raw.creator), description: str(raw.description),
     materials: strList(raw.materials), style_cues: strList(raw.style_cues),
     photos: list(raw.photos).filter((p) => Number.isInteger(p.index)).map((p) => ({ index: p.index, shows: pick(p.shows, LOCATIONS) })),
     dial_text: str(raw.dial_text), brand_signed: str(raw.brand_signed),

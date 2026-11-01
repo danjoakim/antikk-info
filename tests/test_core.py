@@ -339,3 +339,12 @@ def test_norwegian_silver_830(conn):
 
 def test_unknown_category_without_name_gives_no_empty_searches():
     assert sale_search_links(NormalizedFacts(category="other"), None, "other") == []
+
+
+def test_vision_facts_carry_title_and_creator_for_books():
+    from app.services.vision.core import OBSERVATION_SCHEMA, SYSTEM_PROMPT, to_facts
+    assert {"title", "creator"} <= set(OBSERVATION_SCHEMA["required"])
+    assert "ISBN" in SYSTEM_PROMPT
+    facts = to_facts({"category": "book_paper", "object_type": "bok", "title": "Sult", "creator": "Knut Hamsun",
+                      "brand_signed": "Gyldendal"})
+    assert facts.title == "Sult" and facts.creator == "Knut Hamsun"

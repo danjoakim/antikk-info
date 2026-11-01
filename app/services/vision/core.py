@@ -31,6 +31,8 @@ The photos come in any order, and the user sends whatever they have: one photo o
 What the object is:
 - category: the closest category. Use "other" if none fits.
 - object_type: what it is, in Norwegian, as specific as you can: include the product, model, series or pattern name when it is written on the object or the design is unmistakable (e.g. "PS5-kontroller (DualSense)", "kaffekanne", "spiseskje", "lommeur", "Kubus lysestake"). Never guess a model you cannot see.
+- title: the title of the work when it is printed on the object (book, magazine, comic, record, film, game, poster, print), verbatim, including any subtitle or volume. Otherwise null.
+- creator: the author, artist, composer, band or illustrator named on the object, verbatim (e.g. "Knut Hamsun", "Theodor Kittelsen"). Otherwise null. Factories and designers of objects go in brand_signed.
 - description: one or two neutral sentences in Norwegian about what is visible: shape, decoration, colours, technique. No age, value or praise.
 - materials: visible materials in Norwegian (e.g. "porselen", "steintøy", "sølv", "forsølvet metall", "messing", "tinn", "glass", "eik", "teak"). Only what you can see or read; when unsure, leave it out.
 - style_cues: observable style or manufacturing features in Norwegian (e.g. "håndmalt underglasurdekor", "trykt dekor", "maskinsydd", "svalehalesammenføyning"). Never years or periods.
@@ -54,7 +56,9 @@ Marks (`marks`), each with `location` and `type`:
 - "owner_engraving": monograms, initials or dedications for an owner.
 - "repair_mark": scratched repair marks that are not numbers.
 
-brand_signed: the maker, factory, designer or retailer name as written anywhere on the object, or null.
+brand_signed: the maker, factory, designer or retailer name as written anywhere on the object; for books and records the publisher or record label. Otherwise null.
+
+Books and printed matter: report ISBN and catalogue numbers in `numbers` (prefix "ISBN" etc.), and printed edition, printing, place and year exactly as printed (e.g. "2. opplag", "Oslo 1952", "Første utgave") as "inscription" marks. These are facts printed on the item, not estimates.
 
 Only for pocket watches and wristwatches (otherwise use "unknown", null and empty values):
 - Pocket watches usually have an outer case back and an inner dust cover (cuvette). Text may be on both sides of the cuvette. The movement may carry no name or number at all; that is normal.
@@ -71,7 +75,7 @@ Always:
 
 USER_INSTRUCTION = "Registrer observasjonene fra bildene over i henhold til skjemaet."
 
-CONFIDENCE_FIELDS = ("category", "brand_signed", "numbers", "marks", "escapement", "winding")
+CONFIDENCE_FIELDS = ("category", "title", "brand_signed", "numbers", "marks", "escapement", "winding")
 
 
 def _nullable(type_: str, **extra: Any) -> dict[str, Any]:
@@ -91,6 +95,8 @@ def _strict_object(properties: dict[str, Any]) -> dict[str, Any]:
 OBSERVATION_SCHEMA: dict[str, Any] = _strict_object({
     "category": _enum(Category),
     "object_type": _nullable("string", description="What the object is, in Norwegian"),
+    "title": _nullable("string", description="Title of a book, record, film, game or print as printed"),
+    "creator": _nullable("string", description="Author, artist, composer or band as printed"),
     "description": _nullable("string", description="One or two neutral sentences in Norwegian"),
     "materials": {"type": "array", "items": {"type": "string"}},
     "style_cues": {"type": "array", "items": {"type": "string"}},

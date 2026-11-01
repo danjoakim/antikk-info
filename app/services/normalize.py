@@ -235,7 +235,7 @@ def normalize(conn: sqlite3.Connection, facts: VisionFacts | ConfirmedFacts) -> 
 
     case_group = next((g for g in groups if g.role == "case"), None)
     return NormalizedFacts(
-        category=category, object_type=facts.object_type,
+        category=category, object_type=facts.object_type, title=facts.title, creator=facts.creator,
         description=facts.description if vision else None, materials=list(facts.materials),
         other_numbers=other_numbers,
         brand=brand, brand_display=display, known_brand=known, retailer=retailer,

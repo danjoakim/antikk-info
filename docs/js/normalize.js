@@ -255,7 +255,7 @@ export function normalize(hallmarks, facts, source) {
   }
   const caseGroup = groups.find((g) => g.role === "case");
   return {
-    category, object_type: facts.object_type ?? null, description: source === "vision" ? facts.description ?? null : null,
+    category, object_type: facts.object_type ?? null, title: facts.title ?? null, creator: facts.creator ?? null, description: source === "vision" ? facts.description ?? null : null,
     materials: [...(facts.materials ?? [])], other_numbers: otherNumbers,
     brand, brand_display: display, known_brand: known, retailer,
     movement_serial: movement, case_number: caseNo,

@@ -188,6 +188,11 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ## Øktlogg
 
+### 2026-11-01 – Rullet tilbake: eget nøkkelfelt for bildesøk fjernet
+**Bakgrunn:** Feltet ble lagt inn uten at brukeren ba om det. Brukeren ba om tilbakerulling.
+**Gjort:** `docs/` satt tilbake til versjonen med bildesøk (commit c00e6d4). Bildesøket bruker Gemini-nøkkelen.
+**Kjent:** Gemini-nøkkelen er laget i AI Studio; avkrysning for Cloud Vision på nøkkelen lagres ikke. Bildesøket vil derfor melde at det ikke virker, og appen søker videre på teksten.
+
 ### 2026-11-01 – Egen nøkkel for bildesøket
 **Bakgrunn:** Gemini-nøkkelen er laget i AI Studio og bundet til en tjenestekonto; API-begrensningene kan ikke endres i Google Cloud, så den kan ikke få tilgang til Cloud Vision. Cloud Vision API er slått på i prosjektet «Antikk-sjekker».
 **Gjort:** Nytt felt «Nøkkel for bildesøk» i menyen (lagres bare i nettleseren). Tomt felt = Gemini-nøkkelen brukes. «Test nøkkelen» tester bildesøket med denne nøkkelen. Veiledningen i menyen forklarer hvordan nøkkelen lages og begrenses (bare Cloud Vision API, bare danjoakim.github.io).

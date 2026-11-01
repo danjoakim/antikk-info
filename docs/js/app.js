@@ -3,7 +3,7 @@
 
 import { dateItem } from "./dating.js";
 import { CATEGORY_LABELS, ESCAPEMENT_LABELS, isWatch, LAYOUT_LABELS, LOCATION_LABELS, makerInfo, MATERIAL_LABELS, noSalesMessage, normalize, setMakers, WINDING_LABELS } from "./normalize.js";
-import { clearSettings, isLive, lensKey, loadSettings, saveSettings } from "./settings.js";
+import { clearSettings, isLive, loadSettings, saveSettings } from "./settings.js";
 import { suggestPhotos } from "./suggest.js";
 import { describeItem, searchWebSales } from "./websales.js";
 import { lensDomains, lensLeads, webDetect } from "./lens.js";
@@ -269,7 +269,7 @@ async function analyze() {
     const images = state.photos.map((p) => ({ role: "photo", blob: p.blob }));
     // Bildesøket (som Google Lens) går samtidig med bildeanalysen, med det første bildet.
     const lensJob = live && state.settings.lens
-      ? webDetect(state.photos[0].blob, lensKey(state.settings), { signal: controller.signal })
+      ? webDetect(state.photos[0].blob, state.settings.key, { signal: controller.signal })
       : Promise.resolve(null);
     const [facts, lens] = await Promise.all([
       live
@@ -833,7 +833,6 @@ function openSettings() {
   form.model.value = state.settings.model;
   form.demo.checked = state.settings.demo;
   form.lens.checked = state.settings.lens;
-  form.visionKey.value = state.settings.visionKey;
   setStatus(null);
   show("settings");
 }
@@ -848,8 +847,7 @@ function setStatus(message, ok = true) {
 function readSettingsForm() {
   const form = $("#settings-form");
   const key = form.key.value.trim();
-  return { key, model: form.model.value.trim() || state.settings.model, demo: form.demo.checked, lens: form.lens.checked,
-    visionKey: form.visionKey.value.trim() };
+  return { key, model: form.model.value.trim() || state.settings.model, demo: form.demo.checked, lens: form.lens.checked };
 }
 
 function onSaveSettings(event) {
@@ -864,14 +862,14 @@ function onSaveSettings(event) {
 const form = () => $("#settings-form");
 
 async function onTestKey() {
-  const { key, model, visionKey } = readSettingsForm();
+  const { key, model } = readSettingsForm();
   if (!key) return setStatus("Lim inn en nøkkel først.", false);
   setStatus("Tester …");
   const result = await testKey(key, model);
   if (!result.ok || !form().lens.checked) return setStatus(result.message, result.ok);
   // Bildesøket testes med et lite hvitt bilde (teller som ett søk, innenfor gratiskvoten).
   const tiny = await (await fetch("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==")).blob();
-  const lens = await webDetect(tiny, visionKey || key);
+  const lens = await webDetect(tiny, key);
   setStatus(`${result.message} ${lens.ok ? "Bildesøket virker også." : `Bildesøk: ${lens.message}`}`, lens.ok);
 }
 

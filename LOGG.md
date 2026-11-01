@@ -184,6 +184,11 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ## Øktlogg
 
+### 2026-11-01 – Skjæra på kaffekoppen
+**Gjort:** Greinen fjernet fra den lisensierte skjæra; ny kaffekopp tegnet i samme illustrerte stil (kontur, skygge, gullkant, håndmalte blå blomster, kaffe, skål) og satt sammen til `skjaere_kopp.png` med gjennomsiktig bakgrunn. Lagt inn i H-skjermene på designlerretet.
+**Kjent mangel:** Klørne er ikke helt tilpasset koppkanten. Gjøres om i full kvalitet når originalfilen fra lisensen kommer.
+**Avtalt:** Skjæra er grunnfiguren; den justeres litt etter hvert (klør, positurer, tilstander).
+
 ### 2026-11-01 – Skjæra på plass i designet
 **Bakgrunn:** Egne SVG-tegninger av skjæra ble «en samling geometriske figurer», og bildegenerering tegnet andre fugler. Brukeren kjøpte lisens på en stockillustrasjon av en skjære.
 **Gjort:** Skjæra frilagt fra bildet brukeren sendte (hvit bakgrunn fjernet) og lagt inn i designlerretet, rad H: start (snakkeboble og gullring i nebbet), resultat (neonprislapp ved nebbet, prisene i snakkeboble), «fant ingenting» (speilvendt og skakk med spørsmålstegn).

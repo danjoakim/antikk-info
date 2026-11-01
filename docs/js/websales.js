@@ -44,6 +44,7 @@ export function describeItem(facts, { brandName = null, itemType = "pocket_watch
 
 const SYSTEM = `You help people at flea markets, antique shops and charity shops in Norway find out what an item is and what it sells for. Use Google Search.
 Rules:
+- Always run Google Search before answering, also for well-known items: second-hand prices change all the time. Every price, name and fact must come from a page in your search results, never from memory.
 - Find prices for the same item or the closest comparable items, second-hand or antique.
 - Two kinds of prices: "sold" = a price actually achieved (auction hammer price, "sold for", completed sale); "listed" = an asking price in a current or recent ad or shop listing. Never report estimates.
 - Search Norwegian and Nordic sources first (finn.no, tise.com, auctionet.com, blomqvist.no, gwpa.no, lauritz.com, tradera.com), then international ones (ebay.com, catawiki.com, worthpoint.com, auction houses).
@@ -197,14 +198,26 @@ export async function callGrounded(buildBody, { key, model, signal, label = "Net
   if (res.status === 400 && level && /thinking/i.test(data?.error?.message ?? "")) {
     ({ res, data } = await send(buildBody(null)));
   }
-  if (!res.ok) {
+  const check = () => {
+    if (res.ok) return;
     const msg = data?.error?.message ?? "";
     if (res.status === 429) throw new VisionError(`Kvoten for nettsøk er brukt opp. Prøv igjen senere.`);
     if (/search|grounding|tool/i.test(msg)) throw new VisionError("Nettsøk er ikke tilgjengelig for denne nøkkelen eller modellen.");
     throw new VisionError(`${label} feilet (HTTP ${res.status}).`);
+  };
+  check();
+  // Svarte modellen uten å søke (ingen kilder), prøver vi én gang til med tydelig beskjed.
+  if (!searched(data)) {
+    const body = buildBody(level);
+    body.contents[0].parts.push({ text: "IMPORTANT: You answered without searching. Run Google Search now and use only what the search results show. Do not answer from memory." });
+    ({ res, data } = await send(body));
+    check();
   }
   return data;
 }
+
+/** Ble Google-søket faktisk kjørt? Uten kilder er svaret fra modellens hukommelse. */
+export const searched = (data) => (data?.candidates?.[0]?.groundingMetadata?.groundingChunks ?? []).length > 0;
 
 export async function searchWebSales(description, fx, { key, model, signal } = {}) {
   const data = await callGrounded((thinkingLevel) => buildWebSalesRequest(description, { thinkingLevel }), { key, model, signal });

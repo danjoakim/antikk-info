@@ -189,6 +189,15 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ## Øktlogg
 
+### 2026-11-01 – Tvunget søk og bedre Wikipedia-treff
+**Bakgrunn:** Brukerens test med ekte nøkkel: boka fikk priser (hele kjeden virker). PS5-kontrolleren ga «Google ga 0 kilder; søket foreslo 6 priser, 6 fra nettsteder som ikke var blant kildene» – Gemini svarte fra hukommelsen uten å søke, og appen forkastet alle (riktig). Wikipedia-artikkelen om PlayStation ble forkastet fordi teksten sier «produsert», ikke «produsent». Brukeren: priser er flyktige, så det må alltid søkes.
+**Gjort:**
+- Instruksen til både identifisering og prissøk: søk alltid, også for kjente ting; alt skal komme fra søkeresultatene, aldri fra hukommelsen.
+- `callGrounded`: svarer modellen uten kilder, sendes forespørselen én gang til med tydelig beskjed om å søke.
+- Blir det fortsatt ikke søkt, sier skjæra «Google-søket ble ikke gjennomført denne gangen» med knappen «Prøv søket igjen» i stedet for «Hm. Denne vet jeg ikke».
+- Wikipedia: egne ord for elektronikk og spill (spill, konsoll, elektronikk, merke, produsert …), flere ord i den generelle listen (produsert, merke, konsern, konglomerat, brand …). Teksten sier nå «Fant ingen Wikipedia-artikkel som passet» i stedet for at artikkelen ikke finnes.
+**Tester:** 43 JS-tester (2 nye) og 63 Python-tester bestått. Nettlesertest: modellen hopper over søket første gang → nytt forsøk gir priser; hopper over begge ganger → «Prøv søket igjen» virker; PlayStation-artikkelen godtas.
+
 ### 2026-11-01 – Økt 25: Identifisering før prissøk («Er det en av disse?»)
 **Bakgrunn:** Brukeren valgte idé 1 og 2: først finne ut nøyaktig hva tingen er, deretter priser på det presise navnet; la brukeren velge bare når bildet ikke avgjør det (aldri «PS4 eller PS5» når det synes).
 **Gjort:**

@@ -521,6 +521,7 @@ const SIMILARITY_LABELS = { same_model: "Samme modell", same_maker: "Samme merke
 const BASIS_LABELS = { hammer: "tilslag", incl_premium: "inkl. salær", unknown: "" };
 
 async function startWebSales(facts, maker, dating) {
+  state.webArgs = [facts, maker, dating];   // for «prøv igjen»
   const card = $("#web-card");
   webSearchController?.abort();
   if (!isLive(state.settings)) { card.hidden = true; return; }
@@ -635,6 +636,8 @@ function setSummary({ waiting = false, web = null, error = null } = {}) {
     range = web?.range ?? web?.listedRange ?? null;
     if (parts.length) html = `<p>Fant ${web.sales.length} priser! ${capitalize(parts.join(", og "))}.</p>`;
     else if (web?.sales?.length) html = `<p>Fant ${web.sales.length} ${web.sales.length === 1 ? "pris" : "priser"}, men for få til et intervall. Se dem under.</p>`;
+    else if (web && web.stats?.sources === 0) html = `<p>Google-søket ble ikke gjennomført denne gangen, så jeg har ingen priser å vise.</p>
+      <button type="button" class="link" data-action="retry-search">Prøv søket igjen</button>`;
     else if (web?.background?.length) html = `<p>Fant ingen priser med kilde denne gangen, men litt om bakgrunnen under.</p>`;
     if (own) {
       range ??= own;
@@ -740,7 +743,7 @@ function renderMaker(maker) {
         : isWatch(category)
           ? `<p class="meta">Vi fant ingenting om «${esc(name)}». Det kan være et lite forhandler- eller handelsnavn.
              <a href="https://www.mikrolisk.de/" target="_blank" rel="noopener">Mikrolisk</a> har et stort register over urmerker.</p>`
-          : `<p class="meta">Wikipedia har ingen artikkel om «${esc(name)}».</p>`;
+          : `<p class="meta">Fant ingen Wikipedia-artikkel som passet om «${esc(name)}».</p>`;
     });
     return;
   }
@@ -772,7 +775,10 @@ const WIKI_CONTEXT = {
   art: { no: /(kunstner|maler|grafiker|billedhugger|kunst)/i, en: /(artist|painter|printmaker|sculptor)/i, term: { no: "kunstner", en: "artist" } },
   book_paper: { no: /(forfatter|skribent|lyriker|dikter|roman|tegneserie|illustratør|forlag)/i, en: /(author|writer|novelist|poet|cartoonist|illustrator|publisher)/i,
                 term: { no: "forfatter", en: "author" } },
-  other: { no: /(produsent|fabrikk|firma|selskap|designer|bedrift)/i, en: /(company|manufacturer|designer|factory|maker)/i,
+  electronics: { no: /(spill|konsoll|elektronikk|datamaskin|merke|produsert|produsent|selskap|konsern)/i,
+                 en: /(video game|console|electronic|computer|brand|company|manufacturer|developed|produced)/i, term: { no: "", en: "" } },
+  other: { no: /(produsent|produsert|fabrikk|firma|selskap|konsern|konglomerat|merke|designer|bedrift)/i,
+           en: /(company|manufacturer|designer|factory|maker|brand|conglomerate|corporation|produced)/i,
            term: { no: "", en: "" } },
 };
 const wikiContext = (category) => (isWatch(category) || category === "clock" ? WIKI_CONTEXT.watch : WIKI_CONTEXT[category] ?? WIKI_CONTEXT.other);
@@ -856,6 +862,7 @@ document.addEventListener("click", (e) => {
     "test-key": onTestKey,
     "clear-key": onClearKey,
     restart,
+    "retry-search": () => state.webArgs && startWebSales(...state.webArgs),
   })[action]?.();
 });
 

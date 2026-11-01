@@ -104,3 +104,24 @@ test("Nettsøket kjenner bok- og platesider og ber om tittel og forfatter først
   for (const site of ["antikvariat.net", "bokborsen.no", "abebooks.com", "discogs.com"]) assert.ok(text.includes(site), site);
   assert.match(text, /match title and author\/artist first/);
 });
+
+test("callGrounded prøver én gang til når modellen svarte uten å søke", async () => {
+  const { callGrounded, searched } = await import("../docs/js/websales.js");
+  const bodies = [];
+  const answers = [
+    { candidates: [{ content: { parts: [{ text: "{}" }] }, groundingMetadata: {} }] },
+    { candidates: [{ content: { parts: [{ text: "{}" }] }, groundingMetadata: { groundingChunks: [{ web: { uri: "https://x", title: "finn.no" } }] } }] },
+  ];
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (url, init) => { bodies.push(JSON.parse(init.body)); return { ok: true, status: 200, json: async () => answers[bodies.length - 1] }; };
+  try {
+    const data = await callGrounded(() => buildWebSalesRequest("PS5-kontroller"), { key: "k", model: "gemini-2.5-flash" });
+    assert.equal(bodies.length, 2);
+    assert.match(bodies[1].contents[0].parts.at(-1).text, /You answered without searching/);
+    assert.equal(searched(data), true);
+  } finally { globalThis.fetch = realFetch; }
+});
+
+test("Instruksen sier at det alltid skal søkes, også for kjente ting", () => {
+  assert.match(buildWebSalesRequest("x").systemInstruction.parts[0].text, /Always run Google Search/);
+});

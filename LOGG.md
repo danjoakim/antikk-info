@@ -165,6 +165,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-11-01 | Ny kategori: Elektronikk, spill og media | Brukerens test med PS5-kontroller |
 | 2026-11-01 | Maskoten er en lisensiert stockillustrasjon av en skjære (brukeren har kjøpt lisens). Brukes som maskot i appen, ikke som logo | Egne tegninger i kode ble for geometriske, og bildegenerering bommet på arten. Stocklisenser tillater normalt ikke bruk som logo/varemerke |
 | 2026-11-01 | Appen heter **Funn** | Brukerens valg. Kort og norsk, og passer til flyten: du gjør et funn, skjæra samler funnene i reiret. Ingen varemerkeregistrering nå |
+| 2026-11-01 | Skjæra har monokkel og tversoversløyfe og sitter i en loppiskasse (kaffekoppen er droppet) | Rekvisitter gir personlighet uten å tegne om fuglen; kassa skjuler klørne og knytter skjæra til loppis |
 | 2026-10-29 | Standardmodeller: `gpt-6-astra` (OpenAIs anbefalte), `gemini-3.8-flash` (Googles anbefalte stabile Flash) | Hentet fra leverandørenes modelloversikter 29.10.2026; overstyres med `VISION_MODEL` |
 
 ---
@@ -184,6 +185,11 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-11-01 – Skjæra får monokkel og flytter i loppiskasse
+**Gjort:** Rekvisitter tegnet som eget lag oppå den lisensierte skjæra: monokkel med gullkjede og tversoversløyfe i neonrosa. Selve skjærefilen er uendret. Prøvd også lesebriller og lupe; brukeren valgte monokkel.
+**Koppen fjernet:** Klørne på koppkanten så feil ut. Skjæra sitter nå i en pappeske med «LOPPIS» skrevet med tusj, slik at føttene skjules. Samlet bilde: `skjaere_kasse.png` (760×900, gjennomsiktig); ordet «LOPPIS» ligger som tekst i skjermene, så det får tusjfonten. Byttet inn i alle sju H-skjermene på designlerretet.
+**Kjent:** Et lite stykke av beina synes over kassekanten.
 
 ### 2026-11-01 – Designflyten med skjæra, og nytt navn: Funn
 **Gjort på designlerretet (side «Skjæra – hele flyten»):** sju skjermer i rekkefølge: start, bilder, analyse, stemmer dette?, resultat, fant ingenting, reiret. Lerretet delt i to sider (flyten og tidligere utkast A–G).

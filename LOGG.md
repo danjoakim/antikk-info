@@ -163,6 +163,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-11-01 | Ved ekte bruk vises aldri de oppdiktede demosalgene, og egne salg brukes bare for samme kategori | Feil: en PS5-kontroller fikk «350 kr, demo» fra lommeurenes demosalg |
 | 2026-11-01 | Nettsøket henter både oppnådde priser («Solgt for») og utsalgspriser i annonser («Til salgs for»), norske kilder først (finn.no, tise, auctionet m.fl.) | For brukte hverdagsting er annonsepriser det folk faktisk trenger; holdes adskilt og merket |
 | 2026-11-01 | Ny kategori: Elektronikk, spill og media | Brukerens test med PS5-kontroller |
+| 2026-11-01 | Maskoten er en lisensiert stockillustrasjon av en skjære (brukeren har kjøpt lisens). Brukes som maskot i appen, ikke som logo | Egne tegninger i kode ble for geometriske, og bildegenerering bommet på arten. Stocklisenser tillater normalt ikke bruk som logo/varemerke |
 | 2026-10-29 | Standardmodeller: `gpt-6-astra` (OpenAIs anbefalte), `gemini-3.8-flash` (Googles anbefalte stabile Flash) | Hentet fra leverandørenes modelloversikter 29.10.2026; overstyres med `VISION_MODEL` |
 
 ---
@@ -182,6 +183,11 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-11-01 – Skjæra på plass i designet
+**Bakgrunn:** Egne SVG-tegninger av skjæra ble «en samling geometriske figurer», og bildegenerering tegnet andre fugler. Brukeren kjøpte lisens på en stockillustrasjon av en skjære.
+**Gjort:** Skjæra frilagt fra bildet brukeren sendte (hvit bakgrunn fjernet) og lagt inn i designlerretet, rad H: start (snakkeboble og gullring i nebbet), resultat (neonprislapp ved nebbet, prisene i snakkeboble), «fant ingenting» (speilvendt og skakk med spørsmålstegn).
+**Venter på:** Originalfilen fra nedlastingen (SVG/EPS eller stor PNG) for skarp gjengivelse. Brukeren velger stil (D, E eller H) før den bygges inn i appen.
 
 ### 2026-11-01 – Nytt utseende: auksjonskatalog, loppislapp og skjæra
 **Bakgrunn:** Brukeren: A–C er ok, men font og stil virker AI-laget. Ønsket en maskot som følger prosessen; valgte skjære.

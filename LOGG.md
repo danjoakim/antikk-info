@@ -137,6 +137,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-10-31 | Navn som ikke står i listen, slås opp i Wikipedia (norsk, så engelsk) fra nettleseren, med krav om at treffet handler om ur og at navnet står i tittelen | Gir nyttig omtale uten å skrape nettsider; Wikipedia har åpen lisens og et API for dette |
 | 2026-10-31 | Merker i fremste klasse får råd om å få uret vurdert og advarsel om forfalskninger | Høy verdi og mange forfalskede signaturer på eldre ur |
 | 2026-10-31 | Knappen «Lagre bildene på telefonen» deler originalbildene via delingsarket (Web Share), med nedlasting som reserve | iOS lagrer ikke bilder tatt med kameraet fra en nettside i Bilder-appen; brukeren mistet bildene av et testet ur |
+| 2026-11-01 | InformAntikk er for alt man finner på loppis og i antikk- og bruktbutikker. Lommeur er første kategori, ikke hele appen | Brukerens presisering. Nye løsninger (felles salgsdatabase, nettsøk etter salg, lignende bilder) bygges generelt, ikke for ur |
 | 2026-10-29 | Standardmodeller: `gpt-6-astra` (OpenAIs anbefalte), `gemini-3.8-flash` (Googles anbefalte stabile Flash) | Hentet fra leverandørenes modelloversikter 29.10.2026; overstyres med `VISION_MODEL` |
 
 ---

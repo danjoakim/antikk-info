@@ -50,6 +50,9 @@ def sale_search_links(facts: NormalizedFacts, brand_name: str | None = None,
             terms = [brand_name]
         else:
             terms = _terms(facts, brand_name, item_type, site["lang"], site["material_with_brand"])
+        terms = list(dict.fromkeys(t for t in terms if t and t.strip()))   # uten tomme og doble ord
+        if not terms or (not brand_name and len(terms) < 2 and not site["brand_only"] and item_type == "other"):
+            continue
         links.append(SaleSearch(site=site["id"], label=site["label"], note=site["note"], query=" ".join(terms),
                                 url=site["url"].replace("{q}", _encode(terms, site["join"]))))
     return links

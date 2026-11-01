@@ -1,5 +1,5 @@
 {
- "_beskrivelse": "Søk etter solgte eksemplarer på eksterne prisarkiv. Felles for server- og nettversjonen. Nye kategorier legges til under item_types; hvert ord oppgis på svensk (Auctionet) og engelsk (Barnebys, eBay). Barnebys søker med ELLER mellom ordene, så der brukes bare merkenavnet, og nettstedet utelates når uret ikke er signert.",
+ "_beskrivelse": "Søk etter solgte eksemplarer på eksterne prisarkiv. Felles for server- og nettversjonen. Nye kategorier legges til under item_types; hvert ord oppgis på svensk (Auctionet) og engelsk (Barnebys, eBay). Barnebys søker med ELLER mellom ordene, så der brukes bare merkenavnet, og nettstedet utelates når uret ikke er signert. Kategoriordene brukes sammen med produsentnavnet; for «other» brukes bare navnet.",
  "sites": [
   {
    "id": "auctionet",
@@ -36,6 +36,58 @@
   "pocket_watch": {
    "sv": "fickur",
    "en": "pocket watch"
+  },
+  "wristwatch": {
+   "sv": "armbandsur",
+   "en": "wristwatch"
+  },
+  "clock": {
+   "sv": "klocka",
+   "en": "clock"
+  },
+  "silver_metal": {
+   "sv": "silver",
+   "en": "silver"
+  },
+  "porcelain_ceramics": {
+   "sv": "porslin",
+   "en": "porcelain"
+  },
+  "glass": {
+   "sv": "glas",
+   "en": "glass"
+  },
+  "jewelry": {
+   "sv": "smycke",
+   "en": "jewelry"
+  },
+  "furniture": {
+   "sv": "möbel",
+   "en": "furniture"
+  },
+  "art": {
+   "sv": "konst",
+   "en": "art"
+  },
+  "textile": {
+   "sv": "textil",
+   "en": "textile"
+  },
+  "toy": {
+   "sv": "leksak",
+   "en": "toy"
+  },
+  "book_paper": {
+   "sv": "bok",
+   "en": "book"
+  },
+  "lighting": {
+   "sv": "lampa",
+   "en": "lamp"
+  },
+  "other": {
+   "sv": "",
+   "en": ""
   }
  },
  "materials": {
@@ -74,6 +126,10 @@
   "steel": {
    "sv": "stål",
    "en": "steel"
+  },
+  "silver_830": {
+   "sv": "silver",
+   "en": "silver"
   }
  },
  "escapements": {

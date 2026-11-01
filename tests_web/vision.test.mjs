@@ -20,7 +20,7 @@ const geminiReply = (text, extra = {}) => ({ candidates: [{ content: { parts: [{
 test("kontrakten har ingen felt for år eller pris", () => {
   const fields = Object.keys(contract.schema.properties);
   assert.ok(!fields.some((f) => /year|date|price|value|age/.test(f)));
-  assert.deepEqual(Object.keys(contract.mock_scenarios).sort(), ["cylinder_metal", "monard_key_wind", "omega_silver", "unreadable"]);
+  assert.deepEqual(Object.keys(contract.mock_scenarios).sort(), ["cylinder_metal", "monard_key_wind", "omega_silver", "porcelain_demo", "silver_spoon_demo", "unreadable"]);
 });
 
 test("toFacts validerer og rydder", () => {

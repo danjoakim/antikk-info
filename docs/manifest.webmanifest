@@ -1,7 +1,7 @@
 {
   "name": "InformAntikk",
   "short_name": "InformAntikk",
-  "description": "Informasjon om antikviteter og gamle ting, rett fra mobilen. Først ut: lommeur.",
+  "description": "Informasjon om antikviteter og gamle ting, rett fra mobilen: hva det er, hvem som laget det, og hva lignende er solgt for.",
   "lang": "no",
   "start_url": "./",
   "scope": "./",

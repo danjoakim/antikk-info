@@ -6,7 +6,7 @@ og ingenting når det den vet holder til en vurdering.
 
 import sqlite3
 
-from app.models import LOCATION_LABELS, NormalizedFacts, Suggestion, VisionFacts
+from app.models import LOCATION_LABELS, WATCH_CATEGORIES, NormalizedFacts, Suggestion, VisionFacts
 
 MAX_SUGGESTIONS = 2
 
@@ -25,6 +25,16 @@ def suggest_photos(conn: sqlite3.Connection, facts: VisionFacts, n: NormalizedFa
     def want(location: str, reason: str) -> None:
         if location not in seen and all(loc != location for loc, _ in wanted):
             wanted.append((location, reason))
+
+    if n.category not in WATCH_CATEGORIES:
+        # Generelt: merker og stempler sitter oftest under eller bak.
+        has_marks = any(m.type in ("fineness", "hallmark_symbol", "maker_mark", "factory_mark", "signature", "label")
+                        for m in facts.marks)
+        if not has_marks and not n.brand:
+            want("base", "Fabrikkstempler, sølvstempler og signaturer sitter oftest under bunnen.")
+            want("back", "Baksiden kan ha signatur, etikett eller merke.")
+        return [Suggestion(location=loc, label=LOCATION_LABELS.get(loc, loc), reason=why)
+                for loc, why in wanted[:MAX_SUGGESTIONS]]
 
     if not seen:
         want("outer_lid_inside", "Innsiden av lokkene har oftest mest: sølvstempel, nummer og ofte navn.")

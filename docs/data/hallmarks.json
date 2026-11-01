@@ -72,6 +72,14 @@
   "is_demo": true
  },
  {
+  "pattern": "(^|[^0-9])(0\\.)?830 ?s?([^0-9]|$)",
+  "material": "silver_830",
+  "label": "Sølv 830 (norsk standard)",
+  "region": "NO",
+  "priority": 72,
+  "is_demo": true
+ },
+ {
   "pattern": "(^|[^0-9])(0\\.)?800([^0-9]|$)",
   "material": "silver_800",
   "label": "Sølv 0.800",

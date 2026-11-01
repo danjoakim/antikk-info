@@ -1,9 +1,54 @@
 {
- "system_prompt": "You are a careful horological observer. You only REPORT what is visible in the photos of an antique pocket watch. You never estimate age, production year, value or price, and you never guess.\n\nThe photos come in any order, and the user sends whatever they have: one photo or several, of any part. Some photos may carry a label saying what they show. For each photo, first decide which part of the watch it shows and record it in `photos` (index from 1). Use that as the `location` of what you find in it. If several photos show the same part, combine what you read in them.\n\nNumbers (`numbers`):\n- Report EVERY number you can read, each as its own entry, with where it is (`location`), how it was made (`method`) and any text right before it (`prefix`, e.g. \"No\", \"N°\").\n- method \"stamped\" = struck with a punch (even, sharp digits); \"engraved\" = cut with a graver as part of the decoration or lettering; \"scratched\" = thin, uneven, hand-scratched marks. Watchmakers scratched repair codes and dates inside lids and on movement bridges; those are \"scratched\".\n- The same number often appears on several parts (outer lid, cuvette, movement). Report each occurrence separately.\n- Do not report hour or minute numerals on the dial, jewel counts, or fineness marks (0.800 etc.) as numbers.\n- If a digit is not clearly legible, leave that number out and add its location to `unreadable`. A wrong digit is worse than a missing one.\n\nMarks (`marks`), each with `location` and `type`:\n- \"fineness\": silver/gold fineness, verbatim (e.g. \"0.800\", \"0,935\", \"14K\").\n- \"hallmark_symbol\": pictorial control marks. Name the figure (e.g. \"bear hallmark\", \"grouse hallmark\") ONLY if the figure itself is clearly visible in the photo. Do not infer it from the fineness, the country or what is usual. If you can see a punched frame but not the figure, write \"unidentified hallmark in a frame\" and describe the shape of the frame.\n- \"maker_mark\": small punched initials or symbols of the case maker.\n- \"inscription\": stamped or engraved text such as \"Echappement à cylindre\", \"8 Rubis\", \"Ancre\", \"Métal\", \"Argentan\", maker or retailer names, \"Genève\", \"Aiguilles\".\n- \"owner_engraving\": monograms, initials or dedications engraved for an owner.\n- \"repair_mark\": scratched watchmaker marks that are not numbers.\n\nPocket watches usually have an outer case back and an inner dust cover (cuvette). Text may be on both sides of the cuvette. The movement may carry no name or number at all; that is normal.\n\nOther fields:\n- brand_signed: the maker or retailer name as written anywhere on the watch (dial, cuvette or movement), or null.\n- escapement: \"lever\" if a pallet fork is visible or text says e.g. \"Ancre\", \"Anker\", \"Lever\"; \"cylinder\" if text says e.g. \"Cylindre\", \"Cylinder\", \"Zylinder\" or the cylinder escapement is clearly visible; \"verge\" for a verge/fusee. Otherwise \"unknown\". Explain in `escapement_evidence`.\n- winding: \"key\" if there are winding holes for a key in the cuvette or dial, square winding arbors on the movement, or no winding crown on the pendant; \"stem\" if there is a winding crown; otherwise \"unknown\". Explain in `winding_evidence`.\n- movement_layout: \"bar\" for separate parallel bridges (Lépine/bar calibre), \"three_quarter_plate\", \"full_plate\", or \"unknown\".\n- jewels: only if marked (e.g. \"8 Rubis\" → 8).\n- confidence: a number 0–1 for each field you filled in, null for fields you left empty.\n- retake_hints: short, practical photo advice in Norwegian for anything you could not read.\n- Every key in the schema must be present; use null or an empty list when you have nothing.",
+ "system_prompt": "You are a careful observer of antiques, vintage and second-hand objects (flea markets, antique and charity shops). You only REPORT what is visible in the photos. You never estimate age, production year, value or price, and you never guess.\n\nThe photos come in any order, and the user sends whatever they have: one photo or several, of any part of ONE object (or a set that belongs together).\n\nWhat the object is:\n- category: the closest category. Use \"other\" if none fits.\n- object_type: what it is, in Norwegian, short and specific (e.g. \"kaffekanne\", \"spiseskje\", \"lommeur\", \"vase\", \"lysestake\", \"kommode\").\n- description: one or two neutral sentences in Norwegian about what is visible: shape, decoration, colours, technique. No age, value or praise.\n- materials: visible materials in Norwegian (e.g. \"porselen\", \"steintøy\", \"sølv\", \"forsølvet metall\", \"messing\", \"tinn\", \"glass\", \"eik\", \"teak\"). Only what you can see or read; when unsure, leave it out.\n- style_cues: observable style or manufacturing features in Norwegian (e.g. \"håndmalt underglasurdekor\", \"trykt dekor\", \"maskinsydd\", \"svalehalesammenføyning\"). Never years or periods.\n\nFor each photo, decide which part it shows and record it in `photos` (index from 1). Use that as the `location` of what you find in it. Generic locations: front, back, base (underside/bottom), inside, lid, side, handle, label (paper label or sticker). Pocket watches use their own locations (dial, outer lid, cuvette, movement, case rim).\n\nNumbers (`numbers`):\n- Report EVERY number you can read (serial, model, pattern, decor, shape or design numbers), each as its own entry with `location`, `method` and any text right before it (`prefix`, e.g. \"No\", \"N°\", \"Mod.\").\n- method \"stamped\" = struck or impressed; \"engraved\" = cut or engraved; \"scratched\" = thin, uneven, hand-scratched; \"unknown\" for printed or painted numbers.\n- Do not report dial numerals, prices on shop stickers, or fineness marks (0.800 etc.) as numbers.\n- If a digit is not clearly legible, leave that number out and add its location to `unreadable`. A wrong digit is worse than a missing one.\n\nMarks (`marks`), each with `location` and `type`:\n- \"fineness\": silver/gold fineness, verbatim (e.g. \"0.800\", \"830S\", \"925\", \"14K\").\n- \"hallmark_symbol\": pictorial assay or control marks. Name the figure ONLY if it is clearly visible; otherwise write \"unidentified hallmark in a frame\" and describe the frame.\n- \"maker_mark\": small punched initials or symbols of a maker (silversmith, case maker).\n- \"factory_mark\": printed, impressed or painted factory marks and backstamps (porcelain, glass, metalware), verbatim with a short description of any logo.\n- \"signature\": an artist's or designer's signature or monogram, verbatim as far as legible.\n- \"label\": text on a paper label or sticker (not shop price tags).\n- \"inscription\": other text on the object, e.g. \"Echappement à cylindre\", \"Made in Norway\", \"Handmalt\", maker or retailer names, place names.\n- \"owner_engraving\": monograms, initials or dedications for an owner.\n- \"repair_mark\": scratched repair marks that are not numbers.\n\nbrand_signed: the maker, factory, designer or retailer name as written anywhere on the object, or null.\n\nOnly for pocket watches and wristwatches (otherwise use \"unknown\", null and empty values):\n- Pocket watches usually have an outer case back and an inner dust cover (cuvette). Text may be on both sides of the cuvette. The movement may carry no name or number at all; that is normal.\n- dial_text: text on the dial, verbatim.\n- escapement: \"lever\" if a pallet fork is visible or text says e.g. \"Ancre\", \"Anker\", \"Lever\"; \"cylinder\" if text says e.g. \"Cylindre\", \"Cylinder\", \"Zylinder\" or the cylinder escapement is clearly visible; \"verge\" for a verge/fusee. Otherwise \"unknown\". Explain in `escapement_evidence`.\n- winding: \"key\" if there are winding holes for a key, square winding arbors on the movement, or no winding crown; \"stem\" if there is a winding crown; otherwise \"unknown\". Explain in `winding_evidence`.\n- movement_layout: \"bar\", \"three_quarter_plate\", \"full_plate\", or \"unknown\".\n- jewels: only if marked (e.g. \"8 Rubis\" → 8).\n\nAlways:\n- confidence: a number 0–1 for each field you filled in, null for fields you left empty.\n- retake_hints: short, practical photo advice in Norwegian for anything you could not read (e.g. \"Ta et skarpt bilde av stempelet under bunnen, med lyset fra siden\").\n- Every key in the schema must be present; use null or an empty list when you have nothing.",
  "user_instruction": "Registrer observasjonene fra bildene over i henhold til skjemaet.",
  "schema": {
   "type": "object",
   "properties": {
+   "category": {
+    "type": "string",
+    "enum": [
+     "pocket_watch",
+     "wristwatch",
+     "clock",
+     "silver_metal",
+     "porcelain_ceramics",
+     "glass",
+     "jewelry",
+     "furniture",
+     "art",
+     "textile",
+     "toy",
+     "book_paper",
+     "lighting",
+     "other"
+    ]
+   },
+   "object_type": {
+    "type": [
+     "string",
+     "null"
+    ],
+    "description": "What the object is, in Norwegian"
+   },
+   "description": {
+    "type": [
+     "string",
+     "null"
+    ],
+    "description": "One or two neutral sentences in Norwegian"
+   },
+   "materials": {
+    "type": "array",
+    "items": {
+     "type": "string"
+    }
+   },
+   "style_cues": {
+    "type": "array",
+    "items": {
+     "type": "string"
+    }
+   },
    "photos": {
     "type": "array",
     "items": {
@@ -23,6 +68,14 @@
         "cuvette_inside",
         "movement",
         "case_rim",
+        "front",
+        "back",
+        "base",
+        "inside",
+        "lid",
+        "side",
+        "handle",
+        "label",
         "unknown"
        ]
       }
@@ -39,14 +92,14 @@
      "string",
      "null"
     ],
-    "description": "Text on the dial, verbatim"
+    "description": "Text on a watch dial, verbatim"
    },
    "brand_signed": {
     "type": [
      "string",
      "null"
     ],
-    "description": "Maker or retailer name as written on the watch"
+    "description": "Maker, factory, designer or retailer name as written on the object"
    },
    "numbers": {
     "type": "array",
@@ -67,6 +120,14 @@
         "cuvette_inside",
         "movement",
         "case_rim",
+        "front",
+        "back",
+        "base",
+        "inside",
+        "lid",
+        "side",
+        "handle",
+        "label",
         "unknown"
        ]
       },
@@ -115,6 +176,14 @@
         "cuvette_inside",
         "movement",
         "case_rim",
+        "front",
+        "back",
+        "base",
+        "inside",
+        "lid",
+        "side",
+        "handle",
+        "label",
         "unknown"
        ]
       },
@@ -124,6 +193,9 @@
         "fineness",
         "hallmark_symbol",
         "maker_mark",
+        "factory_mark",
+        "signature",
+        "label",
         "inscription",
         "owner_engraving",
         "repair_mark",
@@ -187,6 +259,14 @@
    "confidence": {
     "type": "object",
     "properties": {
+     "category": {
+      "type": [
+       "number",
+       "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+     },
      "brand_signed": {
       "type": [
        "number",
@@ -229,6 +309,7 @@
      }
     },
     "required": [
+     "category",
      "brand_signed",
      "numbers",
      "marks",
@@ -251,6 +332,11 @@
    }
   },
   "required": [
+   "category",
+   "object_type",
+   "description",
+   "materials",
+   "style_cues",
    "photos",
    "dial_text",
    "brand_signed",
@@ -287,6 +373,14 @@
    "cuvette_inside": "cuvetten, innsiden",
    "movement": "urverket",
    "case_rim": "kassekanten",
+   "front": "forsiden",
+   "back": "baksiden",
+   "base": "undersiden",
+   "inside": "innsiden",
+   "lid": "lokket",
+   "side": "siden",
+   "handle": "hanken eller skaftet",
+   "label": "etiketten",
    "unknown": "ukjent sted"
   },
   "windings": {
@@ -303,6 +397,13 @@
  },
  "mock_scenarios": {
   "monard_key_wind": {
+   "category": "pocket_watch",
+   "object_type": "lommeur",
+   "description": null,
+   "materials": [
+    "sølv"
+   ],
+   "style_cues": [],
    "photos": [
     {
      "index": 1,
@@ -432,6 +533,11 @@
    "retake_hints": []
   },
   "omega_silver": {
+   "category": "pocket_watch",
+   "object_type": "lommeur",
+   "description": null,
+   "materials": [],
+   "style_cues": [],
    "photos": [
     {
      "index": 1,
@@ -503,6 +609,11 @@
    "retake_hints": []
   },
   "cylinder_metal": {
+   "category": "pocket_watch",
+   "object_type": "lommeur",
+   "description": null,
+   "materials": [],
+   "style_cues": [],
    "photos": [
     {
      "index": 1,
@@ -550,6 +661,11 @@
    ]
   },
   "unreadable": {
+   "category": "pocket_watch",
+   "object_type": "lommeur",
+   "description": null,
+   "materials": [],
+   "style_cues": [],
    "photos": [],
    "dial_text": null,
    "brand_signed": null,
@@ -571,6 +687,109 @@
    "retake_hints": [
     "Bildene er for uskarpe. Hold telefonen stødig og gå nærmere.",
     "Unngå refleks: vipp uret litt bort fra lyskilden."
+   ]
+  },
+  "porcelain_demo": {
+   "category": "porcelain_ceramics",
+   "object_type": "kaffekanne",
+   "description": "Kaffekanne i hvitt porselen med blå blomsterdekor og forgylt kant.",
+   "materials": [
+    "porselen"
+   ],
+   "style_cues": [
+    "trykt dekor",
+    "forgylt kant"
+   ],
+   "photos": [
+    {
+     "index": 1,
+     "shows": "front"
+    },
+    {
+     "index": 2,
+     "shows": "base"
+    }
+   ],
+   "dial_text": null,
+   "brand_signed": "Porsgrund",
+   "numbers": [
+    {
+     "value": "2511",
+     "location": "base",
+     "method": "unknown",
+     "prefix": null
+    }
+   ],
+   "marks": [
+    {
+     "text": "Porsgrund Made in Norway, trykt fabrikkstempel med anker",
+     "location": "base",
+     "type": "factory_mark"
+    }
+   ],
+   "escapement": "unknown",
+   "escapement_evidence": null,
+   "winding": "unknown",
+   "winding_evidence": null,
+   "movement_layout": "unknown",
+   "jewels": null,
+   "confidence": {
+    "category": 0.95,
+    "brand_signed": 0.9,
+    "numbers": 0.7,
+    "marks": 0.85
+   },
+   "unreadable": [],
+   "retake_hints": []
+  },
+  "silver_spoon_demo": {
+   "category": "silver_metal",
+   "object_type": "spiseskje",
+   "description": "Spiseskje med blomsterornamentikk på skaftet.",
+   "materials": [
+    "sølv"
+   ],
+   "style_cues": [
+    "støpt ornamentikk"
+   ],
+   "photos": [
+    {
+     "index": 1,
+     "shows": "front"
+    },
+    {
+     "index": 2,
+     "shows": "back"
+    }
+   ],
+   "dial_text": null,
+   "brand_signed": null,
+   "numbers": [],
+   "marks": [
+    {
+     "text": "830S",
+     "location": "back",
+     "type": "fineness"
+    },
+    {
+     "text": "TH.M",
+     "location": "back",
+     "type": "maker_mark"
+    }
+   ],
+   "escapement": "unknown",
+   "escapement_evidence": null,
+   "winding": "unknown",
+   "winding_evidence": null,
+   "movement_layout": "unknown",
+   "jewels": null,
+   "confidence": {
+    "category": 0.9,
+    "marks": 0.8
+   },
+   "unreadable": [],
+   "retake_hints": [
+    "Ta et nærbilde av stemplene på baksiden av skaftet, med lyset fra siden."
    ]
   }
  }

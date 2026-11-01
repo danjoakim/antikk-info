@@ -7,7 +7,11 @@ import { VisionError } from "./vision.js";
 const API = "https://generativelanguage.googleapis.com/v1beta";
 const MIN_FOR_RANGE = 3;
 
-const ITEM_LABELS = { pocket_watch: "pocket watch" };
+const ITEM_LABELS = {
+  pocket_watch: "pocket watch", wristwatch: "wristwatch", clock: "clock", silver_metal: "silver or metal object",
+  porcelain_ceramics: "porcelain or ceramic object", glass: "glass object", jewelry: "jewellery", furniture: "furniture",
+  art: "artwork", textile: "textile", toy: "toy", book_paper: "book or paper item", lighting: "lamp", other: "object",
+};
 const MATERIAL_EN = {
   gold_18k: "18k gold", gold_14k: "14k gold", gold_filled: "gold filled", silver_935: "silver 0.935",
   silver_925: "silver 0.925", silver_900: "silver 0.900", silver_875: "silver 0.875", silver_800: "silver 0.800",
@@ -19,9 +23,12 @@ const WINDING_EN = { key: "key wind", stem: "keyless (stem wind)" };
 /** Kort engelsk beskrivelse av tingen, bygget bare av bekreftede fakta. */
 export function describeItem(facts, { brandName = null, itemType = "pocket_watch", period = null } = {}) {
   const parts = [ITEM_LABELS[itemType] ?? itemType];
+  if (facts.object_type) parts.push(`– «${facts.object_type}» (Norwegian name)`);
   if (brandName) parts.unshift(brandName);
   else parts.unshift("unsigned");
   const details = [MATERIAL_EN[facts.material], ESCAPEMENT_EN[facts.escapement], WINDING_EN[facts.winding]].filter(Boolean);
+  if (facts.materials?.length) details.push(`materials (Norwegian): ${facts.materials.join(", ")}`);
+  if (facts.observed) details.push(`seen (Norwegian): ${facts.observed}`);
   if (period) details.push(`approx. ${period}`);
   if (facts.movement_serial) details.push(`movement no. ${facts.movement_serial}`);
   if (facts.case_number) details.push(`case no. ${facts.case_number}`);
@@ -35,7 +42,7 @@ Rules:
 - Only report sales where the page states a price actually achieved (hammer price, sold price, or "sold for"). Skip estimates, asking prices and unsold lots.
 - Prefer the same maker, type, material and era. Mark how similar each sale is.
 - Copy price, currency, date and URL exactly from the page. Never invent or estimate a price, date or URL.
-- Background facts must be about the maker, model or marks, each with the page it came from. Write them in Norwegian (bokmål), at most two sentences each. Do not state a production year for this specific item.
+- Background facts must be about the maker, model, pattern or marks, each with the page it came from. Write them in Norwegian (bokmål), at most two sentences each. You may give the years a mark, stamp, pattern or model was in use when the page says so, but never state a production year for this specific item yourself.
 - Reply with JSON only, no other text.`;
 
 export function buildWebSalesRequest(description, { thinkingLevel = null } = {}) {

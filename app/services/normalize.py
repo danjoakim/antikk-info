@@ -8,7 +8,7 @@ import sqlite3
 
 from app.services.makers import ALIASES, MAKERS, tier_of
 from app.models import (LOCATION_LABELS, ConfirmedFacts, MarkObservation, MaterialMatch, NormalizedFacts, NumberGroup,
-                        NumberObservation, VisionFacts)
+                        NumberObservation, VisionFacts, WATCH_CATEGORIES)
 
 MATERIAL_LABELS: dict[str, str] = {
     "gold_18k": "Gull 18 k",
@@ -18,6 +18,7 @@ MATERIAL_LABELS: dict[str, str] = {
     "silver_925": "Sølv 0.925",
     "silver_900": "Sølv 0.900",
     "silver_875": "Sølv 0.875",
+    "silver_830": "Sølv 830",
     "silver_800": "Sølv 0.800",
     "steel": "Stål",
     "base_metal": "Uedelt metall (argentan, nikkel o.l.)",
@@ -177,9 +178,14 @@ def normalize(conn: sqlite3.Connection, facts: VisionFacts | ConfirmedFacts) -> 
     groups: list[NumberGroup] = []
     repairs: list[str] = []
     owner: list[str] = []
+    other_numbers: list[str] = []
+    vision = isinstance(facts, VisionFacts)
+    category = facts.category if vision else facts.item_type
+    is_watch = category in WATCH_CATEGORIES
 
-    if isinstance(facts, VisionFacts):
-        candidates = [facts.brand_signed] + [m.text for m in facts.marks if m.type == "inscription"] + [facts.dial_text]
+    if vision:
+        named = ("inscription", "factory_mark", "signature", "label")
+        candidates = [facts.brand_signed] + [m.text for m in facts.marks if m.type in named] + [facts.dial_text]
         brand, display, known = brand_info(facts.brand_signed)
         # Et kjent produsentnavn et annet sted på uret slår et ukjent navn og en forhandlersignatur.
         if not known or tier_of(brand) == "retailer":
@@ -190,8 +196,15 @@ def normalize(conn: sqlite3.Connection, facts: VisionFacts | ConfirmedFacts) -> 
                         retailer = display
                     brand, display, known = b, d, k
                     break
-        groups, repairs, w = _analyse_numbers(facts.numbers)
-        warnings += w
+        if is_watch:
+            groups, repairs, w = _analyse_numbers(facts.numbers)
+            warnings += w
+        else:
+            # Modell-, mønster- og dekornummer betyr noe annet enn serienummer på ur; de vises bare.
+            other_numbers = [f"{(n.prefix + ' ') if n.prefix else ''}{n.value} ({LOCATION_LABELS.get(n.location, n.location)})"
+                             for n in facts.numbers if n.method != "scratched"]
+            repairs = [f"{n.value} ({LOCATION_LABELS.get(n.location, n.location)})"
+                       for n in facts.numbers if n.method == "scratched"]
         repairs += [f"{m.text} ({LOCATION_LABELS.get(m.location, m.location)})"
                     for m in facts.marks if m.type == "repair_mark"]
         owner = [f"{m.text} ({LOCATION_LABELS.get(m.location, m.location)})"
@@ -222,6 +235,9 @@ def normalize(conn: sqlite3.Connection, facts: VisionFacts | ConfirmedFacts) -> 
 
     case_group = next((g for g in groups if g.role == "case"), None)
     return NormalizedFacts(
+        category=category, object_type=facts.object_type,
+        description=facts.description if vision else None, materials=list(facts.materials),
+        other_numbers=other_numbers,
         brand=brand, brand_display=display, known_brand=known, retailer=retailer,
         movement_serial=movement, case_number=case,
         number_groups=groups, numbers_match=bool(case_group and len(case_group.locations) > 1),

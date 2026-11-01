@@ -1,7 +1,7 @@
 // Hvilket bilde vil hjelpe mest? Samme regler som app/services/suggest.py.
 // Ett godt kjennetegn kan være nok, så appen foreslår høyst to bilder.
 
-import { LOCATION_LABELS } from "./normalize.js";
+import { isWatch, LOCATION_LABELS } from "./normalize.js";
 
 const MAX_SUGGESTIONS = 2;
 
@@ -22,6 +22,15 @@ export function suggestPhotos(ranges, facts, n) {
     if (!have.has(location) && !wanted.some((w) => w.location === location)) wanted.push({ location, reason });
   };
 
+  if (!isWatch(n.category)) {
+    // Generelt: merker og stempler sitter oftest under eller bak.
+    const markTypes = new Set(["fineness", "hallmark_symbol", "maker_mark", "factory_mark", "signature", "label"]);
+    if (!(facts.marks ?? []).some((m) => markTypes.has(m.type)) && !n.brand) {
+      want("base", "Fabrikkstempler, sølvstempler og signaturer sitter oftest under bunnen.");
+      want("back", "Baksiden kan ha signatur, etikett eller merke.");
+    }
+    return wanted.slice(0, MAX_SUGGESTIONS).map((w) => ({ ...w, label: LOCATION_LABELS[w.location] ?? w.location }));
+  }
   if (!have.size) {
     want("outer_lid_inside", "Innsiden av lokkene har oftest mest: sølvstempel, nummer og ofte navn.");
     want("cuvette_outside", "Cuvetten har ofte gravert navn, gangtype og antall steiner.");

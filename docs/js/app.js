@@ -2,7 +2,7 @@
 // bildeanalysen mot Gemini med brukerens egen nøkkel (eller demoeksempler).
 
 import { dateItem } from "./dating.js";
-import { ESCAPEMENT_LABELS, LAYOUT_LABELS, LOCATION_LABELS, makerInfo, MATERIAL_LABELS, noSalesMessage, normalize, setMakers, WINDING_LABELS } from "./normalize.js";
+import { CATEGORY_LABELS, ESCAPEMENT_LABELS, isWatch, LAYOUT_LABELS, LOCATION_LABELS, makerInfo, MATERIAL_LABELS, noSalesMessage, normalize, setMakers, WINDING_LABELS } from "./normalize.js";
 import { clearSettings, isLive, loadSettings, saveSettings } from "./settings.js";
 import { suggestPhotos } from "./suggest.js";
 import { saleSearchLinks } from "./salesearch.js";
@@ -372,6 +372,11 @@ function renderConfirm() {
   const form = $("#confirm-form");
   const options = (list) => list.map((e) => `<option value="${e.code}">${esc(e.label)}</option>`).join("");
 
+  form.category.innerHTML = options(state.meta.categories);
+  form.category.value = normalized.category ?? "other";
+  form.object_type.value = normalized.object_type ?? "";
+  $("#object-description").textContent = normalized.description ?? "";
+  form.materials.value = (normalized.materials ?? []).join(", ");
   form.brand.value = normalized.brand_display ?? "";
   form.movement_serial.value = formatSerial(normalized.movement_serial);
   form.case_number.value = formatSerial(normalized.case_number);
@@ -391,6 +396,7 @@ function renderConfirm() {
     ? fineness.map((m) => `<span class="stamp">${esc(m.text)} <small>${esc(place(m.location))}</small></span>`).join("")
     : `<small>Ingen stempler lest.</small>`;
   renderFound(normalized, facts);
+  toggleWatchFields();
 
   document.querySelectorAll("[data-conf]").forEach((chip) => {
     const c = facts.confidence[chip.dataset.conf];
@@ -430,6 +436,18 @@ function renderFound(normalized, facts) {
     rows.push(`<li><strong class="num-value">${esc(formatSerial(g.value))}</strong> ${role}${match}
       <br><small>${g.locations.map((l) => esc(place(l))).join(" · ")}</small></li>`);
   }
+  for (const num of normalized.other_numbers ?? []) rows.push(`<li><strong class="num-value">${esc(num)}</strong></li>`);
+  const MARK_NAMES = { factory_mark: "Fabrikkmerke", signature: "Signatur", label: "Etikett", maker_mark: "Makermerke",
+                       fineness: "Stempel", hallmark_symbol: "Kontrollmerke" };
+  if (!isWatch(normalized.category)) {
+    for (const m of facts.marks.filter((x) => MARK_NAMES[x.type])) {
+      rows.push(`<li>${MARK_NAMES[m.type]}: «${esc(m.text)}» <small>${esc(place(m.location))}</small></li>`);
+    }
+  } else {
+    for (const m of facts.marks.filter((x) => ["factory_mark", "signature", "label"].includes(x.type))) {
+      rows.push(`<li>${MARK_NAMES[m.type]}: «${esc(m.text)}»</li>`);
+    }
+  }
   const inscriptions = facts.marks.filter((m) => m.type === "inscription");
   if (inscriptions.length) {
     rows.push(`<li>Tekst: ${inscriptions.map((m) => `«${esc(m.text)}»`).join(", ")}</li>`);
@@ -448,13 +466,18 @@ function renderFound(normalized, facts) {
 function lookup(event) {
   event.preventDefault();
   const form = $("#confirm-form");
+  const category = form.category.value || "other";
+  const watch = isWatch(category);
   state.confirmed = {
+    item_type: category,
+    object_type: form.object_type.value.trim() || null,
+    materials: form.materials.value.split(",").map((m) => m.trim()).filter(Boolean),
     brand: form.brand.value.trim() || null,
-    movement_serial: form.movement_serial.value.trim() || null,
-    case_number: form.case_number.value.trim() || null,
-    escapement: form.escapement.value,
-    winding: form.winding.value,
-    movement_layout: form.movement_layout.value,
+    movement_serial: watch ? form.movement_serial.value.trim() || null : null,
+    case_number: watch ? form.case_number.value.trim() || null : null,
+    escapement: watch ? form.escapement.value : "unknown",
+    winding: watch ? form.winding.value : "unknown",
+    movement_layout: watch ? form.movement_layout.value : "unknown",
     material: form.material.value || null,
     case_stamps: state.analysis.normalized.case_stamps,
   };
@@ -466,7 +489,7 @@ function lookup(event) {
   renderResult({
     dating, valuation, maker,
     valuation_message: valuation ? null : noSalesMessage(facts),
-    sale_searches: saleSearchLinks(state.data.sale_search, facts, maker?.display_name ?? facts.brand_display ?? null),
+    sale_searches: saleSearchLinks(state.data.sale_search, facts, maker?.display_name ?? facts.brand_display ?? null, facts.category),
   });
   startWebSales(facts, maker, dating);
   show("result");
@@ -486,9 +509,9 @@ async function startWebSales(facts, maker, dating) {
   if (!isLive(state.settings)) { card.hidden = true; return; }
   card.hidden = false;
   card.innerHTML = `<h2>Funnet på nettet nå</h2><p class="meta web-wait">Søker etter solgte eksemplarer og bakgrunn …</p>`;
-  const description = describeItem(facts, {
-    brandName: maker?.display_name ?? facts.brand_display ?? null,
-    period: dating.status === "dated" ? `${dating.estimate}` : dating.period?.display?.replace(/^ca\. /, "") ?? null,
+  const description = describeItem({ ...facts, observed: state.analysis?.normalized?.description }, {
+    brandName: maker?.display_name ?? facts.brand_display ?? null, itemType: facts.category,
+    period: dating.status === "dated" ? `${dating.estimate}` : dating.period?.display?.replace(/^ca\. /, "") || null,
   });
   const controller = webSearchController = new AbortController();
   const timer = setTimeout(() => controller.abort(), 60_000);
@@ -575,6 +598,8 @@ function renderResult({ dating, valuation, valuation_message, maker, sale_search
       <p class="big">${esc(p.display)}</p>
       <p class="meta">Ut fra ${esc(p.basis.join(", "))}. Ikke en datering etter serienummer.</p>
       <p class="meta">${esc(dating.message)}</p>`;
+  } else if (dating.status === "no_tables") {
+    $("#dating-card").innerHTML = `<h2>Alder</h2><p>${esc(dating.message)}</p>`;
   } else {
     $("#dating-card").innerHTML = `<h2>Produksjonsår</h2><p class="big">Ikke datert</p><p>${esc(dating.message)}</p>
       <p class="meta">Oppgi oppstrekk og gangtype for å få en grov periode.</p>`;
@@ -621,14 +646,17 @@ function renderMaker(maker) {
     if (!name) { card.innerHTML = ""; return; }
     card.innerHTML = `<h2>Om navnet</h2><p class="maker-name">${esc(name)}</p>
       <p class="meta wiki-status">Navnet står ikke i listen vår. Slår opp i Wikipedia …</p>`;
-    lookupWikipedia(name).then((hit) => {
+    const category = state.confirmed?.item_type ?? "pocket_watch";
+    lookupWikipedia(name, category).then((hit) => {
       if ($("#maker-card") !== card || state.confirmed?.brand !== name) return;
       $(".wiki-status", card).outerHTML = hit
         ? `<p>${esc(hit.extract)}</p>
            <p class="meta">Hentet automatisk fra <a href="${esc(hit.url)}" target="_blank" rel="noopener">Wikipedia: ${esc(hit.title)}</a>
            (CC BY-SA). Sjekk at det er riktig merke.</p>`
-        : `<p class="meta">Vi fant ingenting om «${esc(name)}». Det kan være et lite forhandler- eller handelsnavn.
-           <a href="https://www.mikrolisk.de/" target="_blank" rel="noopener">Mikrolisk</a> har et stort register over urmerker.</p>`;
+        : isWatch(category)
+          ? `<p class="meta">Vi fant ingenting om «${esc(name)}». Det kan være et lite forhandler- eller handelsnavn.
+             <a href="https://www.mikrolisk.de/" target="_blank" rel="noopener">Mikrolisk</a> har et stort register over urmerker.</p>`
+          : `<p class="meta">Wikipedia har ingen artikkel om «${esc(name)}». Se bakgrunnen fra nettet nedenfor.</p>`;
     });
     return;
   }
@@ -648,17 +676,28 @@ function renderMaker(maker) {
 
 // --- Wikipedia: kort omtale av navn som ikke står i listen ----------------------------
 
-const WATCH_WORDS = {
-  no: /\b(ur(maker\w*|verk\w*|fabrikk\w*|merke\w*|produsent\w*)?|klokke\w*|lommeur\w*|armbåndsur\w*)\b/i,
-  en: /\b(watch\w*|horolog\w*|clock\w*|chronomet\w*)\b/i,
+// Ord som må stå i artikkelen for at treffet skal godtas, og ord som legges til i søket, per kategori.
+const WIKI_CONTEXT = {
+  watch: { no: /\b(ur(maker\w*|verk\w*|fabrikk\w*|merke\w*|produsent\w*)?|klokke\w*|lommeur\w*|armbåndsur\w*)\b/i,
+           en: /\b(watch\w*|horolog\w*|clock\w*|chronomet\w*)\b/i, term: { no: "ur", en: "watch" } },
+  porcelain_ceramics: { no: /(porselen|keramikk|fajanse|steintøy|stentøy)/i, en: /(porcelain|ceramic|pottery|faience|stoneware)/i,
+                        term: { no: "porselen", en: "porcelain" } },
+  silver_metal: { no: /(sølv|gullsmed|sølvsmed|tinn|metallvare)/i, en: /(silver|goldsmith|pewter|metalware)/i, term: { no: "sølv", en: "silver" } },
+  glass: { no: /glass/i, en: /glass/i, term: { no: "glassverk", en: "glassworks" } },
+  furniture: { no: /(møbel|snekker|design)/i, en: /(furniture|cabinet|design)/i, term: { no: "møbler", en: "furniture" } },
+  art: { no: /(kunstner|maler|grafiker|billedhugger|kunst)/i, en: /(artist|painter|printmaker|sculptor)/i, term: { no: "kunstner", en: "artist" } },
+  other: { no: /(produsent|fabrikk|firma|selskap|designer|bedrift)/i, en: /(company|manufacturer|designer|factory|maker)/i,
+           term: { no: "", en: "" } },
 };
+const wikiContext = (category) => (isWatch(category) || category === "clock" ? WIKI_CONTEXT.watch : WIKI_CONTEXT[category] ?? WIKI_CONTEXT.other);
 const CITY_WORDS = /\b(gen[eèé]ve|geneva|genf|le locle|la chaux-de-fonds|biel|bienne|suisse|switzerland|swiss|made)\b/gi;
 
-async function lookupWikipedia(name) {
+async function lookupWikipedia(name, category = "pocket_watch") {
+  const ctx = wikiContext(category);
   const words = name.toLowerCase().replace(CITY_WORDS, " ").split(/[^\p{L}]+/u).filter((w) => w.length >= 4);
   if (!words.length) return null;
   for (const lang of ["no", "en"]) {
-    const term = `${name.replace(CITY_WORDS, " ")} ${lang === "no" ? "ur" : "watch"}`;
+    const term = `${name.replace(CITY_WORDS, " ")} ${ctx.term[lang]}`.trim();
     const url = `https://${lang}.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1` +
       `&generator=search&gsrlimit=4&gsrsearch=${encodeURIComponent(term)}` +
       "&prop=extracts|info&exintro=1&explaintext=1&exsentences=3&inprop=url";
@@ -666,7 +705,7 @@ async function lookupWikipedia(name) {
       const res = await fetch(url);
       if (!res.ok) continue;
       const pages = Object.values((await res.json()).query?.pages ?? {}).sort((a, b) => a.index - b.index);
-      const hit = pages.find((p) => p.extract && WATCH_WORDS[lang].test(p.extract) &&
+      const hit = pages.find((p) => p.extract && ctx[lang].test(p.extract) &&
         words.some((w) => p.title.toLowerCase().includes(w)));
       if (hit) return { title: hit.title, extract: hit.extract, url: hit.fullurl, lang };
     } catch { /* uten nett: prøv neste språk, og gi opp stille */ }
@@ -732,6 +771,15 @@ document.addEventListener("click", (e) => {
 });
 
 $("#confirm-form").addEventListener("submit", lookup);
+$("#f-category").addEventListener("change", toggleWatchFields);
+
+/** Urfeltene vises bare for ur; edelt metall vises når det er relevant. */
+function toggleWatchFields() {
+  const form = $("#confirm-form");
+  const category = form.category.value;
+  $("#watch-fields").hidden = !isWatch(category);
+  $("#material-field").hidden = !(isWatch(category) || ["silver_metal", "jewelry"].includes(category) || form.material.value);
+}
 
 // --- Innstillinger --------------------------------------------------------------
 
@@ -793,7 +841,7 @@ function applyMode() {
 
 }
 
-const MOCK_LABELS = { monard_key_wind: "Ekte ur: G. Monard, nøkkeloppstrekk", omega_silver: "Omega i sølv med ankergang", cylinder_metal: "Usignert sylinderur i metall", unreadable: "Uleselige bilder" };
+const MOCK_LABELS = { monard_key_wind: "Ekte ur: G. Monard, nøkkeloppstrekk", omega_silver: "Omega i sølv med ankergang", cylinder_metal: "Usignert sylinderur i metall", unreadable: "Uleselige bilder", porcelain_demo: "Porselen: kaffekanne (eksempel)", silver_spoon_demo: "Sølv: spiseskje 830 (eksempel)" };
 
 async function init() {
   try {
@@ -809,6 +857,7 @@ async function init() {
     windings: Object.entries(WINDING_LABELS).map(([code, label]) => ({ code, label })),
     layouts: Object.entries(LAYOUT_LABELS).map(([code, label]) => ({ code, label })),
     locations: LOCATION_LABELS,
+    categories: Object.entries(CATEGORY_LABELS).map(([code, label]) => ({ code, label })),
   };
   $("#mock-scenario").innerHTML = Object.keys(state.data.contract.mock_scenarios)
     .map((s) => `<option value="${s}">${esc(MOCK_LABELS[s] ?? s)}</option>`).join("");

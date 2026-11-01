@@ -22,6 +22,7 @@ INSERT INTO hallmarks (pattern, material, label, region, priority, is_demo) VALU
   ('(^|[^0-9])(0\.)?900([^0-9]|$)',                   'silver_900',  'Sølv 0.900', NULL, 76, 1),
   ('(^|[^0-9])(0\.)?875([^0-9]|$)',                   'silver_875',  'Sølv 0.875', NULL, 75, 1),
   ('bjørn|bjorn|bear|ours',                          'silver_875',  'Sveitsisk kontrollmerke for sølv 0.875 (bjørn)', 'CH 1882–1933', 74, 1),
+  ('(^|[^0-9])(0\.)?830 ?s?([^0-9]|$)',               'silver_830',  'Sølv 830 (norsk standard)', 'NO', 72, 1),
   ('(^|[^0-9])(0\.)?800([^0-9]|$)',                   'silver_800',  'Sølv 0.800', NULL, 70, 1),
   ('tiur|auerhahn|grouse|tétras|tetras|coq de bruy',  'silver_800',  'Sveitsisk kontrollmerke for sølv 0.800 (tiur)', 'CH 1882–1933', 69, 1),
   ('doubl[ée]|plaqu[ée]|gold ?filled|(^|[^a-z])g\.?f\.?([^a-z]|$)', 'gold_filled', 'Forgylt / doublé (ikke massivt gull)', NULL, 40, 1),

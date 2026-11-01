@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>InformAntikk</title>
-  <meta name="description" content="Informasjon om antikviteter og gamle ting, rett fra mobilen. Først ut: lommeur.">
+  <meta name="description" content="Informasjon om antikviteter og gamle ting, rett fra mobilen: hva det er, hvem som laget det, og hva lignende er solgt for.">
   <meta name="theme-color" content="#2b1a10" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#120b06" media="(prefers-color-scheme: dark)">
   <link rel="manifest" href="manifest.webmanifest">
@@ -30,11 +30,11 @@
   <main id="app">
     <!-- 1. Start -->
     <section id="screen-intro" class="screen">
-      <h1>Hva er lommeuret verdt?</h1>
-      <p class="lead">Legg inn bildene du har av uret, i hvilken rekkefølge du vil. Ett godt bilde kan være nok. Appen finner selv ut hva bildene viser, leser nummer og stempler, og sier fra hvis ett bilde til vil hjelpe.</p>
-      <p>Mest får appen ut av <strong>innsiden av lokkene</strong>, <strong>cuvetten</strong> og <strong>urskiven</strong>. Urverket hjelper når merket er kjent.</p>
-      <p><button class="link link-inline" data-action="guide">Første gang? Se hvordan du åpner et lommeur</button></p>
-      <p class="fineprint">Du kan rette opp det appen har lest før noe slås opp. Årstall og priser hentes fra tabeller, ikke fra gjetting.</p>
+      <h1>Hva er det du har funnet?</h1>
+      <p class="lead">Ta bilder av tingen – porselen, sølv, glass, ur, møbler eller noe helt annet. Ett godt bilde kan være nok. Appen finner ut hva det er, leser stempler, merker og signaturer, og sier fra hvis ett bilde til vil hjelpe.</p>
+      <p>Mest får appen ut av <strong>merkene</strong>: under bunnen, på baksiden, inni lokket eller på en etikett. Lommeur har sine i lokkene.</p>
+      <p><button class="link link-inline" data-action="guide">Har du et lommeur? Se hvordan du åpner det</button></p>
+      <p class="fineprint">Du kan rette opp det appen har lest før noe slås opp. Årstall og priser kommer fra tabeller og salg med kilde, ikke fra gjetting.</p>
       <div id="mock-panel" class="mock-panel" hidden>
         <label for="mock-scenario">Demomodus – velg eksempel</label>
         <select id="mock-scenario"></select>
@@ -47,13 +47,13 @@
 
     <!-- 2. Bilder -->
     <section id="screen-capture" class="screen" hidden>
-      <h1>Bilder av uret</h1>
+      <h1>Bilder</h1>
       <ul class="tips">
-        <li>Ta med det du ser best: urskive, innsiden av lokkene, cuvetten eller verket.</li>
-        <li>Gå nært på nummer og stempler, og la lyset falle skrått.</li>
-        <li>Flere bilder av samme del er greit.</li>
+        <li>Ta ett bilde av hele tingen, og ett av hvert merke, stempel eller signatur du finner.</li>
+        <li>Se under bunnen, på baksiden, inni lokk og skuffer, og på etiketter.</li>
+        <li>Gå nært på stempler og tall, og la lyset falle skrått.</li>
       </ul>
-      <p class="guide-link"><button class="link link-inline" data-action="guide">Slik åpner du et lommeur</button></p>
+      <p class="guide-link"><button class="link link-inline" data-action="guide">Lommeur? Slik åpner du det</button></p>
 
       <div id="suggest-box" class="notice notice-hint" hidden></div>
       <div class="photo-grid" id="photo-grid"></div>
@@ -87,20 +87,35 @@
     <!-- 4. Bekreft -->
     <section id="screen-confirm" class="screen" hidden>
       <h1>Stemmer dette?</h1>
-      <p class="lead">Sjekk mot uret og rett opp feil. Ett feil siffer kan flytte dateringen flere år.</p>
+      <p class="lead">Sjekk mot tingen og rett opp feil før appen slår opp.</p>
       <p class="meta" id="analysis-time"></p>
 
       <div id="confirm-notices"></div>
       <section class="card found" aria-labelledby="found-title">
-        <h2 id="found-title">Funnet på uret <span class="chip" data-conf="numbers"></span></h2>
+        <h2 id="found-title">Funnet <span class="chip" data-conf="numbers"></span></h2>
         <div id="found"></div>
       </section>
 
       <form id="confirm-form" novalidate>
         <div class="field">
-          <label for="f-brand">Merke eller navn <span class="chip" data-conf="brand_signed"></span></label>
+          <label for="f-category">Kategori <span class="chip" data-conf="category"></span></label>
+          <select id="f-category" name="category"></select>
+        </div>
+        <div class="field">
+          <label for="f-object">Hva er det?</label>
+          <input id="f-object" name="object_type" autocomplete="off" placeholder="F.eks. kaffekanne, spiseskje, vase">
+          <small id="object-description"></small>
+        </div>
+        <div class="field">
+          <label for="f-brand">Produsent, merke eller signatur <span class="chip" data-conf="brand_signed"></span></label>
           <input id="f-brand" name="brand" autocomplete="off" autocapitalize="words" placeholder="Usignert">
         </div>
+        <div class="field">
+          <label for="f-materials">Materialer</label>
+          <input id="f-materials" name="materials" autocomplete="off" placeholder="F.eks. porselen, sølv, eik">
+          <small>Skill med komma.</small>
+        </div>
+        <div id="watch-fields">
         <div class="field">
           <label for="f-movement">Verksnummer</label>
           <input id="f-movement" name="movement_serial" inputmode="numeric" pattern="[0-9 ]*" autocomplete="off" placeholder="Ikke lest">
@@ -125,13 +140,14 @@
           <label for="f-layout">Verktype</label>
           <select id="f-layout" name="movement_layout"></select>
         </div>
-        <div class="field">
-          <label for="f-material">Kassemateriale <span class="chip" data-conf="marks"></span></label>
+        </div>
+        <div class="field" id="material-field">
+          <label for="f-material">Edelt metall etter stempel <span class="chip" data-conf="marks"></span></label>
           <select id="f-material" name="material"></select>
           <div class="stamps" id="stamps"></div>
         </div>
         <div class="actions">
-          <button class="btn btn-primary" type="submit">Finn alder og verdi</button>
+          <button class="btn btn-primary" type="submit">Finn informasjon</button>
           <div class="row row-links">
             <button class="link" type="button" data-action="retake">Ta bildene på nytt</button>
           </div>

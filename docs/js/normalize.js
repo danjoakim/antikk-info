@@ -9,6 +9,7 @@ export const MATERIAL_LABELS = {
   silver_925: "Sølv 0.925",
   silver_900: "Sølv 0.900",
   silver_875: "Sølv 0.875",
+  silver_830: "Sølv 830",
   silver_800: "Sølv 0.800",
   steel: "Stål",
   base_metal: "Uedelt metall (argentan, nikkel o.l.)",
@@ -50,6 +51,7 @@ export function makerInfo(brand) {
 }
 
 export function noSalesMessage(facts) {
+  if (!isWatch(facts.category)) return "Appen har ingen egne salg i denne kategorien ennå. Se salgene funnet på nettet nedenfor.";
   if (!facts.brand) return "Vi har ingen sammenlignbare salg av usignerte ur med disse egenskapene ennå.";
   const name = facts.brand_display || facts.brand;
   if (!tierOf(facts.brand)) {
@@ -134,8 +136,18 @@ export const LAYOUT_LABELS = { bar: "Broer (Lépine)", three_quarter_plate: "Tre
 export const LOCATION_LABELS = {
   dial: "urskiven", outer_lid_outside: "ytre lokk, utsiden", outer_lid_inside: "ytre lokk, innsiden",
   cuvette_outside: "cuvetten, utsiden", cuvette_inside: "cuvetten, innsiden", movement: "urverket",
-  case_rim: "kassekanten", unknown: "ukjent sted",
+  case_rim: "kassekanten", front: "forsiden", back: "baksiden", base: "undersiden", inside: "innsiden",
+  lid: "lokket", side: "siden", handle: "hanken eller skaftet", label: "etiketten", unknown: "ukjent sted",
 };
+/** Kategorier. Ur har egne felt og tabeller; de andre bruker de generelle feltene. Samme som app/models.py. */
+export const CATEGORY_LABELS = {
+  pocket_watch: "Lommeur", wristwatch: "Armbåndsur", clock: "Klokke (vegg, bord, gulv)",
+  silver_metal: "Sølv og metall", porcelain_ceramics: "Porselen og keramikk", glass: "Glass",
+  jewelry: "Smykker", furniture: "Møbler", art: "Kunst (malerier, grafikk, skulptur)",
+  textile: "Tekstiler", toy: "Leker", book_paper: "Bøker og papir", lighting: "Lamper og lys", other: "Annet",
+};
+export const WATCH_CATEGORIES = new Set(["pocket_watch", "wristwatch"]);
+export const isWatch = (category) => WATCH_CATEGORIES.has(category ?? "pocket_watch");
 // Merketyper som kan si noe om kassematerialet. Eiergravering, reparasjoner og kassemakermerker gjør ikke det.
 const MATERIAL_MARK_TYPES = new Set(["fineness", "hallmark_symbol", "inscription", "other"]);
 const CITY_SUFFIX = /[,\s]*(à\s+|a\s+)?(gen[eèé]ve|geneva|genf|la chaux-de-fonds|le locle|bienne|biel|suisse|switzerland|swiss made|schweiz)\s*$/i;
@@ -188,12 +200,16 @@ function analyseNumbers(numbers) {
 export function normalize(hallmarks, facts, source) {
   const warnings = [];
   let groups = [], repairs = [], owner = [], stamps, movement, caseNo, explicitMaterial = null, retailer = null;
+  let otherNumbers = [];
+  const category = (source === "vision" ? facts.category : facts.item_type) || (source === "vision" ? "other" : "pocket_watch");
+  const watch = WATCH_CATEGORIES.has(category);
   let [brand, display, known] = source === "vision" ? brandInfo(facts.brand_signed) : brandInfo(facts.brand);
 
   if (source === "vision") {
     // Et kjent produsentnavn et annet sted på uret slår et ukjent navn og en forhandlersignatur.
     if (!known || tierOf(brand) === "retailer") {
-      const others = [...(facts.marks ?? []).filter((m) => m.type === "inscription").map((m) => m.text), facts.dial_text];
+      const named = new Set(["inscription", "factory_mark", "signature", "label"]);
+      const others = [...(facts.marks ?? []).filter((m) => named.has(m.type)).map((m) => m.text), facts.dial_text];
       for (const text of others) {
         const info = brandInfo(text);
         if (info[2] && info[0] !== brand && tierOf(info[0]) !== "retailer") {
@@ -203,7 +219,15 @@ export function normalize(hallmarks, facts, source) {
         }
       }
     }
-    const a = analyseNumbers(facts.numbers);
+    const a = watch ? analyseNumbers(facts.numbers) : {
+      // Modell-, mønster- og dekornummer betyr noe annet enn serienummer på ur; de vises bare.
+      groups: [], warnings: [],
+      repairs: (facts.numbers ?? []).filter((n) => n.method === "scratched").map((n) => `${n.value} (${where(n.location)})`),
+    };
+    if (!watch) {
+      otherNumbers = (facts.numbers ?? []).filter((n) => n.method !== "scratched")
+        .map((n) => `${n.prefix ? `${n.prefix} ` : ""}${n.value} (${where(n.location)})`);
+    }
     groups = a.groups;
     warnings.push(...a.warnings);
     repairs = [...a.repairs, ...(facts.marks ?? []).filter((m) => m.type === "repair_mark").map((m) => `${m.text} (${where(m.location)})`)];
@@ -231,6 +255,8 @@ export function normalize(hallmarks, facts, source) {
   }
   const caseGroup = groups.find((g) => g.role === "case");
   return {
+    category, object_type: facts.object_type ?? null, description: source === "vision" ? facts.description ?? null : null,
+    materials: [...(facts.materials ?? [])], other_numbers: otherNumbers,
     brand, brand_display: display, known_brand: known, retailer,
     movement_serial: movement, case_number: caseNo,
     number_groups: groups, numbers_match: !!caseGroup && caseGroup.locations.length > 1,

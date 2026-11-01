@@ -2,7 +2,7 @@
 
 import sqlite3
 
-from app.models import DatingResult, NormalizedFacts, PeriodEstimate
+from app.models import CATEGORY_LABELS, WATCH_CATEGORIES, DatingResult, NormalizedFacts, PeriodEstimate
 
 # Verk kunne ligge på lager før de ble satt i kasse og solgt.
 STOCK_NOTE = "Året gjelder produksjon av verket; uret kan være satt i kasse og solgt noe senere."
@@ -71,7 +71,11 @@ def estimate_period(conn: sqlite3.Connection, facts: NormalizedFacts) -> PeriodE
 
 
 def date_item(conn: sqlite3.Connection, facts: NormalizedFacts) -> DatingResult:
-    """Serienummer først; ellers en grov periode ut fra kjennetegn."""
+    """Serienummer først; ellers en grov periode ut fra kjennetegn. Tabellene finnes foreløpig bare for ur."""
+    if facts.category not in WATCH_CATEGORIES:
+        label = CATEGORY_LABELS.get(facts.category, "denne typen ting").lower()
+        return DatingResult(status="no_tables",
+                            message=f"Vi har ingen dateringstabeller for {label} ennå. Se bakgrunnen fra nettet nedenfor.")
     result = _date_by_number(conn, facts)
     if result.status != "dated":
         result.period = estimate_period(conn, facts)

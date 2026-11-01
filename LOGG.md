@@ -157,6 +157,9 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-11-01 | Tenkenivå «low» for Gemini 3-modellene, med nytt forsøk uten hvis modellen avviser det | Analysen ble treg; standardnivået er «medium»/«high». Avlesning av bilder trenger lite resonnering |
 | 2026-11-01 | Priser og bakgrunn fra nettet hentes inne i appen med Gemini og Google-søk; et salg eller en fakta vises bare når domenet finnes blant kildene Google returnerte, og alt merkes «ikke kontrollert» | Lenker ut fjernet poenget med appen (brukeren). Slik gjør de andre appene det inne i appen, men vi gjetter ikke og krever kilde |
 | 2026-11-01 | Omregning til kroner med DNBs snittkurser 2026 (`app/data/fx_nok.json`); originalbeløpet vises alltid | Salg kommer i CHF, GBP, EUR, SEK osv. |
+| 2026-11-01 | Bildeanalysen er generell: kategori (14 stk.), gjenstandstype, beskrivelse, materialer, stiltrekk og merker (fabrikkmerke, signatur, etikett) med generelle plasseringer. Urfeltene brukes bare for lommeur og armbåndsur | Brukeren: appen skal bygges for alle som går på loppis, ikke etter det som ligger på bordet. Ur er én kategori med ekstra felt og tabeller |
+| 2026-11-01 | For kategorier uten egne tabeller sier appen ærlig at den ikke har dateringstabeller eller egne salg, og viser i stedet nettsøket med kilder. Nettsøket kan gi årene et merke eller stempel var i bruk når kilden sier det | Ingen gjetting, men nyttig innhold for alle kategorier |
+| 2026-11-01 | Norsk sølvstandard 830 lagt til i stempeltabellen | Vanligste lødighet på norsk sølv |
 | 2026-10-29 | Standardmodeller: `gpt-6-astra` (OpenAIs anbefalte), `gemini-3.8-flash` (Googles anbefalte stabile Flash) | Hentet fra leverandørenes modelloversikter 29.10.2026; overstyres med `VISION_MODEL` |
 
 ---
@@ -176,6 +179,21 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-11-01 – Økt 20: Appen tar imot alle slags gjenstander
+**Bakgrunn:** Brukeren: «Du må bygge for andre enn bare meg.» Analysen, skjemaet og søket var bygget for lommeur.
+**Gjort:**
+- Instruks og skjema: kategori, gjenstandstype, beskrivelse, materialer, stiltrekk; nye plasseringer (forsiden, baksiden, undersiden, innsiden, lokket, siden, hank/skaft, etikett) og merketyper (fabrikkmerke, signatur, etikett). Urreglene gjelder bare ur.
+- Normalisering: tall på andre ting vises som modell-/dekornummer, ikke serienummer. Navn kan hentes fra fabrikkmerke, signatur og etikett.
+- Datering og egne priser bare for ur; andre kategorier får en ærlig melding og nettsøket.
+- Bildeforslag for andre ting: undersiden og baksiden når ingen merker er funnet.
+- «Stemmer dette?»: kategori, «Hva er det?», produsent/merke/signatur, materialer; urfeltene skjules for andre kategorier, edelt metall vises for sølv, smykker og ur.
+- Nettsøk og søkelenker bruker kategori, gjenstandstype, beskrivelse og materialer. Wikipedia-oppslaget krever ord som passer kategorien.
+- Ny tekst på start- og bildeskjermen («Hva er det du har funnet?»); veiledningen for lommeur er en lenke for dem som trenger den.
+- Demoeksempler: kaffekanne i porselen og spiseskje i 830-sølv (oppdiktede, merket som eksempler). Sølv 830 i stempeltabellen.
+**Filer:** `app/models.py`, `app/services/vision/core.py`, `app/services/vision/mock.py`, eksempelfilene, `app/services/{normalize,dating,valuation,suggest,salesearch}.py`, `app/db/seed.sql`, `app/data/sale_search.json`, `docs/js/{normalize,dating,suggest,vision,websales,salesearch,app}.js`, `docs/index.html`, `docs/manifest.webmanifest`, tester.
+**Tester:** Python 62, JavaScript 31 bestått. Mobilnettleser: porselensflyt (urfelter skjult, fabrikkmerke og nummer funnet, alder- og verdikort med forklaring, nettsøk og lenker med «porslin/porcelain Porsgrund») og Vacheron-flyten uendret.
+**Ikke gjort:** Serverversjonens skjermbilder (`app/static`) er ikke lagt om; den bruker fortsatt urskjemaet i brukerflaten, mens API-et er generelt.
 
 ### 2026-11-01 – Økt 19: Funnet på nettet nå (priser og bakgrunn i appen)
 **Bakgrunn:** Brukeren: lite å se når klokka søkes opp, og lenker ut fjerner poenget med appen.

@@ -177,7 +177,7 @@ def test_monard_valued_against_unsigned(conn):
 
 
 def test_scratched_or_lettered_numbers_never_become_serials(conn):
-    facts = VisionFacts(numbers=[{"value": "K9341", "location": "outer_lid_inside", "method": "stamped"},
+    facts = VisionFacts(category="pocket_watch", numbers=[{"value": "K9341", "location": "outer_lid_inside", "method": "stamped"},
                                  {"value": "4512", "location": "movement", "method": "scratched"}])
     n = normalize(conn, facts)
     assert n.case_number is None and n.movement_serial is None
@@ -185,7 +185,7 @@ def test_scratched_or_lettered_numbers_never_become_serials(conn):
 
 
 def test_mismatched_case_numbers_warn(conn):
-    facts = VisionFacts(numbers=[{"value": "101954", "location": "outer_lid_inside", "method": "stamped"},
+    facts = VisionFacts(category="pocket_watch", numbers=[{"value": "101954", "location": "outer_lid_inside", "method": "stamped"},
                                  {"value": "55321", "location": "cuvette_inside", "method": "stamped"}])
     n = normalize(conn, facts)
     assert not n.numbers_match and any("satt sammen" in w for w in n.warnings)
@@ -212,19 +212,19 @@ def test_monard_needs_no_more_photos(conn):
 
 
 def test_known_brand_without_serial_asks_for_movement(conn):
-    facts = VisionFacts(photos=[{"index": 1, "shows": "dial"}], dial_text="OMEGA", brand_signed="Omega",
+    facts = VisionFacts(category="pocket_watch", photos=[{"index": 1, "shows": "dial"}], dial_text="OMEGA", brand_signed="Omega",
                         marks=[{"text": "0.800", "location": "outer_lid_inside", "type": "fineness"}],
                         escapement="lever", winding="stem")
     assert _suggest(conn, facts)[0] == "movement"
 
 
 def test_nothing_readable_suggests_lids_first(conn):
-    facts = VisionFacts(photos=[{"index": 1, "shows": "dial"}], unreadable=["dial"])
+    facts = VisionFacts(category="pocket_watch", photos=[{"index": 1, "shows": "dial"}], unreadable=["dial"])
     assert _suggest(conn, facts) == ["outer_lid_inside", "cuvette_outside"]
 
 
 def test_missing_material_points_to_lid_but_not_if_already_seen(conn):
-    facts = VisionFacts(photos=[{"index": 1, "shows": "outer_lid_inside"}], escapement="cylinder", winding="key",
+    facts = VisionFacts(category="pocket_watch", photos=[{"index": 1, "shows": "outer_lid_inside"}], escapement="cylinder", winding="key",
                         marks=[{"text": "G. Monard", "location": "cuvette_outside", "type": "inscription"}])
     assert "outer_lid_inside" not in _suggest(conn, facts)
     assert _suggest(conn, facts)[0] == "cuvette_inside"
@@ -240,7 +240,7 @@ def test_maker_info_for_monard(conn):
     m = maker_info(normalize(conn, MONARD))
     assert m.display_name == "G. Monard, Genève" and not m.is_verified
     assert "tolkning" in m.interpretation.lower() and m.sources
-    assert maker_info(normalize(conn, VisionFacts())) is None
+    assert maker_info(normalize(conn, VisionFacts(category="pocket_watch", ))) is None
 
 
 # --- Merkelisten: kjente merker, navnevarianter og ukjente navn ---------------------------
@@ -276,7 +276,7 @@ def test_mass_brand_compared_with_unsigned(conn):
 
 
 def test_maker_on_cuvette_wins_over_retailer_on_dial(conn):
-    facts = VisionFacts(brand_signed="J. Tostrup", marks=[{"text": "Vacheron & Constantin Genève", "location": "cuvette_outside", "type": "inscription"}])
+    facts = VisionFacts(category="pocket_watch", brand_signed="J. Tostrup", marks=[{"text": "Vacheron & Constantin Genève", "location": "cuvette_outside", "type": "inscription"}])
     n = normalize(conn, facts)
     assert n.brand == "vacheron constantin" and n.retailer == "J. Tostrup"
 
@@ -313,3 +313,29 @@ def test_sale_search_links_for_brand_and_unsigned():
     assert unsigned["auctionet"].query == "fickur silver cylinder"
     assert "barnebys" not in unsigned and unsigned["ebay"].query == "pocket watch silver cylinder"
     assert sale_search_links(NormalizedFacts(), None, item_type="vase") == []
+
+
+# --- Andre kategorier enn ur -----------------------------------------------------------
+
+def test_porcelain_is_not_treated_as_a_watch(conn):
+    f = MOCK_SCENARIOS["porcelain_demo"]
+    n = normalize(conn, f)
+    assert n.category == "porcelain_ceramics" and n.object_type == "kaffekanne"
+    assert n.brand_display == "Porsgrund" and n.number_groups == [] and n.case_number is None
+    assert n.other_numbers == ["2511 (undersiden)"]
+    d = date_item(conn, n)
+    assert d.status == "no_tables" and d.period is None and "porselen og keramikk" in d.message
+    assert value_item(conn, n) is None
+    from app.services.suggest import suggest_photos
+    assert suggest_photos(conn, f, n) == []                     # fabrikkstempel funnet: ingen forslag
+
+
+def test_norwegian_silver_830(conn):
+    n = normalize(conn, MOCK_SCENARIOS["silver_spoon_demo"])
+    assert n.category == "silver_metal" and n.material == "silver_830"
+    links = {l.site: l for l in sale_search_links(n, None, "silver_metal")}
+    assert links["auctionet"].query == "silver" and "barnebys" not in links
+
+
+def test_unknown_category_without_name_gives_no_empty_searches():
+    assert sale_search_links(NormalizedFacts(category="other"), None, "other") == []

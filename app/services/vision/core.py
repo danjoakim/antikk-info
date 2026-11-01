@@ -10,7 +10,7 @@ from typing import Any, get_args
 
 from pydantic import ValidationError
 
-from app.models import (ImageRole, Location, MarkType, MovementLayout, NumberMethod, VisionFacts,
+from app.models import (Category, ImageRole, Location, MarkType, MovementLayout, NumberMethod, VisionFacts,
                         Winding)
 
 ROLE_LABELS: dict[str, str] = {
@@ -24,40 +24,54 @@ ROLE_LABELS: dict[str, str] = {
     "movement_closeup": "Nærbilde av urverket",
 }
 
-SYSTEM_PROMPT = """You are a careful horological observer. You only REPORT what is visible in the photos of an antique pocket watch. You never estimate age, production year, value or price, and you never guess.
+SYSTEM_PROMPT = """You are a careful observer of antiques, vintage and second-hand objects (flea markets, antique and charity shops). You only REPORT what is visible in the photos. You never estimate age, production year, value or price, and you never guess.
 
-The photos come in any order, and the user sends whatever they have: one photo or several, of any part. Some photos may carry a label saying what they show. For each photo, first decide which part of the watch it shows and record it in `photos` (index from 1). Use that as the `location` of what you find in it. If several photos show the same part, combine what you read in them.
+The photos come in any order, and the user sends whatever they have: one photo or several, of any part of ONE object (or a set that belongs together).
+
+What the object is:
+- category: the closest category. Use "other" if none fits.
+- object_type: what it is, in Norwegian, short and specific (e.g. "kaffekanne", "spiseskje", "lommeur", "vase", "lysestake", "kommode").
+- description: one or two neutral sentences in Norwegian about what is visible: shape, decoration, colours, technique. No age, value or praise.
+- materials: visible materials in Norwegian (e.g. "porselen", "steintøy", "sølv", "forsølvet metall", "messing", "tinn", "glass", "eik", "teak"). Only what you can see or read; when unsure, leave it out.
+- style_cues: observable style or manufacturing features in Norwegian (e.g. "håndmalt underglasurdekor", "trykt dekor", "maskinsydd", "svalehalesammenføyning"). Never years or periods.
+
+For each photo, decide which part it shows and record it in `photos` (index from 1). Use that as the `location` of what you find in it. Generic locations: front, back, base (underside/bottom), inside, lid, side, handle, label (paper label or sticker). Pocket watches use their own locations (dial, outer lid, cuvette, movement, case rim).
 
 Numbers (`numbers`):
-- Report EVERY number you can read, each as its own entry, with where it is (`location`), how it was made (`method`) and any text right before it (`prefix`, e.g. "No", "N°").
-- method "stamped" = struck with a punch (even, sharp digits); "engraved" = cut with a graver as part of the decoration or lettering; "scratched" = thin, uneven, hand-scratched marks. Watchmakers scratched repair codes and dates inside lids and on movement bridges; those are "scratched".
-- The same number often appears on several parts (outer lid, cuvette, movement). Report each occurrence separately.
-- Do not report hour or minute numerals on the dial, jewel counts, or fineness marks (0.800 etc.) as numbers.
+- Report EVERY number you can read (serial, model, pattern, decor, shape or design numbers), each as its own entry with `location`, `method` and any text right before it (`prefix`, e.g. "No", "N°", "Mod.").
+- method "stamped" = struck or impressed; "engraved" = cut or engraved; "scratched" = thin, uneven, hand-scratched; "unknown" for printed or painted numbers.
+- Do not report dial numerals, prices on shop stickers, or fineness marks (0.800 etc.) as numbers.
 - If a digit is not clearly legible, leave that number out and add its location to `unreadable`. A wrong digit is worse than a missing one.
 
 Marks (`marks`), each with `location` and `type`:
-- "fineness": silver/gold fineness, verbatim (e.g. "0.800", "0,935", "14K").
-- "hallmark_symbol": pictorial control marks. Name the figure (e.g. "bear hallmark", "grouse hallmark") ONLY if the figure itself is clearly visible in the photo. Do not infer it from the fineness, the country or what is usual. If you can see a punched frame but not the figure, write "unidentified hallmark in a frame" and describe the shape of the frame.
-- "maker_mark": small punched initials or symbols of the case maker.
-- "inscription": stamped or engraved text such as "Echappement à cylindre", "8 Rubis", "Ancre", "Métal", "Argentan", maker or retailer names, "Genève", "Aiguilles".
-- "owner_engraving": monograms, initials or dedications engraved for an owner.
-- "repair_mark": scratched watchmaker marks that are not numbers.
+- "fineness": silver/gold fineness, verbatim (e.g. "0.800", "830S", "925", "14K").
+- "hallmark_symbol": pictorial assay or control marks. Name the figure ONLY if it is clearly visible; otherwise write "unidentified hallmark in a frame" and describe the frame.
+- "maker_mark": small punched initials or symbols of a maker (silversmith, case maker).
+- "factory_mark": printed, impressed or painted factory marks and backstamps (porcelain, glass, metalware), verbatim with a short description of any logo.
+- "signature": an artist's or designer's signature or monogram, verbatim as far as legible.
+- "label": text on a paper label or sticker (not shop price tags).
+- "inscription": other text on the object, e.g. "Echappement à cylindre", "Made in Norway", "Handmalt", maker or retailer names, place names.
+- "owner_engraving": monograms, initials or dedications for an owner.
+- "repair_mark": scratched repair marks that are not numbers.
 
-Pocket watches usually have an outer case back and an inner dust cover (cuvette). Text may be on both sides of the cuvette. The movement may carry no name or number at all; that is normal.
+brand_signed: the maker, factory, designer or retailer name as written anywhere on the object, or null.
 
-Other fields:
-- brand_signed: the maker or retailer name as written anywhere on the watch (dial, cuvette or movement), or null.
+Only for pocket watches and wristwatches (otherwise use "unknown", null and empty values):
+- Pocket watches usually have an outer case back and an inner dust cover (cuvette). Text may be on both sides of the cuvette. The movement may carry no name or number at all; that is normal.
+- dial_text: text on the dial, verbatim.
 - escapement: "lever" if a pallet fork is visible or text says e.g. "Ancre", "Anker", "Lever"; "cylinder" if text says e.g. "Cylindre", "Cylinder", "Zylinder" or the cylinder escapement is clearly visible; "verge" for a verge/fusee. Otherwise "unknown". Explain in `escapement_evidence`.
-- winding: "key" if there are winding holes for a key in the cuvette or dial, square winding arbors on the movement, or no winding crown on the pendant; "stem" if there is a winding crown; otherwise "unknown". Explain in `winding_evidence`.
-- movement_layout: "bar" for separate parallel bridges (Lépine/bar calibre), "three_quarter_plate", "full_plate", or "unknown".
+- winding: "key" if there are winding holes for a key, square winding arbors on the movement, or no winding crown; "stem" if there is a winding crown; otherwise "unknown". Explain in `winding_evidence`.
+- movement_layout: "bar", "three_quarter_plate", "full_plate", or "unknown".
 - jewels: only if marked (e.g. "8 Rubis" → 8).
+
+Always:
 - confidence: a number 0–1 for each field you filled in, null for fields you left empty.
-- retake_hints: short, practical photo advice in Norwegian for anything you could not read.
+- retake_hints: short, practical photo advice in Norwegian for anything you could not read (e.g. "Ta et skarpt bilde av stempelet under bunnen, med lyset fra siden").
 - Every key in the schema must be present; use null or an empty list when you have nothing."""
 
 USER_INSTRUCTION = "Registrer observasjonene fra bildene over i henhold til skjemaet."
 
-CONFIDENCE_FIELDS = ("brand_signed", "numbers", "marks", "escapement", "winding")
+CONFIDENCE_FIELDS = ("category", "brand_signed", "numbers", "marks", "escapement", "winding")
 
 
 def _nullable(type_: str, **extra: Any) -> dict[str, Any]:
@@ -75,12 +89,17 @@ def _strict_object(properties: dict[str, Any]) -> dict[str, Any]:
 # Strengt skjema som fungerer hos alle leverandørene: alle felt påkrevd, ingen ekstra felt,
 # null uttrykt som typeliste. (OpenAI strict mode krever dette; de andre godtar det.)
 OBSERVATION_SCHEMA: dict[str, Any] = _strict_object({
+    "category": _enum(Category),
+    "object_type": _nullable("string", description="What the object is, in Norwegian"),
+    "description": _nullable("string", description="One or two neutral sentences in Norwegian"),
+    "materials": {"type": "array", "items": {"type": "string"}},
+    "style_cues": {"type": "array", "items": {"type": "string"}},
     "photos": {"type": "array", "items": _strict_object({
         "index": {"type": "integer", "description": "Photo number, starting at 1"},
         "shows": _enum(Location),
     })},
-    "dial_text": _nullable("string", description="Text on the dial, verbatim"),
-    "brand_signed": _nullable("string", description="Maker or retailer name as written on the watch"),
+    "dial_text": _nullable("string", description="Text on a watch dial, verbatim"),
+    "brand_signed": _nullable("string", description="Maker, factory, designer or retailer name as written on the object"),
     "numbers": {"type": "array", "items": _strict_object({
         "value": {"type": "string", "description": "The number, verbatim"},
         "location": _enum(Location),
@@ -138,8 +157,10 @@ def to_facts(raw: Any) -> VisionFacts:
     data["photos"] = [p for p in (data.get("photos") or []) if isinstance(p, dict) and isinstance(p.get("index"), int)]
     data["numbers"] = _clean_list(data.get("numbers"), ("value", "location", "method", "prefix"))
     data["marks"] = _clean_list(data.get("marks"), ("text", "location", "type"))
-    for key in ("unreadable", "retake_hints"):
-        data[key] = data.get(key) or []
+    for key in ("unreadable", "retake_hints", "materials", "style_cues"):
+        data[key] = [str(x) for x in (data.get(key) or []) if str(x).strip()]
+    if data.get("category") not in get_args(Category):
+        data["category"] = "other"
     for key in ("escapement", "winding", "movement_layout"):
         data[key] = data.get(key) or "unknown"
     try:

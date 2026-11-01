@@ -3,7 +3,7 @@
 import sqlite3
 import statistics
 
-from app.models import ComparableSale, NormalizedFacts, Valuation
+from app.models import ComparableSale, NormalizedFacts, Valuation, WATCH_CATEGORIES
 from app.services.makers import COMPARABLE_WITH_UNSIGNED, tier_of
 
 # Fra mest til minst spesifikt. Merke slippes aldri: et signert ur sammenlignes ikke med usignerte.
@@ -107,6 +107,8 @@ def _build(level: tuple, rows: list[sqlite3.Row], facts: NormalizedFacts, suffic
 
 def no_sales_message(facts: NormalizedFacts) -> str:
     """Forklaring når det ikke finnes sammenlignbare salg."""
+    if facts.category not in WATCH_CATEGORIES:
+        return "Appen har ingen egne salg i denne kategorien ennå. Se salgene funnet på nettet nedenfor."
     if facts.brand is None:
         return "Vi har ingen sammenlignbare salg av usignerte ur med disse egenskapene ennå."
     name = facts.brand_display or facts.brand

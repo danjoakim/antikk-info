@@ -14,9 +14,13 @@ const str = (v) => (typeof v === "string" && v.trim() ? v : null);
 const strList = (v) => (Array.isArray(v) ? v.filter((x) => typeof x === "string" && x.trim()) : []);
 
 const pick = (v, allowed, fallback = "unknown") => (allowed.includes(v) ? v : fallback);
-const LOCATIONS = ["dial", "outer_lid_outside", "outer_lid_inside", "cuvette_outside", "cuvette_inside", "movement", "case_rim", "unknown"];
+const LOCATIONS = ["dial", "outer_lid_outside", "outer_lid_inside", "cuvette_outside", "cuvette_inside", "movement", "case_rim",
+  "front", "back", "base", "inside", "lid", "side", "handle", "label", "unknown"];
+const CATEGORIES = ["pocket_watch", "wristwatch", "clock", "silver_metal", "porcelain_ceramics", "glass", "jewelry",
+  "furniture", "art", "textile", "toy", "book_paper", "lighting", "other"];
 const METHODS = ["stamped", "engraved", "scratched", "unknown"];
-const MARK_TYPES = ["fineness", "hallmark_symbol", "maker_mark", "inscription", "owner_engraving", "repair_mark", "other"];
+const MARK_TYPES = ["fineness", "hallmark_symbol", "maker_mark", "factory_mark", "signature", "label", "inscription",
+  "owner_engraving", "repair_mark", "other"];
 
 export function toFacts(raw) {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
@@ -30,6 +34,8 @@ export function toFacts(raw) {
   }
   const list = (v) => (Array.isArray(v) ? v.filter((x) => x && typeof x === "object") : []);
   return {
+    category: pick(raw.category, CATEGORIES, "other"), object_type: str(raw.object_type), description: str(raw.description),
+    materials: strList(raw.materials), style_cues: strList(raw.style_cues),
     photos: list(raw.photos).filter((p) => Number.isInteger(p.index)).map((p) => ({ index: p.index, shows: pick(p.shows, LOCATIONS) })),
     dial_text: str(raw.dial_text), brand_signed: str(raw.brand_signed),
     numbers: list(raw.numbers).filter((n) => str(n.value)).map((n) => ({

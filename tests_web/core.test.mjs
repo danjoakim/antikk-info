@@ -7,6 +7,7 @@ import { test } from "node:test";
 
 import { dateItem } from "../docs/js/dating.js";
 import { brandInfo, cleanSerial, detectMaterial, makerInfo, noSalesMessage, normalize, normalizeBrand, setMakers } from "../docs/js/normalize.js";
+import { suggestPhotos } from "../docs/js/suggest.js";
 import { valueItem } from "../docs/js/valuation.js";
 
 const load = (name) => JSON.parse(readFileSync(new URL(`../docs/data/${name}.json`, import.meta.url), "utf8"));
@@ -119,7 +120,7 @@ test("Monard: grov periode og pris mot usignerte", () => {
 });
 
 test("innrissede og blandede nummer blir aldri serienummer", () => {
-  const n = normalize(hallmarks, { numbers: [
+  const n = normalize(hallmarks, { category: "pocket_watch", numbers: [
     { value: "K9341", location: "outer_lid_inside", method: "stamped" },
     { value: "4512", location: "movement", method: "scratched" },
   ] }, "vision");
@@ -129,7 +130,7 @@ test("innrissede og blandede nummer blir aldri serienummer", () => {
 });
 
 test("ulike kassenummer gir advarsel; motstridende perioder gir intervall", () => {
-  const n = normalize(hallmarks, { numbers: [
+  const n = normalize(hallmarks, { category: "pocket_watch", numbers: [
     { value: "101954", location: "outer_lid_inside", method: "stamped" },
     { value: "55321", location: "cuvette_inside", method: "stamped" },
   ] }, "vision");
@@ -140,9 +141,9 @@ test("ulike kassenummer gir advarsel; motstridende perioder gir intervall", () =
 
 // --- Forslag til neste bilde ---------------------------------------------------------
 
-import { suggestPhotos } from "../docs/js/suggest.js";
 
-const suggest = (f) => suggestPhotos(ranges, f, normalize(hallmarks, f, "vision")).map((s) => s.location);
+const suggest = (f) => { const g = { category: "pocket_watch", ...f };
+  return suggestPhotos(ranges, g, normalize(hallmarks, g, "vision")).map((s) => s.location); };
 
 test("forslag: Monard trenger ikke flere bilder, kjent merke uten verksnummer ber om verket", () => {
   assert.deepEqual(suggest(MONARD), []);
@@ -198,4 +199,26 @@ test("søkelenker for merke og usignert", () => {
   assert.equal(unsigned.auctionet.query, "fickur silver cylinder");
   assert.ok(!unsigned.barnebys); assert.equal(unsigned.ebay.query, "pocket watch silver cylinder");
   assert.deepEqual(saleSearchLinks(data, {}, null, "vase"), []);
+});
+
+// --- Andre kategorier enn ur ----------------------------------------------------------
+
+test("porselen behandles ikke som ur", () => {
+  const f = load("vision_contract").mock_scenarios.porcelain_demo;
+  const n = normalize(hallmarks, f, "vision");
+  assert.equal(n.category, "porcelain_ceramics");
+  assert.equal(n.brand_display, "Porsgrund");
+  assert.deepEqual(n.number_groups, []);
+  assert.deepEqual(n.other_numbers, ["2511 (undersiden)"]);
+  const d = dateItem(ranges, n, rules);
+  assert.equal(d.status, "no_tables");
+  assert.ok(d.message.includes("porselen og keramikk"));
+  assert.equal(valueItem(sales, n), null);
+  assert.deepEqual(suggestPhotos(ranges, f, n), []);
+});
+
+test("norsk sølv 830", () => {
+  const n = normalize(hallmarks, load("vision_contract").mock_scenarios.silver_spoon_demo, "vision");
+  assert.equal(n.material, "silver_830");
+  assert.equal(n.category, "silver_metal");
 });

@@ -11,12 +11,26 @@ MovementLayout = Literal["bar", "three_quarter_plate", "full_plate", "unknown"]
 ImageRole = Literal["photo", "dial", "caseback", "caseback_closeup", "cuvette", "cuvette_inside",
                     "movement", "movement_closeup"]
 
-# Hvor på uret et nummer eller merke ble funnet.
+# Hva slags gjenstand det er. Ur har egne felt og tabeller; de andre kategoriene bruker de generelle feltene.
+Category = Literal["pocket_watch", "wristwatch", "clock", "silver_metal", "porcelain_ceramics", "glass", "jewelry",
+                   "furniture", "art", "textile", "toy", "book_paper", "lighting", "other"]
+WATCH_CATEGORIES = {"pocket_watch", "wristwatch"}
+
+CATEGORY_LABELS: dict[str, str] = {
+    "pocket_watch": "Lommeur", "wristwatch": "Armbåndsur", "clock": "Klokke (vegg, bord, gulv)",
+    "silver_metal": "Sølv og metall", "porcelain_ceramics": "Porselen og keramikk", "glass": "Glass",
+    "jewelry": "Smykker", "furniture": "Møbler", "art": "Kunst (malerier, grafikk, skulptur)",
+    "textile": "Tekstiler", "toy": "Leker", "book_paper": "Bøker og papir", "lighting": "Lamper og lys",
+    "other": "Annet",
+}
+
+# Hvor på gjenstanden et nummer eller merke ble funnet. De første er for lommeur, resten er generelle.
 Location = Literal["dial", "outer_lid_outside", "outer_lid_inside", "cuvette_outside", "cuvette_inside",
-                   "movement", "case_rim", "unknown"]
+                   "movement", "case_rim", "front", "back", "base", "inside", "lid", "side", "handle", "label",
+                   "unknown"]
 NumberMethod = Literal["stamped", "engraved", "scratched", "unknown"]
-MarkType = Literal["fineness", "hallmark_symbol", "maker_mark", "inscription", "owner_engraving",
-                   "repair_mark", "other"]
+MarkType = Literal["fineness", "hallmark_symbol", "maker_mark", "factory_mark", "signature", "label",
+                   "inscription", "owner_engraving", "repair_mark", "other"]
 
 LOCATION_LABELS: dict[str, str] = {
     "dial": "urskiven",
@@ -26,6 +40,14 @@ LOCATION_LABELS: dict[str, str] = {
     "cuvette_inside": "cuvetten, innsiden",
     "movement": "urverket",
     "case_rim": "kassekanten",
+    "front": "forsiden",
+    "back": "baksiden",
+    "base": "undersiden",
+    "inside": "innsiden",
+    "lid": "lokket",
+    "side": "siden",
+    "handle": "hanken eller skaftet",
+    "label": "etiketten",
     "unknown": "ukjent sted",
 }
 
@@ -51,6 +73,11 @@ class PhotoObservation(BaseModel):
 
 
 class VisionFacts(BaseModel):
+    category: Category = "other"
+    object_type: str | None = Field(None, description="Hva gjenstanden er, på norsk, f.eks. «kaffekanne»")
+    description: str | None = Field(None, description="Kort, nøktern beskrivelse av det som synes")
+    materials: list[str] = Field(default_factory=list, description="Synlige materialer, på norsk")
+    style_cues: list[str] = Field(default_factory=list, description="Synlige stil- og utførelsestrekk, uten årstall")
     photos: list[PhotoObservation] = Field(default_factory=list, description="Hva hvert bilde viser")
     dial_text: str | None = Field(None, description="Tekst på urskiven, ordrett")
     brand_signed: str | None = Field(None, description="Merke- eller produsentnavn slik det står på uret")
@@ -83,6 +110,11 @@ class NumberGroup(BaseModel):
 
 
 class NormalizedFacts(BaseModel):
+    category: str = "pocket_watch"
+    object_type: str | None = None
+    description: str | None = None
+    materials: list[str] = Field(default_factory=list)
+    other_numbers: list[str] = Field(default_factory=list)   # modell-, mønster- og dekornummer o.l.
     brand: str | None = None               # kanonisk: 'omega', None = usignert
     brand_display: str | None = None       # slik navnet står på uret
     known_brand: bool = False              # finnes i merkelisten vår
@@ -113,12 +145,14 @@ class ConfirmedFacts(BaseModel):
     movement_layout: MovementLayout = "unknown"
     material: str | None = Field(None, description="Kanonisk materialkode; utledes av stempler hvis tom")
     case_stamps: list[str] = Field(default_factory=list)
-    item_type: str = "pocket_watch"
+    item_type: str = "pocket_watch"        # kategori, se Category
+    object_type: str | None = None
+    materials: list[str] = Field(default_factory=list)
 
 
 # --- Resultater fra databasen ------------------------------------------------
 
-DatingStatus = Literal["dated", "no_serial", "unknown_brand", "out_of_range"]
+DatingStatus = Literal["dated", "no_serial", "unknown_brand", "out_of_range", "no_tables"]
 
 
 class PeriodEstimate(BaseModel):

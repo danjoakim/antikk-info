@@ -153,6 +153,8 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-10-31 | Knappen «Lagre bildene på telefonen» deler originalbildene via delingsarket (Web Share), med nedlasting som reserve | iOS lagrer ikke bilder tatt med kameraet fra en nettside i Bilder-appen; brukeren mistet bildene av et testet ur |
 | 2026-11-01 | InformAntikk er for alt man finner på loppis og i antikk- og bruktbutikker. Lommeur er første kategori, ikke hele appen | Brukerens presisering. Nye løsninger (felles salgsdatabase, nettsøk etter salg, lignende bilder) bygges generelt, ikke for ur |
 | 2026-11-01 | Vi tar det beste fra de andre appene: rask bildeflyt og samlinger (Curio), salgsdata med kilde (WorthPoint, Barnebys, AntiqBot), lignende bilder (Google Lens), fagperson ved verdifulle funn (Mearto, ValueMyStuff), betaling per analyse (AntiqBot). Det vi beholder selv: år og pris bare fra tabeller og lenkede salg | Brukerens strategi. Ærlighet om kilder er det som skiller oss fra konkurrentene |
+| 2026-11-01 | Gemini-nøkkelen er betalt (fakturering på) | Brukerens opplysning. Gratisnivåets køer er ikke årsak til ventetid, og nettsøk via Gemini kan brukes uten ekstra oppsett |
+| 2026-11-01 | Tenkenivå «low» for Gemini 3-modellene, med nytt forsøk uten hvis modellen avviser det | Analysen ble treg; standardnivået er «medium»/«high». Avlesning av bilder trenger lite resonnering |
 | 2026-10-29 | Standardmodeller: `gpt-6-astra` (OpenAIs anbefalte), `gemini-3.8-flash` (Googles anbefalte stabile Flash) | Hentet fra leverandørenes modelloversikter 29.10.2026; overstyres med `VISION_MODEL` |
 
 ---
@@ -172,6 +174,14 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-11-01 – Økt 18: Raskere bildeanalyse
+**Bakgrunn:** Brukeren melder at analysen tar veldig lang tid.
+**Årsak (sannsynlig):** Appen satte ikke tenkenivå, så Gemini 3 brukte standardnivået («medium»/«high»), som Google sier gir lengst ventetid. Instruksen er lang og bildene mange.
+**Gjort:** `thinkingConfig.thinkingLevel = "low"` for modeller som begynner på «gemini-3» (nettversjonen og serverversjonen), med nytt forsøk uten tenkenivå hvis API-et avviser det. Bekreftelsesskjermen viser nå «Analysen tok N s · X bilder · Y MB sendt».
+**Filer:** `docs/js/vision.js`, `docs/js/app.js`, `app/static/app.js`, begge `index.html`, `app/services/vision/providers/gemini.py`, `tests_web/vision.test.mjs`, `LOGG.md`.
+**Tester:** Python 59, JavaScript 24 bestått. Mobilnettleser: forespørselen inneholder `thinkingLevel: low`, og tiden vises.
+**Ikke testet:** Ekte ventetid og om avlesningen er like god med lavt tenkenivå – brukeren tester med Vacheron-uret.
 
 ### 2026-11-01 – Økt 17: Se hva lignende er solgt for
 **Gjort:** Nytt kort på resultatsiden med ferdige søk etter solgte eksemplarer: Auctionet (avsluttede, tilslag; svenske søkeord), Barnebys (oppnådde priser; bare merkenavnet) og eBay (solgte). Søkeordene lages av bekreftet merke, materiale og gangtype. Ordlistene ligger i `app/data/sale_search.json`, felles for begge versjoner, så nye kategorier bare trenger nye ord. Kortet sier tydelig at prisene der ikke er kontrollert av appen.

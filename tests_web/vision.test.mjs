@@ -98,3 +98,13 @@ test("demoeksempler kopieres", () => {
   assert.ok(!mockFacts(contract, "omega_silver").marks.includes("endret"));
   assert.equal(mockFacts(contract, "finnes-ikke").brand_signed, "G. Monard, Genève");
 });
+
+test("Gemini 3 får lavt tenkenivå", async () => {
+  const { buildRequest, thinkingLevelFor } = await import("../docs/js/vision.js");
+  assert.equal(thinkingLevelFor("gemini-3.8-flash"), "low");
+  assert.equal(thinkingLevelFor("gemini-2.5-flash"), null);
+  const contract = JSON.parse(readFileSync(new URL("../docs/data/vision_contract.json", import.meta.url), "utf8"));
+  const body = await buildRequest([], contract, { thinkingLevel: "low" });
+  assert.deepEqual(body.generationConfig.thinkingConfig, { thinkingLevel: "low" });
+  assert.equal((await buildRequest([], contract)).generationConfig.thinkingConfig, undefined);
+});

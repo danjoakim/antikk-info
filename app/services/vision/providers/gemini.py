@@ -43,6 +43,9 @@ def extract(images: list[ImageInput], settings: Settings) -> dict:
                 response_mime_type="application/json",
                 response_json_schema=OBSERVATION_SCHEMA,
                 temperature=0,
+                # Gemini 3 tenker før svaret; «low» gir kortest ventetid.
+                **({"thinking_config": types.ThinkingConfig(thinking_level="low")}
+                   if settings.vision_model.startswith("gemini-3") else {}),
             ),
         )
     except errors.APIError as exc:

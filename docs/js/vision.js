@@ -74,7 +74,12 @@ export function toOpenApiSchema(node) {
   return out;
 }
 
-export async function buildRequest(images, contract, { legacySchema = false } = {}) {
+/** Gemini 3 tenker før svaret; «low» gir kortest ventetid. Avlesning av bilder trenger lite resonnering. */
+export function thinkingLevelFor(model) {
+  return /^gemini-3/i.test(model ?? "") ? "low" : null;
+}
+
+export async function buildRequest(images, contract, { legacySchema = false, thinkingLevel = null } = {}) {
   const parts = [];
   for (const [i, img] of images.entries()) {
     const label = contract.role_labels[img.role] ?? img.role ?? "";
@@ -85,6 +90,7 @@ export async function buildRequest(images, contract, { legacySchema = false } = 
   const generationConfig = { responseMimeType: "application/json", temperature: 0 };
   if (legacySchema) generationConfig.responseSchema = toOpenApiSchema(contract.schema);
   else generationConfig.responseJsonSchema = contract.schema;
+  if (thinkingLevel) generationConfig.thinkingConfig = { thinkingLevel };
   return {
     systemInstruction: { parts: [{ text: contract.system_prompt }] },
     contents: [{ role: "user", parts }],
@@ -137,10 +143,16 @@ export function parseGemini(data) {
 export async function analyzeWithGemini(images, contract, { key, model = DEFAULT_MODEL, signal } = {}) {
   if (!key) throw new VisionError("Legg inn en Gemini-nøkkel i innstillingene, eller bruk demomodus.");
   const url = `${API}/models/${encodeURIComponent(model)}:generateContent`;
-  let result = await post(url, key, await buildRequest(images, contract), signal);
+  let thinkingLevel = thinkingLevelFor(model);
+  let result = await post(url, key, await buildRequest(images, contract, { thinkingLevel }), signal);
+  // Godtar ikke modellen tenkenivået, prøver vi igjen uten.
+  if (result.status === 400 && thinkingLevel && /thinking/i.test(result.message)) {
+    thinkingLevel = null;
+    result = await post(url, key, await buildRequest(images, contract), signal);
+  }
   // Godtas ikke full JSON Schema, prøver vi én gang med OpenAPI-varianten.
   if (result.status === 400 && /response_?json_?schema|responseJsonSchema|unknown name|schema/i.test(result.message)) {
-    result = await post(url, key, await buildRequest(images, contract, { legacySchema: true }), signal);
+    result = await post(url, key, await buildRequest(images, contract, { legacySchema: true, thinkingLevel }), signal);
   }
   if (!result.ok) throw new VisionError(errorFor(result.status, result.message, model));
   return parseGemini(result.data);

@@ -328,6 +328,7 @@ async function analyze() {
   showLoading("analyze");
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+  const started = performance.now();
   try {
     const images = state.photos.map((p) => ({ role: "photo", blob: p.blob }));
     const facts = live
@@ -336,7 +337,9 @@ async function analyze() {
       : mockFacts(state.data.contract, $("#mock-scenario").value);
     const normalized = normalize(state.data.hallmarks, facts, "vision");
     const suggestions = suggestPhotos(state.data.serial_ranges, facts, normalized);
-    state.analysis = { mode: live ? "live" : "mock", facts, normalized, suggestions };
+    state.analysis = { mode: live ? "live" : "mock", facts, normalized, suggestions,
+      seconds: live ? (performance.now() - started) / 1000 : null, photos: images.length,
+      bytes: images.reduce((sum, i) => sum + i.blob.size, 0) };
     renderConfirm();
     show("confirm");
   } catch (err) {
@@ -356,8 +359,15 @@ function showLoadingError(message, retry) {
   $("#back-btn").onclick = () => (state.analysis ? show("confirm") : openCapture());
 }
 
+function formatAnalysisTime(a) {
+  if (!a?.seconds) return "";
+  const mb = (a.bytes / 1e6).toLocaleString("nb-NO", { maximumFractionDigits: 1 });
+  return `Analysen tok ${Math.round(a.seconds)} s · ${a.photos} ${a.photos === 1 ? "bilde" : "bilder"} · ${mb} MB sendt`;
+}
+
 function renderConfirm() {
   const { facts, normalized } = state.analysis;
+  $("#analysis-time").textContent = formatAnalysisTime(state.analysis);
   const form = $("#confirm-form");
   const options = (list) => list.map((e) => `<option value="${e.code}">${esc(e.label)}</option>`).join("");
 

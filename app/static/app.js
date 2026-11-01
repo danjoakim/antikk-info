@@ -316,8 +316,11 @@ async function analyze() {
   const scenario = $("#mock-scenario").value;
   if (state.meta?.mode === "mock" && scenario) form.append("mock_scenario", scenario);
 
+  const started = performance.now();
   try {
     state.analysis = await api("/api/analyze", { method: "POST", body: form });
+    Object.assign(state.analysis, { seconds: (performance.now() - started) / 1000, photos: state.photos.length,
+      bytes: state.photos.reduce((sum, p) => sum + p.blob.size, 0) });
     renderConfirm();
     show("confirm");
   } catch (err) {
@@ -335,8 +338,15 @@ function showLoadingError(message, retry) {
   $("#back-btn").onclick = () => (state.analysis ? show("confirm") : openCapture());
 }
 
+function formatAnalysisTime(a) {
+  if (!a?.seconds) return "";
+  const mb = (a.bytes / 1e6).toLocaleString("nb-NO", { maximumFractionDigits: 1 });
+  return `Analysen tok ${Math.round(a.seconds)} s · ${a.photos} ${a.photos === 1 ? "bilde" : "bilder"} · ${mb} MB sendt`;
+}
+
 function renderConfirm() {
   const { facts, normalized } = state.analysis;
+  $("#analysis-time").textContent = formatAnalysisTime(state.analysis);
   const form = $("#confirm-form");
   const options = (list) => list.map((e) => `<option value="${e.code}">${esc(e.label)}</option>`).join("");
 

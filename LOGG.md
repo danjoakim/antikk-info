@@ -72,6 +72,19 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 - [ ] Verifisere periodereglene (`period_rules`) mot faglitteratur
 - [ ] Legge til salgsdata for nøkkeloppstrekk vs. kroneoppstrekk (påvirker prisen)
 
+### Prioritert rekkefølge (avtalt 01.11.2026)
+1. [ ] Søkeknapper etter solgte på Auctionet, Barnebys og eBay fra resultatsiden (enkelt, gratis, gjelder alle kategorier)
+2. [ ] Frontlokk (savonnette) i skjemaet
+3. [ ] Neste kategori etter lommeur (porselen/keramikk eller sølv – brukeren velger)
+4. [ ] Felles salgsdatabase med godkjenningskø (Supabase) og nettsøk etter salg via Gemini
+
+### Parkerte idéer (ikke start før det over er ferdig)
+- Skannefunksjon: smart søker med skarphetsmåler, gjenskinnsvarsel og automatisk avtrykk (nivå 1); levende guide med Gemini Live API (nivå 2). Usikker gevinst: bilder fra videostrøm er dårligere enn stillbilder til å lese små stempler.
+- Lignende bilder fra nettet (Google Cloud Vision Web Detection)
+- Henvisning til urmaker/auksjonshus for verdifulle funn
+- Nøkkel på server og betaling per analyse
+- Serienummertabell for Vacheron Constantin (kildene er motstridende over 400 000)
+
 ### Senere (utenfor MVP)
 - [ ] Importskript for kuraterte auksjonsdata (CSV → SQLite, `is_demo = 0`)
 - [ ] Tabell `reference_estimates` for prisguider, holdt adskilt fra auksjonsdata

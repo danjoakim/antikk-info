@@ -51,7 +51,7 @@ export function makerInfo(brand) {
 }
 
 export function noSalesMessage(facts) {
-  if (!isWatch(facts.category)) return "Appen har ingen egne salg i denne kategorien ennå. Se salgene funnet på nettet nedenfor.";
+  if (!isWatch(facts.category)) return "Appen har ingen egne salg i denne kategorien ennå. Se prisene funnet på nettet.";
   if (!facts.brand) return "Vi har ingen sammenlignbare salg av usignerte ur med disse egenskapene ennå.";
   const name = facts.brand_display || facts.brand;
   if (!tierOf(facts.brand)) {

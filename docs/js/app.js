@@ -667,7 +667,7 @@ function renderMaker(maker) {
         : isWatch(category)
           ? `<p class="meta">Vi fant ingenting om «${esc(name)}». Det kan være et lite forhandler- eller handelsnavn.
              <a href="https://www.mikrolisk.de/" target="_blank" rel="noopener">Mikrolisk</a> har et stort register over urmerker.</p>`
-          : `<p class="meta">Wikipedia har ingen artikkel om «${esc(name)}». Se bakgrunnen fra nettet nedenfor.</p>`;
+          : `<p class="meta">Wikipedia har ingen artikkel om «${esc(name)}». Se bakgrunnen fra nettet ovenfor.</p>`;
     });
     return;
   }

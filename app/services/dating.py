@@ -75,7 +75,7 @@ def date_item(conn: sqlite3.Connection, facts: NormalizedFacts) -> DatingResult:
     if facts.category not in WATCH_CATEGORIES:
         label = CATEGORY_LABELS.get(facts.category, "denne typen ting").lower()
         return DatingResult(status="no_tables",
-                            message=f"Vi har ingen dateringstabeller for {label} ennå. Se bakgrunnen fra nettet nedenfor.")
+                            message=f"Vi har ingen dateringstabeller for {label} ennå. Se bakgrunnen fra nettet ovenfor.")
     result = _date_by_number(conn, facts)
     if result.status != "dated":
         result.period = estimate_period(conn, facts)

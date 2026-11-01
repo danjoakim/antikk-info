@@ -62,7 +62,7 @@ export function estimatePeriod(rules, facts) {
 export function dateItem(ranges, facts, rules = []) {
   if (!isWatch(facts.category)) {
     const label = (CATEGORY_LABELS[facts.category] ?? "denne typen ting").toLowerCase();
-    return { status: "no_tables", message: `Vi har ingen dateringstabeller for ${label} ennå. Se bakgrunnen fra nettet nedenfor.` };
+    return { status: "no_tables", message: `Vi har ingen dateringstabeller for ${label} ennå. Se bakgrunnen fra nettet ovenfor.` };
   }
   const result = dateByNumber(ranges, facts);
   if (result.status !== "dated") result.period = estimatePeriod(rules, facts);

@@ -9,6 +9,7 @@ import { describeItem, searchWebSales } from "./websales.js";
 import { describeObserved, identifyItem, mockIdentity } from "./identify.js";
 import { discogsIdentify, discogsStats } from "./discogs.js";
 import { lookupWikidata } from "./wikidata.js";
+import { nbIdentify } from "./nb.js";
 import { valueItem } from "./valuation.js";
 import { analyzeWithGemini, mockFacts, testKey, VisionError } from "./vision.js";
 
@@ -292,6 +293,11 @@ async function analyze() {
         .catch((err) => ({ candidates: [], decided: false, source: "discogs", error: err.message }));
       if (!identity.candidates.length) identity = { ...identity, discogsError: identity.error, discogsEmpty: !identity.error };
     }
+    // Bøker: Nasjonalbiblioteket først (riktig utgave), uten nøkkel. Feil eller ingen treff: Gemini som før.
+    if (live && normalized.category === "book_paper" && (normalized.title || facts.numbers?.length)) {
+      identity = await nbIdentify(facts, normalized, { signal: controller.signal })
+        .catch((err) => ({ candidates: [], decided: false, source: "nb", nbError: err.message }));
+    }
     if (!identity?.candidates?.length) {
       const before = identity;
       identity = live
@@ -501,7 +507,7 @@ function lookup(event) {
     item_type: category,
     object_type: form.object_type.value.trim() || null,
     identified: state.analysis.chosen?.name ?? null,
-    released: state.analysis.chosen?.discogs?.year ?? null,
+    released: state.analysis.chosen?.discogs?.year ?? state.analysis.chosen?.nb?.year ?? null,
     identified_url: state.analysis.chosen?.demo ? null : state.analysis.chosen?.url ?? null,
     identified_site: state.analysis.chosen?.site ?? null,
     title: form.elements.work_title.value.trim() || null,

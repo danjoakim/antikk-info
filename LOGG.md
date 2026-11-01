@@ -192,6 +192,12 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ## Øktlogg
 
+### 2026-11-01 – Økt 28: Nasjonalbiblioteket for norske bøker
+**Bakgrunn:** Brukeren åpnet api.nb.no i Safari: katalogen svarer med åpen JSON uten nøkkel. Søket «Sult Hamsun» ga først en artikkel om boka, så det må filtreres på bøker.
+**Gjort:** Ny `docs/js/nb.js`. For bøker søker appen først i Nasjonalbiblioteket (ISBN hvis lest, ellers tittel og forfatter; bare medietypen «bøker»). Utgaver vises som kort i «Er det en av disse?» med år og forlag; «Sjekk» peker på trykkeåret (eller forlaget) på tittelbladet. Valgt utgave går til prissøket, og utgivelsesåret vises på resultatet med nb.no som kilde. Feil eller ingen treff: Gemini-identifiseringen som før.
+**Tester:** 57 JS-tester (4 nye) og 63 Python-tester bestått. Nettlesertest med simulert katalog: to utgaver av «Sult» (1957, 1990), valg, prissøk med riktig utgave, «utgitt 1957».
+**Ikke bekreftet:** Om appen får hente fra api.nb.no fra danjoakim.github.io (CORS), og om `isbn:`-søk virker. Begge faller trygt tilbake til tittelsøk/Gemini.
+
 ### 2026-11-01 – Økt 27: Åpne kilder sjekket; Wikidata i «Om navnet»
 **Sjekket (oversikt i prosjektet: `claude/APNE-KILDER.md`):** Open Library (ingen nøkkel, 1 forespørsel/s, bare `search.json` bekreftet åpent for nettlesere, tynn på norske utgaver); Nasjonalbiblioteket (kunne ikke nås herfra – må testes fra telefonen); MusicBrainz (krever User-Agent nettlesere ikke kan sette, og kommersiell bruk krever avtale – droppes, Discogs dekker musikk); Wikidata (ingen nøkkel, CC0, virker fra nettleseren via samme API som Wikipedia); Met Museum (lav relevans for norsk loppis).
 **Gjort:** Ny `docs/js/wikidata.js`. «Om navnet / forfatteren / kunstneren» slår først opp i Wikidata og godtar bare treff som er et menneske eller et firma/merke/forlag/plateselskap/band (eller beskrives slik, og ikke er et sted). Kortet viser beskrivelse, årstall (grunnlagt/født–død) og land, og Wikipedia-innledningen hentes med nøyaktig artikkeltittel fra Wikidata – ingen ordfilter. Finner ikke Wikidata noe, brukes det gamle Wikipedia-søket.

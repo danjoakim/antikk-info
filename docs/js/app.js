@@ -618,10 +618,7 @@ function renderWebSales({ sales, unchecked = [], debug = null, background, range
     <p class="meta web-note">Hentet med Google-søk på ${Math.round(seconds)} s. Ikke kontrollert av Funn – åpne lenken og sjekk at det ligner.
       ${dropped - unchecked.length > 0 ? `${dropped - unchecked.length} treff uten lenke, pris eller kilde ble utelatt.` : ""}</p>
     <div class="web-suggestions"></div>
-    ${debug ? `<details class="tech"><summary>Vis teknisk info</summary><pre>${esc([
-      `Modell: ${debug.modelVersion ?? state.settings.model}`, `Stoppet fordi: ${debug.finishReason ?? "?"}`,
-      `Søk: ${stats?.queries ?? 0} · kilder: ${stats?.sources ?? 0} · søkeinfo-felt: ${debug.metaKeys.join(", ") || "ingen"}`,
-      `Svar (starten): ${debug.text}`].join("\n"))}</pre></details>` : ""}`;
+    ${techHtml(debug, stats)}`;
   if (entryPoint) {
     // Googles søkeforslag skal vises når søkeresultater brukes; isolert i en egen ramme.
     const frame = document.createElement("iframe");
@@ -630,6 +627,15 @@ function renderWebSales({ sales, unchecked = [], debug = null, background, range
     frame.srcdoc = `<base target="_blank">${entryPoint}`;
     $(".web-suggestions", card).append(frame);
   }
+}
+
+/** «Vis teknisk info»: hva Google faktisk sendte om søket. Vises både i priskortet og på «Hm»-skjermen. */
+function techHtml(debug, stats) {
+  if (!debug) return "";
+  return `<details class="tech"><summary>Vis teknisk info</summary><pre>${esc([
+    `Modell: ${debug.modelVersion ?? state.settings.model}`, `Stoppet fordi: ${debug.finishReason ?? "?"}`,
+    `Søk: ${stats?.queries ?? 0} · kilder: ${stats?.sources ?? 0} · søkeinfo-felt: ${debug.metaKeys.join(", ") || "ingen"}`,
+    `Svar (starten): ${debug.text}`].join("\n"))}</pre></details>`;
 }
 
 // --- Resultat ------------------------------------------------------------------
@@ -756,6 +762,7 @@ function setSummary(args = {}) {
       $("#none-detail").textContent = st
         ? `Google søkte ${st.queries ?? 0} ganger og ga ${st.sources ?? 0} kilder; søket foreslo ${st.proposed ?? 0} priser${st.noPrice ? `, ${st.noPrice} uten lesbar pris` : ""}${st.unverified ? `, ${st.unverified} fra nettsteder som ikke var blant kildene${st.unverifiedSites?.length ? ` (${st.unverifiedSites.slice(0, 4).join(", ")})` : ""}` : ""}${st.json === false ? "; svaret hadde ikke riktig format" : ""}.`
         : "";
+      $("#none-tech").innerHTML = techHtml(web?.debug, st);
     }
   }
   const wasWaiting = !!bubble.querySelector(".wait-line");

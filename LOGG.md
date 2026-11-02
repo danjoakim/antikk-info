@@ -202,7 +202,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 - «Vis teknisk info» nederst i priskortet: modell, hvorfor svaret stoppet, antall søk/kilder, hvilke søkefelt Google sendte, og starten av svaret – for å finne ut hvorfor Google ikke søker.
 - Priser i kroner vises som de står (ikke avrundet).
 **Tester:** 63 JS-tester og 63 Python-tester bestått; nettlesertest av brukerens tilfelle (ingen søkedata): priser og stiplet lapp vises, teknisk info vises; bok, PS5 og Discogs uendret.
-**Åpent:** Hvorfor Google ofte ikke søker (0 søk) – «Vis teknisk info» skal vise det.
+**Åpent:** Hvorfor Google ofte ikke søker (0 søk) – «Vis teknisk info» skal vise det. Rettet samme kveld: teknisk info vises nå også på «Hm. Denne vet jeg ikke»-skjermen (priskortet er skjult der).
 
 ### 2026-11-02 – Økt 31: Riktig søkesjekk, og skjæra plystrer mens prisene letes fram
 **Bakgrunn:** To mummikopper: «Google ga 0 kilder; søket foreslo 8 priser … (moominarabia.com, moomin.no, cdn.kitchn.no, norli.no)», søket tok 31 s, og skjæra sa «Google-søket ble ikke gjennomført». Google hadde søkt, men sendte ingen kildeliste. Brukeren: når man ikke ser at noe skjer, gidder man ikke vente.

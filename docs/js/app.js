@@ -618,7 +618,7 @@ function renderWebSales({ sales, unchecked = [], debug = null, background, range
     <p class="meta web-note">Hentet med Google-søk på ${Math.round(seconds)} s. Ikke kontrollert av Funn – åpne lenken og sjekk at det ligner.
       ${dropped - unchecked.length > 0 ? `${dropped - unchecked.length} treff uten lenke, pris eller kilde ble utelatt.` : ""}</p>
     <div class="web-suggestions"></div>
-    ${techHtml(debug, stats)}`;
+    ${!stats?.searched || !(sales.length + unchecked.length) ? techHtml(debug, stats) : ""}`;
   if (entryPoint) {
     // Googles søkeforslag skal vises når søkeresultater brukes; isolert i en egen ramme.
     const frame = document.createElement("iframe");
@@ -741,16 +741,23 @@ function setSummary(args = {}) {
     if (web?.range) parts.push(`de har gått for <b>${span(web.range)}</b>`);
     range = web?.range ?? web?.listedRange ?? null;
     if (parts.length) html = `<p>Fant ${web.sales.length} priser! ${capitalize(parts.join(", og "))}.</p>`;
-    else if (web?.sales?.length) html = `<p>Fant ${web.sales.length} ${web.sales.length === 1 ? "pris" : "priser"}, men for få til et intervall. Se dem under.</p>`;
-    else if (web?.uncheckedRange) {
-      const u = web.uncheckedRange;
-      html = `<p>Fant ${web.unchecked.length} ${web.unchecked.length === 1 ? "pris" : "priser"}: <b>${u.min === u.max ? kr(u.min) : span(u)}</b>. ${web.stats?.searched ? "De er ikke bekreftet av søket" : "Google oppga ikke kilder for dem"}, så sjekk lenkene under.</p>`;
-      range = { ...u, unconfirmed: true };
+    else if (web?.sales?.length || web?.unchecked?.length) {
+      // For få bekreftede til et eget spenn: vis spennet for alle prisene, stiplet når noen er ubekreftet.
+      const all = [...(web.sales ?? []), ...(web.unchecked ?? [])].map((x) => x.nok).filter(Boolean);
+      const n = web.sales?.length ?? 0, u = web.unchecked?.length ?? 0;
+      if (all.length) {
+        const r = { min: Math.min(...all), max: Math.max(...all) };
+        range = { ...r, unconfirmed: u > 0 };
+        const how = !u ? "Alle er bekreftet av søket."
+          : !n ? (web.stats?.searched ? "Ingen er bekreftet av søket, så sjekk lenkene under." : "Google oppga ikke kilder for dem, så sjekk lenkene under.")
+          : `${n} er bekreftet av søket, ${u} bør du sjekke selv.`;
+        html = `<p>Fant ${n + u} ${n + u === 1 ? "pris" : "priser"}: <b>${r.min === r.max ? kr(r.min) : span(r)}</b>. ${how}</p>`;
+      } else html = `<p>Fant ${n + u} ${n + u === 1 ? "pris" : "priser"} i andre valutaer. Se dem under.</p>`;
     }
     else if (web && web.stats?.searched === false) html = `<p>Google-søket ble ikke gjennomført denne gangen, så jeg har ingen priser å vise.</p>
       <button type="button" class="link" data-action="retry-search">Prøv søket igjen</button>`;
     else if (web?.background?.length) html = `<p>Fant ingen priser med kilde denne gangen, men litt om bakgrunnen under.</p>`;
-    if (web?.sales?.length && web.unchecked?.length) html += `<p>Pluss ${web.unchecked.length} ukontrollerte treff du kan sjekke selv.</p>`;
+    if ((web?.range || web?.listedRange) && web.unchecked?.length) html += `<p>Pluss ${web.unchecked.length} ubekreftede treff du kan sjekke selv.</p>`;
     html += discogsLine;
     if (own) {
       range ??= own;

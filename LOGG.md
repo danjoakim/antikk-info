@@ -195,6 +195,11 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ## Øktlogg
 
+### 2026-11-02 – Bakgrunn som standard
+**Bakgrunn:** Nytt søk på mummikoppen ga ingen bakgrunnshistorie. Brukeren: bakgrunn bør være standard – folk vil vite disse tingene.
+**Gjort:** Prissøket ber nå alltid om 2–4 bakgrunnsfakta (hva tingen er, produsent, serie eller design, når og hvorfor den ble laget, og hva som er spesielt) i stedet for «opptil 4». Bakgrunn med lenke vises alltid; fakta som ikke er bekreftet av søket merkes «kilde ikke bekreftet». Fakta uten lenke kastes fortsatt.
+**Tester:** 67 JS-tester (1 ny, 1 oppdatert) og 63 Python-tester bestått.
+
 ### 2026-11-02 – Fjernet «Analysen tok … · N bilder · X MB sendt»
 Brukeren: ingen vil ha den informasjonen. Linjen på «Stemmer dette?» og funksjonen bak er fjernet. 66 JS-tester bestått; nettlesertest av bokflyten uten feil.
 

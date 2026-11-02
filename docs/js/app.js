@@ -596,7 +596,7 @@ function renderWebSales({ sales, unchecked = [], debug = null, background, range
         <a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.seller)}</a></span></li>`;
   const list = sales.map(saleItem).join("");
   const uncheckedList = unchecked.map(saleItem).join("");
-  const facts = background.map((b) => `<li>${esc(b.text)} <span class="meta">(<a href="${esc(b.url)}" target="_blank" rel="noopener">${esc(b.source)}</a>)</span></li>`).join("");
+  const facts = background.map((b) => `<li>${esc(b.text)} <span class="meta">(<a href="${esc(b.url)}" target="_blank" rel="noopener">${esc(b.source)}</a>${b.unconfirmed ? ", kilde ikke bekreftet" : ""})</span></li>`).join("");
   card.innerHTML = `
     <h2>Priser funnet på nettet</h2>
     ${summary}

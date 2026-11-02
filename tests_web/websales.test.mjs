@@ -46,11 +46,12 @@ test("salg uten bekreftet kilde forkastes, resten regnes om og gir intervall", (
                  { text: "Uten kilde.", url: "https://blogg.example/x" }],
   }, ["antiquorum.swiss", "gorringes.co.uk", "en.wikipedia.org"]), fx);
   assert.equal(r.sales.length, 3);
-  assert.equal(r.dropped, 3);
+  assert.equal(r.dropped, 2);                                     // uten pris + oppdiktet (som nå vises som ubekreftet)
+  assert.equal(r.unchecked.length, 1);
   assert.equal(r.sales[0].similarity, "same_model");             // samme modell først
   assert.equal(r.sales[0].nok, 13000);                            // 1000 GBP × 12,8268, avrundet til 500
   assert.deepEqual(r.range, { min: 13000, median: 42000, max: 75000, n: 3 });
-  assert.equal(r.background.length, 1);
+  assert.deepEqual(r.background.map((b) => b.unconfirmed), [false, true]);   // bakgrunn utenfor kildene vises merket
   assert.equal(r.entryPoint, "<div>forslag</div>");
 });
 
@@ -202,4 +203,12 @@ test("Lenker fra Googles søkeresultater regnes som bekreftet kilde", async () =
   assert.equal(isGroundingLink(g), true);
   assert.equal(verified(g, new Set(), []), true);
   assert.equal(verified("https://vertexaisearch.cloud.google.com/other", new Set(), []), false);
+});
+
+test("Bakgrunn med lenke vises alltid, ubekreftet merkes; uten lenke kastes", () => {
+  const r = parseWebSales({ candidates: [{ content: { parts: [{ text: JSON.stringify({ sales: [], background: [
+    { text: "Fra kilden.", url: "https://www.finn.no/x" }, { text: "Ikke i kildene.", url: "https://mukify.com/y" }, { text: "Uten lenke." }] }) }] },
+    groundingMetadata: { groundingChunks: [{ web: { uri: "https://x", title: "finn.no" } }] } }] }, { rates: {} });
+  assert.deepEqual(r.background.map((b) => [b.text, b.unconfirmed]), [["Fra kilden.", false], ["Ikke i kildene.", true]]);
+  assert.match(buildWebSalesRequest("x").contents[0].parts[0].text, /always 2–4 background facts/);
 });

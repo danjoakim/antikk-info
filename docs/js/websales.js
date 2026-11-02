@@ -61,7 +61,7 @@ Rules:
 export function buildWebSalesRequest(description, { thinkingLevel = null } = {}) {
   const prompt = `Item: ${description}
 
-Find up to 10 prices (sold and listed) for comparable items and up to 4 background facts.
+Find up to 10 prices (sold and listed) for comparable items, and always 2–4 background facts that a curious buyer would enjoy: what the item is, its maker, series or design, when and why it was made, and anything notable about it.
 Return exactly this JSON shape (price as a plain number):
 {"sales":[{"title":"","kind":"sold|listed","price":0,"currency":"ISO 4217","price_basis":"hammer|incl_premium|unknown","date":"YYYY-MM-DD or YYYY","seller":"site, shop or auction house","url":"","similarity":"same_model|same_maker|similar"}],
  "background":[{"text":"","url":""}]}
@@ -185,8 +185,11 @@ export function parseWebSales(data, fx) {
 
   const background = [];
   for (const b of Array.isArray(parsed.background) ? parsed.background : []) {
-    if (!b?.text || !b?.url || !verified(b.url, domains, titles)) { dropped += 1; continue; }
-    background.push({ text: String(b.text).slice(0, 400), url: b.url, source: host(b.url) });
+    // Bakgrunn med lenke vises alltid; den som ikke er bekreftet av søket, merkes.
+    if (!b?.text || !b?.url || !/^https?:\/\//i.test(b.url)) { dropped += 1; continue; }
+    const ok = verified(b.url, domains, titles);
+    background.push({ text: String(b.text).slice(0, 400), url: b.url,
+      source: isGroundingLink(b.url) ? "Google-søk" : host(b.url), unconfirmed: !ok });
   }
 
   const rangeOf = (list) => {

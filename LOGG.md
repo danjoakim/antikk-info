@@ -78,8 +78,9 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 3. [ ] **Nøkler på server (Supabase Edge Function)** før kilder som krever nøkkel: alle nøkler legges inn én gang der, appen trenger ingen. Gratisdelen holder mens vi tester.
 4. [ ] Deretter kilder med gratis nøkkel, i rekkefølge: DigitaltMuseum (norsk design), LEGO (Rebrickable/Brickset), BoardGameGeek, Numista (mynter), TMDB (film), Comic Vine, RAWG/IGDB (spill), eBay Browse (priser til salgs).
 5. [ ] Småfeil sett i test 02.11.2026: «Fant ikke noe kjent materialstempel. Velg materiale manuelt.» vises også for porselen – skal bare vises for sølv/metall, smykker og ur.
-6. [ ] Felles base over bekreftede funn (idé 3) – krever beslutninger om lagring, bilder og godkjenning.
-7. [ ] Frontlokk (savonnette) i skjemaet; serverversjonen (`app/`) henger etter nettversjonen.
+6. [ ] **Utviklermodus før lansering:** en bryter i menyen («Utviklermodus», av som standard) som viser utviklerinformasjon: den grå feilsøkingslinjen («Google søkte N ganger og ga X kilder; …»), «Vis teknisk info», antall utelatte treff og liknende. Vanlige brukere ser bare resultatet. Tas sammen med nøkler på server og lansering.
+7. [ ] Felles base over bekreftede funn (idé 3) – krever beslutninger om lagring, bilder og godkjenning.
+8. [ ] Frontlokk (savonnette) i skjemaet; serverversjonen (`app/`) henger etter nettversjonen.
 
 ### Parkerte idéer (ikke start før det over er ferdig)
 - Samlinger («Mine funn») med lagrede analyser, som i Curio

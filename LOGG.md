@@ -169,6 +169,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-11-01 | ~~Bildesøk med Cloud Vision~~ – forkastet samme kveld: ga plakater i stedet for boka. Bare Gemini | Cloud Vision matcher utseende, ikke hva tingen er |
 | 2026-11-01 | Identifisering med kilde før prissøk; brukeren velger bare når bildet ikke avgjør det | Presist navn gir bedre pristreff; ingen spørsmål om det som synes |
 | 2026-11-01 | Musikk og film er egne kategorier; plater slås opp i Discogs (pressing og pris nå) | Mange leter etter musikk og film i bruktbutikker; Discogs er databasen for utgivelser |
+| 2026-11-02 | Priser fra nettsteder utenfor Google-kildene vises som «ukontrollerte treff» med lenke, men teller ikke i prisspennet | Den strenge kontrollen kastet ekte priser; brukeren kan sjekke selv, og appen later ikke som de er sikre |
 | 2026-11-01 | Appen heter **Funn** | Brukerens valg. Kort og norsk, og passer til flyten: du gjør et funn, skjæra samler funnene i reiret. Ingen varemerkeregistrering nå |
 | 2026-11-01 | Ny skjære fra Kuraplan erstatter stockskjæra, som ikke ble godkjent for bruken. Creative Commons-lisens uten krav om kreditering (ifølge brukeren), så merket trenger ikke være med | Brukerens nye fil |
 | 2026-11-01 | Skjæra har monokkel og tversoversløyfe og sitter i en loppiskasse (kaffekoppen er droppet) | Rekvisitter gir personlighet uten å tegne om fuglen; kassa skjuler klørne og knytter skjæra til loppis |
@@ -191,6 +192,14 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-11-02 – Økt 30: Ukontrollerte treff og alle salgsnavn
+**Bakgrunn:** En mummikopp fra Arabia ga ingen priser selv om slike er populære. Brukeren: kontrollen er ekstremt streng på hva den tillater å vise. Brukeren minnet også om at appen ikke skal bygges rundt én ting – reglene må være generelle.
+**Gjort:**
+- Priser med lenke til et nettsted som ikke var blant Google-kildene, kastes ikke lenger: de vises i en egen liste «Ukontrollerte treff» («Ikke bekreftet av søket – åpne lenken og sjekk selv»), og teller ikke i prisspennet eller på prislappen. Priser uten lenke kastes fortsatt. Har Google ikke søkt i det hele tatt, vises de ikke (de er fra modellens hukommelse).
+- Snakkeboblen nevner ukontrollerte treff («Pluss N ukontrollerte treff …» / «Fant ingen priser bekreftet av søket, men N treff du kan sjekke selv»).
+- Generell regel i prissøket og identifiseringen: søk på alle navnene tingen faktisk selges under i Norge (originale merke-, serie- og modellnavn, norske navn og kallenavn). Ingen kategori- eller produktspesifikke navn i koden.
+**Tester:** 62 JS-tester (2 nye) og 63 Python-tester bestått; nettlesertest: én kontrollert pris + to ukontrollerte i egen liste; PS5 med nytt søkeforsøk og «Prøv søket igjen» uendret; Discogs uendret.
 
 ### 2026-11-01 – Økt 29: Bokpriser – holde søket på boka, bokhandlene med, strengere kildekontroll
 **Bakgrunn:** «Markens grøde» (Antares 2024) via Nasjonalbiblioteket: «Google ga 4 kilder; søket foreslo 5 priser, 5 fra nettsteder som ikke var blant kildene». Bakgrunnen kom fra filmmagasinet.no – søket ble dratt mot den nye filmen. Tittelen sto som «[Markens grøde]».

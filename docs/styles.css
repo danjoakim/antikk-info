@@ -314,6 +314,8 @@ input[name$="serial"], input[name="case_number"] { font-variant-numeric: tabular
 .web-facts li { padding: 4px 0; line-height: 1.45; }
 .web-suggestions iframe { width: 100%; height: 90px; border: 0; margin-top: 8px; }
 .web-note { margin-top: 12px; }
+.web-sales.unchecked li { opacity: .8; border-bottom-style: dashed; }
+.unchecked-note { margin: 0; }
 
 .range { margin: 18px 0 8px; }
 .range-track { position: relative; height: 12px; border: 2px solid var(--ink); background: repeating-linear-gradient(90deg, var(--white) 0 calc(10% - 2px), var(--ink) calc(10% - 2px) 10%); }

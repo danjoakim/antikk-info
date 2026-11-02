@@ -139,3 +139,20 @@ test("Bøker: søket holdes på boka, og bokhandlene er med", () => {
   for (const site of ["ark.no", "norli.no", "bokkilden.no"]) assert.ok(sys.includes(site), site);
   assert.match(sys, /Only report a price from a page that appears in your search results/);
 });
+
+test("Priser fra nettsteder utenfor kildene vises som ukontrollerte, men ikke uten søk", () => {
+  const reply = (chunks) => ({ candidates: [{ content: { parts: [{ text: JSON.stringify({ sales: [
+    { title: "A", kind: "listed", price: 200, currency: "NOK", url: "https://www.finn.no/1", similarity: "same_model" },
+    { title: "B", kind: "listed", price: 250, currency: "NOK", url: "https://www.tise.com/2", similarity: "same_model" },
+    { title: "C", kind: "listed", price: 300, currency: "NOK", similarity: "same_model" },
+  ], background: [] }) }] }, groundingMetadata: { groundingChunks: chunks } }] });
+  const r = parseWebSales(reply([{ web: { uri: "https://x", title: "finn.no" } }]), { rates: { NOK: 1 } });
+  assert.deepEqual(r.sales.map((s) => s.title), ["A"]);
+  assert.deepEqual(r.unchecked.map((s) => s.title), ["B"], "tise.com var ikke blant kildene; C mangler lenke");
+  assert.equal(r.listedRange, null, "ukontrollerte teller ikke i spennet");
+  assert.equal(parseWebSales(reply([]), { rates: { NOK: 1 } }).unchecked.length, 0, "uten søk vises ingenting");
+});
+
+test("Søket skal bruke alle navnene tingen selges under, generelt", () => {
+  assert.match(buildWebSalesRequest("x").systemInstruction.parts[0].text, /every name the item is actually sold under/);
+});

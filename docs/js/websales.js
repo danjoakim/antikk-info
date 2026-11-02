@@ -50,6 +50,7 @@ Rules:
 - Find prices for the same item or the closest comparable items, second-hand or antique.
 - Two kinds of prices: "sold" = a price actually achieved (auction hammer price, "sold for", completed sale); "listed" = an asking price in a current or recent ad or shop listing. Never report estimates.
 - Search Norwegian and Nordic sources first (finn.no, tise.com, auctionet.com, blomqvist.no, gwpa.no, lauritz.com, tradera.com), then international ones (ebay.com, catawiki.com, worthpoint.com, auction houses).
+- Search every name the item is actually sold under on Norwegian marketplaces: the maker's, series' and model's original names, common Norwegian names and nicknames – not only the name given in the input.
 - Prefer the same maker, model, type, material and era. Mark how similar each one is.
 - Books, comics, records, films and games: match title and author/artist first, then edition or printing, publisher, year printed and binding. A different book by the same author is "similar", not "same_model". Book sources: finn.no, tise.com, antikvariat.net, boklibris.no, bokborsen.no, abebooks.com, ebay.com, and for books still in print the Norwegian bookstores ark.no, norli.no, adlibris.com/no, bokkilden.no and haugenbok.no (a bookstore price is "listed"); records, CDs and cassettes: discogs.com, finn.no, tise.com, ebay.com; films: finn.no, tise.com, ebay.com. For music and film, match artist/director and title first, then format, label or studio, catalogue number and pressing.
 - Only report a price from a page that appears in your search results, and give that page's exact URL. If you cannot find the page in the search results, leave the price out.
@@ -147,6 +148,7 @@ export function parseWebSales(data, fx) {
   let dropped = 0;
 
   const sales = [];
+  const unchecked = [];   // pris og lenke, men nettstedet var ikke blant Google-kildene: vises merket, teller ikke
   for (const s of Array.isArray(parsed.sales) ? parsed.sales : []) {
     stats.proposed += 1;
     const price = parsePrice(s?.price);
@@ -155,20 +157,26 @@ export function parseWebSales(data, fx) {
       stats.unverified += 1; dropped += 1;
       const h = host(s?.url ?? "");
       if (h && !stats.unverifiedSites.includes(h)) stats.unverifiedSites.push(h);
+      if (h && /^https?:\/\//i.test(s.url) && unchecked.length < 8) unchecked.push(toSale(s, price));
       continue;
     }
+    sales.push(toSale(s, price));
+  }
+  function toSale(s, price) {
     const currency = String(s.currency ?? "").toUpperCase();
     const rate = rates[currency];
-    sales.push({
+    return {
       title: String(s.title ?? "").slice(0, 160), price, currency, kind: s.kind === "listed" ? "listed" : "sold",
       nok: rate ? round(price * rate) : null,
       basis: ["hammer", "incl_premium"].includes(s.price_basis) ? s.price_basis : "unknown",
       date: String(s.date ?? ""), seller: String(s.seller ?? host(s.url)), url: s.url,
       similarity: ["same_model", "same_maker", "similar"].includes(s.similarity) ? s.similarity : "similar",
-    });
+    };
   }
   const order = { same_model: 0, same_maker: 1, similar: 2 };
-  sales.sort((a, b) => order[a.similarity] - order[b.similarity] || (b.date > a.date ? 1 : -1));
+  const byOrder = (a, b) => order[a.similarity] - order[b.similarity] || (b.date > a.date ? 1 : -1);
+  sales.sort(byOrder);
+  unchecked.sort(byOrder);
 
   const background = [];
   for (const b of Array.isArray(parsed.background) ? parsed.background : []) {
@@ -186,7 +194,9 @@ export function parseWebSales(data, fx) {
   const range = rangeOf(sales.filter((s) => s.kind === "sold"));
   const listedRange = rangeOf(sales.filter((s) => s.kind === "listed"));
 
-  return { sales, background, range, listedRange, dropped, stats, queries: meta.webSearchQueries ?? [],
+  // Uten noe Google-søk er lenkene fra modellens hukommelse: de vises ikke, heller ikke som ukontrollerte.
+  if (!stats.sources) unchecked.length = 0;
+  return { sales, unchecked, background, range, listedRange, dropped, stats, queries: meta.webSearchQueries ?? [],
            entryPoint: meta.searchEntryPoint?.renderedContent ?? null };
 }
 

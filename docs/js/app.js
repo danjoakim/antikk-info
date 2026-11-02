@@ -582,7 +582,7 @@ async function startWebSales(facts, maker, dating) {
   }
 }
 
-function renderWebSales({ sales, background, range, listedRange, dropped, stats, entryPoint }, seconds) {
+function renderWebSales({ sales, unchecked = [], background, range, listedRange, dropped, stats, entryPoint }, seconds) {
   const card = $("#web-card");
   const rangeHtml = (r, label) => `<p class="web-range-label">${label}</p>
     <p class="big">${r.min.toLocaleString("nb-NO")}–${kr(r.max)}</p>
@@ -596,19 +596,24 @@ function renderWebSales({ sales, background, range, listedRange, dropped, stats,
       : `<p>Fant ingen priser med sikker kilde denne gangen.</p>
          <p class="meta">Google ga ${stats?.sources ?? 0} kilder; søket foreslo ${stats?.proposed ?? 0} priser${stats?.noPrice ? `, ${stats.noPrice} uten lesbar pris` : ""}${stats?.unverified ? `, ${stats.unverified} fra nettsteder som ikke var blant kildene${stats.unverifiedSites?.length ? ` (${stats.unverifiedSites.slice(0, 4).join(", ")})` : ""}` : ""}${stats && !stats.json ? "; svaret hadde ikke riktig format" : ""}.</p>`;
   }
-  const list = sales.map((s) => `
+  const saleItem = (s) => `
     <li><span class="web-sale-title">${esc(s.title)}</span>
       <span class="web-sale-price">${s.kind === "listed" ? "Til salgs: " : "Solgt: "}${esc(s.price.toLocaleString("nb-NO"))} ${esc(s.currency)}${s.nok && s.currency !== "NOK" ? ` · ca. ${kr(s.nok)}` : ""}</span>
       <span class="meta">${esc(SIMILARITY_LABELS[s.similarity])}${BASIS_LABELS[s.basis] ? ` · ${BASIS_LABELS[s.basis]}` : ""}${s.date ? ` · ${esc(s.date)}` : ""} ·
-        <a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.seller)}</a></span></li>`).join("");
+        <a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.seller)}</a></span></li>`;
+  const list = sales.map(saleItem).join("");
+  const uncheckedList = unchecked.map(saleItem).join("");
   const facts = background.map((b) => `<li>${esc(b.text)} <span class="meta">(<a href="${esc(b.url)}" target="_blank" rel="noopener">${esc(b.source)}</a>)</span></li>`).join("");
   card.innerHTML = `
     <h2>Priser funnet på nettet</h2>
     ${summary}
     ${list ? `<ul class="web-sales">${list}</ul>` : ""}
+    ${uncheckedList ? `<h3>Ukontrollerte treff</h3>
+      <p class="meta unchecked-note">Ikke bekreftet av søket – åpne lenken og sjekk selv. Disse teller ikke med i prisene over.</p>
+      <ul class="web-sales unchecked">${uncheckedList}</ul>` : ""}
     ${facts ? `<h3>Bakgrunn</h3><ul class="web-facts">${facts}</ul>` : ""}
     <p class="meta web-note">Hentet med Google-søk på ${Math.round(seconds)} s. Ikke kontrollert av Funn – åpne lenken og sjekk at det ligner.
-      ${dropped ? `${dropped} treff uten bekreftet kilde eller pris ble utelatt.` : ""}</p>
+      ${dropped - unchecked.length > 0 ? `${dropped - unchecked.length} treff uten lenke, pris eller kilde ble utelatt.` : ""}</p>
     <div class="web-suggestions"></div>`;
   if (entryPoint) {
     // Googles søkeforslag skal vises når søkeresultater brukes; isolert i en egen ramme.
@@ -704,9 +709,11 @@ function setSummary(args = {}) {
     range = web?.range ?? web?.listedRange ?? null;
     if (parts.length) html = `<p>Fant ${web.sales.length} priser! ${capitalize(parts.join(", og "))}.</p>`;
     else if (web?.sales?.length) html = `<p>Fant ${web.sales.length} ${web.sales.length === 1 ? "pris" : "priser"}, men for få til et intervall. Se dem under.</p>`;
+    else if (web?.unchecked?.length) html = `<p>Fant ingen priser bekreftet av søket, men ${web.unchecked.length} ${web.unchecked.length === 1 ? "treff" : "treff"} du kan sjekke selv under.</p>`;
     else if (web && web.stats?.sources === 0) html = `<p>Google-søket ble ikke gjennomført denne gangen, så jeg har ingen priser å vise.</p>
       <button type="button" class="link" data-action="retry-search">Prøv søket igjen</button>`;
     else if (web?.background?.length) html = `<p>Fant ingen priser med kilde denne gangen, men litt om bakgrunnen under.</p>`;
+    if (web?.sales?.length && web.unchecked?.length) html += `<p>Pluss ${web.unchecked.length} ukontrollerte treff du kan sjekke selv.</p>`;
     html += discogsLine;
     if (own) {
       range ??= own;

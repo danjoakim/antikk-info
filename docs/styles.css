@@ -147,6 +147,15 @@ h1, h2 { font-weight: 400; }
 .mascot-small { width: 96px; }
 .mascot-tiny { width: 74px; margin-left: auto; }
 .mascot-result { width: 150px; }
+/* Skjæra plystrer mens prisene letes fram: små noter fra nebbet, og kassa vipper. */
+.notes { position: absolute; left: 2px; top: -30px; width: 40px; height: 54px; pointer-events: none; display: none; }
+.whistling .notes { display: block; }
+.notes i { position: absolute; left: 10px; bottom: 0; font: 400 20px/1 var(--marker); font-style: normal; opacity: 0; animation: note 2.4s ease-out infinite; }
+.notes i:nth-child(2) { animation-delay: .8s; left: 0; font-size: 18px; }
+.notes i:nth-child(3) { animation-delay: 1.6s; left: 18px; font-size: 16px; }
+@keyframes note { 0% { transform: translate(0, 0) rotate(-10deg); opacity: 0; } 15% { opacity: 1; }
+  100% { transform: translate(-14px, -46px) rotate(12deg); opacity: 0; } }
+.whistling .mascot-result { transform-origin: 55% 80%; animation: vipp 1.8s ease-in-out infinite; }
 .mascot-none { width: 210px; transform: rotate(-5deg); }
 .mascot-wait { width: 230px; margin-top: 20px; transform-origin: 55% 80%; animation: vipp 1.6s ease-in-out infinite; }
 @keyframes vipp { 0%, 100% { transform: rotate(0deg); } 30% { transform: rotate(-4deg); } 60% { transform: rotate(3deg); } }
@@ -369,7 +378,8 @@ summary { cursor: pointer; font-weight: 700; min-height: 44px; display: flex; al
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mascot-wait, .dot { animation: none; }
+  .mascot-wait, .dot, .notes i, .whistling .mascot-result { animation: none; }
+  .notes i { opacity: 1; }
   .btn { transition: none; }
   .btn:active { transform: none; }
 }

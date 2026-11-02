@@ -140,7 +140,8 @@ export function parseWebSales(data, fx) {
   const meta = candidate?.groundingMetadata ?? {};
   const domains = groundedDomains(meta);
   const titles = sourceTitles(meta);
-  const stats = { sources: (meta.groundingChunks ?? []).length, proposed: 0, noPrice: 0, unverified: 0, unverifiedSites: [], json: false };
+  const stats = { sources: (meta.groundingChunks ?? []).length, queries: (meta.webSearchQueries ?? []).length,
+    searched: searchedMeta(meta), proposed: 0, noPrice: 0, unverified: 0, unverifiedSites: [], json: false };
   const json = extractJson(text);
   stats.json = !!json;
   const parsed = json ?? { sales: [], background: [] };
@@ -195,7 +196,7 @@ export function parseWebSales(data, fx) {
   const listedRange = rangeOf(sales.filter((s) => s.kind === "listed"));
 
   // Uten noe Google-søk er lenkene fra modellens hukommelse: de vises ikke, heller ikke som ukontrollerte.
-  if (!stats.sources) unchecked.length = 0;
+  if (!stats.searched) unchecked.length = 0;
   return { sales, unchecked, background, range, listedRange, dropped, stats, queries: meta.webSearchQueries ?? [],
            entryPoint: meta.searchEntryPoint?.renderedContent ?? null };
 }
@@ -237,7 +238,12 @@ export async function callGrounded(buildBody, { key, model, signal, label = "Net
 }
 
 /** Ble Google-søket faktisk kjørt? Uten kilder er svaret fra modellens hukommelse. */
-export const searched = (data) => (data?.candidates?.[0]?.groundingMetadata?.groundingChunks ?? []).length > 0;
+export const searched = (data) => searchedMeta(data?.candidates?.[0]?.groundingMetadata);
+
+/** Søkte Google? Kildelisten kan være tom selv om det ble søkt, så søkene og søkeforslagene teller også. */
+export function searchedMeta(meta) {
+  return (meta?.groundingChunks ?? []).length > 0 || (meta?.webSearchQueries ?? []).length > 0 || !!meta?.searchEntryPoint;
+}
 
 export async function searchWebSales(description, fx, { key, model, signal } = {}) {
   const data = await callGrounded((thinkingLevel) => buildWebSalesRequest(description, { thinkingLevel }), { key, model, signal });

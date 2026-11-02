@@ -193,6 +193,15 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ## Øktlogg
 
+### 2026-11-02 – Økt 31: Riktig søkesjekk, og skjæra plystrer mens prisene letes fram
+**Bakgrunn:** To mummikopper: «Google ga 0 kilder; søket foreslo 8 priser … (moominarabia.com, moomin.no, cdn.kitchn.no, norli.no)», søket tok 31 s, og skjæra sa «Google-søket ble ikke gjennomført». Google hadde søkt, men sendte ingen kildeliste. Brukeren: når man ikke ser at noe skjer, gidder man ikke vente.
+**Gjort:**
+- Om Google søkte avgjøres av listen over søk (`webSearchQueries`) og søkeforslagene, ikke bare kildelisten (`searchedMeta`). Ingen unødvendig nytt forsøk (raskere), og «Google-søket ble ikke gjennomført» vises bare når det faktisk ikke ble søkt.
+- Har Google søkt uten å oppgi kilder, vises prisene med lenke som ukontrollerte treff.
+- Den grå linjen: «Google søkte N ganger og ga X kilder; …».
+- Venting på resultatskjermen: skjæra vipper i kassa og plystrer (små noter fra nebbet), og snakkeboblen skifter tekst hvert 4. sekund («Søker på FINN og Tise …», «Sjekker butikker og antikvariater …», «Ser etter auksjoner og solgte …», «Kontrollerer kildene …», «Nesten der …»). Ingen sekundteller (brukerens valg). Navn, Discogs og «Om navnet» vises mens prisene letes fram. Respekterer «redusert bevegelse».
+**Tester:** 63 JS-tester (1 ny) og 63 Python-tester bestått; nettlesertest med forsinket prissvar: plystring og skiftende tekst under venting, ukontrollerte treff når kildelisten er tom, bare ett prissøk.
+
 ### 2026-11-02 – Økt 30: Ukontrollerte treff og alle salgsnavn
 **Bakgrunn:** En mummikopp fra Arabia ga ingen priser selv om slike er populære. Brukeren: kontrollen er ekstremt streng på hva den tillater å vise. Brukeren minnet også om at appen ikke skal bygges rundt én ting – reglene må være generelle.
 **Gjort:**

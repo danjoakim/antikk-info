@@ -156,3 +156,19 @@ test("Priser fra nettsteder utenfor kildene vises som ukontrollerte, men ikke ut
 test("Søket skal bruke alle navnene tingen selges under, generelt", () => {
   assert.match(buildWebSalesRequest("x").systemInstruction.parts[0].text, /every name the item is actually sold under/);
 });
+
+test("Google har søkt selv om kildelisten er tom: ikke nytt forsøk, og prisene vises som ukontrollerte", async () => {
+  const { searched, searchedMeta } = await import("../docs/js/websales.js");
+  const meta = { webSearchQueries: ["mummikopp arabia pris"] };
+  assert.equal(searchedMeta(meta), true);
+  assert.equal(searchedMeta({}), false);
+  const data = { candidates: [{ content: { parts: [{ text: JSON.stringify({ sales: [
+    { title: "Kopp", kind: "listed", price: 249, currency: "NOK", url: "https://www.norli.no/x", similarity: "same_model" }], background: [] }) }] },
+    groundingMetadata: meta }] };
+  assert.equal(searched(data), true);
+  const r = parseWebSales(data, { rates: { NOK: 1 } });
+  assert.equal(r.sales.length, 0);
+  assert.equal(r.unchecked.length, 1);
+  assert.equal(r.stats.searched, true);
+  assert.equal(r.stats.queries, 1);
+});

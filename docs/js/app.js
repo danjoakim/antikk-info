@@ -594,7 +594,7 @@ function renderWebSales({ sales, unchecked = [], background, range, listedRange,
     summary = sales.length
       ? `<p class="meta">For få priser til et intervall (minst 3 av samme slag). Se enkeltprisene under.</p>`
       : `<p>Fant ingen priser med sikker kilde denne gangen.</p>
-         <p class="meta">Google ga ${stats?.sources ?? 0} kilder; søket foreslo ${stats?.proposed ?? 0} priser${stats?.noPrice ? `, ${stats.noPrice} uten lesbar pris` : ""}${stats?.unverified ? `, ${stats.unverified} fra nettsteder som ikke var blant kildene${stats.unverifiedSites?.length ? ` (${stats.unverifiedSites.slice(0, 4).join(", ")})` : ""}` : ""}${stats && !stats.json ? "; svaret hadde ikke riktig format" : ""}.</p>`;
+         <p class="meta">Google søkte ${stats?.queries ?? 0} ganger og ga ${stats?.sources ?? 0} kilder; søket foreslo ${stats?.proposed ?? 0} priser${stats?.noPrice ? `, ${stats.noPrice} uten lesbar pris` : ""}${stats?.unverified ? `, ${stats.unverified} fra nettsteder som ikke var blant kildene${stats.unverifiedSites?.length ? ` (${stats.unverifiedSites.slice(0, 4).join(", ")})` : ""}` : ""}${stats && !stats.json ? "; svaret hadde ikke riktig format" : ""}.</p>`;
   }
   const saleItem = (s) => `
     <li><span class="web-sale-title">${esc(s.title)}</span>
@@ -687,6 +687,26 @@ function renderResultHead(valuation) {
 const span = (r) => `${nok.format(r.min)}–${kr(r.max)}`;
 
 /** Prislappen og snakkeboblen. Viser «Fant ingenting» når verken nettsøket eller egne salg ga priser. */
+// Mens prisene letes fram: skjæra plystrer og vipper, og teksten i boblen viser hva som pågår.
+const WAIT_LINES = ["Søker på FINN og Tise …", "Sjekker butikker og antikvariater …", "Ser etter auksjoner og solgte …",
+                    "Kontrollerer kildene …", "Nesten der, finner de beste treffene …"];
+let waitTimer = null;
+
+function setWaiting(on) {
+  $(".result-mascot").classList.toggle("whistling", on);
+  clearInterval(waitTimer);
+  waitTimer = null;
+  if (!on) return;
+  let i = 0;
+  waitTimer = setInterval(() => {
+    const line = $("#result-bubble .wait-line");
+    if (!line) return setWaiting(false);
+    i = Math.min(i + 1, WAIT_LINES.length - 1);
+    line.textContent = WAIT_LINES[i];
+    if (i === WAIT_LINES.length - 1) { clearInterval(waitTimer); waitTimer = null; }
+  }, 4000);
+}
+
 function setSummary(args = {}) {
   state.summaryArgs = args;
   const { waiting = false, web = null, error = null } = args;
@@ -699,7 +719,7 @@ function setSummary(args = {}) {
   let range = null;
   let html = "";
   if (waiting) {
-    html = `<p>Leter etter priser med kilde …</p>${discogsLine}`;
+    html = `<p class="wait-line">${esc(WAIT_LINES[0])}</p>${discogsLine}`;
   } else if (error) {
     html = `<p>Nettsøket stoppet: ${esc(error)}</p>`;
   } else {
@@ -710,7 +730,7 @@ function setSummary(args = {}) {
     if (parts.length) html = `<p>Fant ${web.sales.length} priser! ${capitalize(parts.join(", og "))}.</p>`;
     else if (web?.sales?.length) html = `<p>Fant ${web.sales.length} ${web.sales.length === 1 ? "pris" : "priser"}, men for få til et intervall. Se dem under.</p>`;
     else if (web?.unchecked?.length) html = `<p>Fant ingen priser bekreftet av søket, men ${web.unchecked.length} ${web.unchecked.length === 1 ? "treff" : "treff"} du kan sjekke selv under.</p>`;
-    else if (web && web.stats?.sources === 0) html = `<p>Google-søket ble ikke gjennomført denne gangen, så jeg har ingen priser å vise.</p>
+    else if (web && web.stats?.searched === false) html = `<p>Google-søket ble ikke gjennomført denne gangen, så jeg har ingen priser å vise.</p>
       <button type="button" class="link" data-action="retry-search">Prøv søket igjen</button>`;
     else if (web?.background?.length) html = `<p>Fant ingen priser med kilde denne gangen, men litt om bakgrunnen under.</p>`;
     if (web?.sales?.length && web.unchecked?.length) html += `<p>Pluss ${web.unchecked.length} ukontrollerte treff du kan sjekke selv.</p>`;
@@ -723,11 +743,14 @@ function setSummary(args = {}) {
     if (none) {
       const st = web?.stats;
       $("#none-detail").textContent = st
-        ? `Google ga ${st.sources ?? 0} kilder; søket foreslo ${st.proposed ?? 0} priser${st.noPrice ? `, ${st.noPrice} uten lesbar pris` : ""}${st.unverified ? `, ${st.unverified} fra nettsteder som ikke var blant kildene${st.unverifiedSites?.length ? ` (${st.unverifiedSites.slice(0, 4).join(", ")})` : ""}` : ""}${st.json === false ? "; svaret hadde ikke riktig format" : ""}.`
+        ? `Google søkte ${st.queries ?? 0} ganger og ga ${st.sources ?? 0} kilder; søket foreslo ${st.proposed ?? 0} priser${st.noPrice ? `, ${st.noPrice} uten lesbar pris` : ""}${st.unverified ? `, ${st.unverified} fra nettsteder som ikke var blant kildene${st.unverifiedSites?.length ? ` (${st.unverifiedSites.slice(0, 4).join(", ")})` : ""}` : ""}${st.json === false ? "; svaret hadde ikke riktig format" : ""}.`
         : "";
     }
   }
+  const wasWaiting = !!bubble.querySelector(".wait-line");
   bubble.innerHTML = html;
+  if (waiting && !wasWaiting) setWaiting(true);
+  else if (!waiting) setWaiting(false);
   sticker.classList.toggle("empty", !range);
   const from = !range && dc?.nokLow ? dc.nokLow : null;
   sticker.classList.toggle("empty", !range && !from);

@@ -305,6 +305,9 @@ input[name$="serial"], input[name="case_number"] { font-variant-numeric: tabular
   display: flex; align-items: center; justify-content: center; text-align: center;
   font: 400 14px/1.05 var(--marker);
 }
+.price-sticker.unconfirmed { border-style: dashed; background: #FFD1E6; }
+.tech { margin-top: 10px; font-size: 12px; }
+.tech pre { white-space: pre-wrap; overflow-wrap: anywhere; margin: 6px 0 0; padding: 8px; border: 1.5px dashed var(--ink); background: var(--white); font: 12px/1.4 var(--mono); }
 .price-sticker.empty { background: var(--white); font-size: 26px; }
 
 #dating-card:empty { display: none; }

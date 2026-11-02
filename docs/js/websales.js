@@ -168,7 +168,7 @@ export function parseWebSales(data, fx) {
     const rate = rates[currency];
     return {
       title: String(s.title ?? "").slice(0, 160), price, currency, kind: s.kind === "listed" ? "listed" : "sold",
-      nok: rate ? round(price * rate) : null,
+      nok: currency === "NOK" ? price : rate ? round(price * rate) : null,   // kroner vises som de står
       basis: ["hammer", "incl_premium"].includes(s.price_basis) ? s.price_basis : "unknown",
       date: String(s.date ?? ""), seller: String(s.seller ?? host(s.url)), url: s.url,
       similarity: ["same_model", "same_maker", "similar"].includes(s.similarity) ? s.similarity : "similar",
@@ -195,9 +195,15 @@ export function parseWebSales(data, fx) {
   const range = rangeOf(sales.filter((s) => s.kind === "sold"));
   const listedRange = rangeOf(sales.filter((s) => s.kind === "listed"));
 
-  // Uten noe Google-søk er lenkene fra modellens hukommelse: de vises ikke, heller ikke som ukontrollerte.
-  if (!stats.searched) unchecked.length = 0;
-  return { sales, unchecked, background, range, listedRange, dropped, stats, queries: meta.webSearchQueries ?? [],
+  // Ubekreftede priser vises alltid med lenke og merking, men teller aldri i de bekreftede spennene.
+  // Spennet for dem (min–maks) vises merket som ubekreftet når det ikke finnes bekreftede priser.
+  const nokOf = unchecked.filter((s) => s.nok).map((s) => s.nok);
+  const uncheckedRange = nokOf.length ? { min: Math.min(...nokOf), max: Math.max(...nokOf), n: nokOf.length } : null;
+  const debug = {
+    finishReason: candidate?.finishReason ?? null, modelVersion: data?.modelVersion ?? null,
+    metaKeys: Object.keys(meta), text: text.slice(0, 400),
+  };
+  return { sales, unchecked, uncheckedRange, debug, background, range, listedRange, dropped, stats, queries: meta.webSearchQueries ?? [],
            entryPoint: meta.searchEntryPoint?.renderedContent ?? null };
 }
 

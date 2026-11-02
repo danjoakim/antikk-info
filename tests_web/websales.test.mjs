@@ -140,7 +140,7 @@ test("Bøker: søket holdes på boka, og bokhandlene er med", () => {
   assert.match(sys, /Only report a price from a page that appears in your search results/);
 });
 
-test("Priser fra nettsteder utenfor kildene vises som ukontrollerte, men ikke uten søk", () => {
+test("Priser fra nettsteder utenfor kildene vises som ukontrollerte, også uten søk, med eget spenn", () => {
   const reply = (chunks) => ({ candidates: [{ content: { parts: [{ text: JSON.stringify({ sales: [
     { title: "A", kind: "listed", price: 200, currency: "NOK", url: "https://www.finn.no/1", similarity: "same_model" },
     { title: "B", kind: "listed", price: 250, currency: "NOK", url: "https://www.tise.com/2", similarity: "same_model" },
@@ -150,7 +150,11 @@ test("Priser fra nettsteder utenfor kildene vises som ukontrollerte, men ikke ut
   assert.deepEqual(r.sales.map((s) => s.title), ["A"]);
   assert.deepEqual(r.unchecked.map((s) => s.title), ["B"], "tise.com var ikke blant kildene; C mangler lenke");
   assert.equal(r.listedRange, null, "ukontrollerte teller ikke i spennet");
-  assert.equal(parseWebSales(reply([]), { rates: { NOK: 1 } }).unchecked.length, 0, "uten søk vises ingenting");
+  const none = parseWebSales(reply([]), { rates: { NOK: 1 } });
+  assert.deepEqual(none.unchecked.map((s) => s.title).sort(), ["A", "B"], "uten søk vises de, merket som ubekreftet");
+  assert.equal(none.stats.searched, false);
+  assert.deepEqual(none.uncheckedRange, { min: 200, max: 250, n: 2 });
+  assert.equal(none.listedRange, null, "aldri i det bekreftede spennet");
 });
 
 test("Søket skal bruke alle navnene tingen selges under, generelt", () => {

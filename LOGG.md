@@ -169,7 +169,7 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 | 2026-11-01 | ~~Bildesøk med Cloud Vision~~ – forkastet samme kveld: ga plakater i stedet for boka. Bare Gemini | Cloud Vision matcher utseende, ikke hva tingen er |
 | 2026-11-01 | Identifisering med kilde før prissøk; brukeren velger bare når bildet ikke avgjør det | Presist navn gir bedre pristreff; ingen spørsmål om det som synes |
 | 2026-11-01 | Musikk og film er egne kategorier; plater slås opp i Discogs (pressing og pris nå) | Mange leter etter musikk og film i bruktbutikker; Discogs er databasen for utgivelser |
-| 2026-11-02 | Priser fra nettsteder utenfor Google-kildene vises som «ukontrollerte treff» med lenke, men teller ikke i prisspennet | Den strenge kontrollen kastet ekte priser; brukeren kan sjekke selv, og appen later ikke som de er sikre |
+| 2026-11-02 | Priser med lenke vises alltid (også uten søk), tydelig merket som ubekreftet; bekreftede priser går foran og er de eneste i de bekreftede spennene | Den strenge kontrollen kastet ekte priser; brukeren kan sjekke selv, og appen later ikke som de er sikre |
 | 2026-11-01 | Appen heter **Funn** | Brukerens valg. Kort og norsk, og passer til flyten: du gjør et funn, skjæra samler funnene i reiret. Ingen varemerkeregistrering nå |
 | 2026-11-01 | Ny skjære fra Kuraplan erstatter stockskjæra, som ikke ble godkjent for bruken. Creative Commons-lisens uten krav om kreditering (ifølge brukeren), så merket trenger ikke være med | Brukerens nye fil |
 | 2026-11-01 | Skjæra har monokkel og tversoversløyfe og sitter i en loppiskasse (kaffekoppen er droppet) | Rekvisitter gir personlighet uten å tegne om fuglen; kassa skjuler klørne og knytter skjæra til loppis |
@@ -192,6 +192,17 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 ---
 
 ## Øktlogg
+
+### 2026-11-02 – Økt 32: Priser med lenke vises alltid, merket som ubekreftet
+**Bakgrunn:** Ny mummikopp: «Google søkte 0 ganger og ga 0 kilder; søket foreslo 6 priser … (jernia.no, kitchn.no, moominarabia.com, multitrend.no)». Brukeren: dette er sikre kilder for pris på en ny kopp, og det er noe galt med logikken når appen ikke viser priser.
+**Beslutning:** Appen skal heller vise nyttige priser med tydelig merking enn ingenting. Priser med lenke vises alltid; bare bekreftede priser teller i de bekreftede spennene.
+**Gjort:**
+- Ubekreftede priser vises også når Google ikke søkte, merket «Fra Geminis kunnskap, ikke fra et søk akkurat nå – prisen kan ha endret seg. Åpne lenken og sjekk.» (eller «Ikke bekreftet av søket» når det ble søkt).
+- Finnes ingen bekreftede priser, viser snakkeboblen spennet for de ubekreftede («Fant 6 priser: 249–399 kr. De er ikke bekreftet …»), og prislappen viser det med stiplet kant og lysere rosa.
+- «Vis teknisk info» nederst i priskortet: modell, hvorfor svaret stoppet, antall søk/kilder, hvilke søkefelt Google sendte, og starten av svaret – for å finne ut hvorfor Google ikke søker.
+- Priser i kroner vises som de står (ikke avrundet).
+**Tester:** 63 JS-tester og 63 Python-tester bestått; nettlesertest av brukerens tilfelle (ingen søkedata): priser og stiplet lapp vises, teknisk info vises; bok, PS5 og Discogs uendret.
+**Åpent:** Hvorfor Google ofte ikke søker (0 søk) – «Vis teknisk info» skal vise det.
 
 ### 2026-11-02 – Økt 31: Riktig søkesjekk, og skjæra plystrer mens prisene letes fram
 **Bakgrunn:** To mummikopper: «Google ga 0 kilder; søket foreslo 8 priser … (moominarabia.com, moomin.no, cdn.kitchn.no, norli.no)», søket tok 31 s, og skjæra sa «Google-søket ble ikke gjennomført». Google hadde søkt, men sendte ingen kildeliste. Brukeren: når man ikke ser at noe skjer, gidder man ikke vente.

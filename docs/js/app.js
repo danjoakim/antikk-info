@@ -582,7 +582,7 @@ async function startWebSales(facts, maker, dating) {
   }
 }
 
-function renderWebSales({ sales, unchecked = [], background, range, listedRange, dropped, stats, entryPoint }, seconds) {
+function renderWebSales({ sales, unchecked = [], debug = null, background, range, listedRange, dropped, stats, entryPoint }, seconds) {
   const card = $("#web-card");
   const rangeHtml = (r, label) => `<p class="web-range-label">${label}</p>
     <p class="big">${r.min.toLocaleString("nb-NO")}–${kr(r.max)}</p>
@@ -593,7 +593,7 @@ function renderWebSales({ sales, unchecked = [], background, range, listedRange,
   if (!summary) {
     summary = sales.length
       ? `<p class="meta">For få priser til et intervall (minst 3 av samme slag). Se enkeltprisene under.</p>`
-      : `<p>Fant ingen priser med sikker kilde denne gangen.</p>
+      : `<p>${unchecked.length ? "Ingen priser er bekreftet av søket – se de ubekreftede under." : "Fant ingen priser med sikker kilde denne gangen."}</p>
          <p class="meta">Google søkte ${stats?.queries ?? 0} ganger og ga ${stats?.sources ?? 0} kilder; søket foreslo ${stats?.proposed ?? 0} priser${stats?.noPrice ? `, ${stats.noPrice} uten lesbar pris` : ""}${stats?.unverified ? `, ${stats.unverified} fra nettsteder som ikke var blant kildene${stats.unverifiedSites?.length ? ` (${stats.unverifiedSites.slice(0, 4).join(", ")})` : ""}` : ""}${stats && !stats.json ? "; svaret hadde ikke riktig format" : ""}.</p>`;
   }
   const saleItem = (s) => `
@@ -608,13 +608,20 @@ function renderWebSales({ sales, unchecked = [], background, range, listedRange,
     <h2>Priser funnet på nettet</h2>
     ${summary}
     ${list ? `<ul class="web-sales">${list}</ul>` : ""}
-    ${uncheckedList ? `<h3>Ukontrollerte treff</h3>
-      <p class="meta unchecked-note">Ikke bekreftet av søket – åpne lenken og sjekk selv. Disse teller ikke med i prisene over.</p>
+    ${uncheckedList ? `<h3>${sales.length ? "Ukontrollerte treff" : "Priser – ikke bekreftet"}</h3>
+      <p class="meta unchecked-note">${stats?.searched
+        ? "Ikke bekreftet av søket – åpne lenken og sjekk prisen."
+        : "Fra Geminis kunnskap, ikke fra et søk akkurat nå – prisen kan ha endret seg. Åpne lenken og sjekk."}
+        ${sales.length ? " Disse teller ikke med i prisene over." : ""}</p>
       <ul class="web-sales unchecked">${uncheckedList}</ul>` : ""}
     ${facts ? `<h3>Bakgrunn</h3><ul class="web-facts">${facts}</ul>` : ""}
     <p class="meta web-note">Hentet med Google-søk på ${Math.round(seconds)} s. Ikke kontrollert av Funn – åpne lenken og sjekk at det ligner.
       ${dropped - unchecked.length > 0 ? `${dropped - unchecked.length} treff uten lenke, pris eller kilde ble utelatt.` : ""}</p>
-    <div class="web-suggestions"></div>`;
+    <div class="web-suggestions"></div>
+    ${debug ? `<details class="tech"><summary>Vis teknisk info</summary><pre>${esc([
+      `Modell: ${debug.modelVersion ?? state.settings.model}`, `Stoppet fordi: ${debug.finishReason ?? "?"}`,
+      `Søk: ${stats?.queries ?? 0} · kilder: ${stats?.sources ?? 0} · søkeinfo-felt: ${debug.metaKeys.join(", ") || "ingen"}`,
+      `Svar (starten): ${debug.text}`].join("\n"))}</pre></details>` : ""}`;
   if (entryPoint) {
     // Googles søkeforslag skal vises når søkeresultater brukes; isolert i en egen ramme.
     const frame = document.createElement("iframe");
@@ -729,7 +736,11 @@ function setSummary(args = {}) {
     range = web?.range ?? web?.listedRange ?? null;
     if (parts.length) html = `<p>Fant ${web.sales.length} priser! ${capitalize(parts.join(", og "))}.</p>`;
     else if (web?.sales?.length) html = `<p>Fant ${web.sales.length} ${web.sales.length === 1 ? "pris" : "priser"}, men for få til et intervall. Se dem under.</p>`;
-    else if (web?.unchecked?.length) html = `<p>Fant ingen priser bekreftet av søket, men ${web.unchecked.length} ${web.unchecked.length === 1 ? "treff" : "treff"} du kan sjekke selv under.</p>`;
+    else if (web?.uncheckedRange) {
+      const u = web.uncheckedRange;
+      html = `<p>Fant ${web.unchecked.length} ${web.unchecked.length === 1 ? "pris" : "priser"}: <b>${u.min === u.max ? kr(u.min) : span(u)}</b>. De er ikke bekreftet${web.stats?.searched ? " av søket" : " av et søk nå"}, så sjekk lenkene under.</p>`;
+      range = { ...u, unconfirmed: true };
+    }
     else if (web && web.stats?.searched === false) html = `<p>Google-søket ble ikke gjennomført denne gangen, så jeg har ingen priser å vise.</p>
       <button type="button" class="link" data-action="retry-search">Prøv søket igjen</button>`;
     else if (web?.background?.length) html = `<p>Fant ingen priser med kilde denne gangen, men litt om bakgrunnen under.</p>`;
@@ -751,10 +762,10 @@ function setSummary(args = {}) {
   bubble.innerHTML = html;
   if (waiting && !wasWaiting) setWaiting(true);
   else if (!waiting) setWaiting(false);
-  sticker.classList.toggle("empty", !range);
+  sticker.classList.toggle("unconfirmed", !!range?.unconfirmed);
   const from = !range && dc?.nokLow ? dc.nokLow : null;
   sticker.classList.toggle("empty", !range && !from);
-  sticker.innerHTML = range ? `<span>${nok.format(range.min)}–<br>${nok.format(range.max)} kr</span>`
+  sticker.innerHTML = range ? (range.min === range.max ? `<span>ca.<br>${nok.format(range.min)} kr</span>` : `<span>${nok.format(range.min)}–<br>${nok.format(range.max)} kr</span>`)
     : from ? `<span>fra<br>${nok.format(from)} kr</span>` : `<span>${waiting ? "…" : "?"}</span>`;
   $("#result-found").hidden = none;
   $("#result-none").hidden = !none;

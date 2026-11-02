@@ -19,7 +19,7 @@ Rules:
 - "what": the item type in Norwegian, e.g. "kaffekanne", "lommeur", "bok", "spillkontroller".
 - Never state a production year for this specific item and never estimate value.
 - If nothing can be identified from sources, return an empty list.
-- Reply with JSON only.`;
+- Answer format: first one short plain sentence in Norwegian about what you found, then the JSON object as plain text. Never use a code block or backticks (Google then drops the search sources).`;
 
 /** Beskrivelse av det som ble lest og sett, før brukeren har bekreftet noe. */
 export function describeObserved(facts, normalized) {

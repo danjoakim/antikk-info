@@ -176,3 +176,22 @@ test("Google har søkt selv om kildelisten er tom: ikke nytt forsøk, og prisene
   assert.equal(r.stats.searched, true);
   assert.equal(r.stats.queries, 1);
 });
+
+test("Ingen nytt forsøk når svaret allerede har lenker, selv uten søkedata", async () => {
+  const { callGrounded } = await import("../docs/js/websales.js");
+  let calls = 0;
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async () => { calls += 1; return { ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text:
+    'Fant priser. {"sales":[{"title":"Krus","kind":"listed","price":289,"currency":"NOK","url":"https://www.norli.no/x"}]}' }] } }] }) }; };
+  try {
+    await callGrounded(() => buildWebSalesRequest("krus"), { key: "k", model: "gemini-3.8-flash" });
+    assert.equal(calls, 1);
+  } finally { globalThis.fetch = realFetch; }
+});
+
+test("Svarformat: en setning og så JSON uten kodeblokk (ellers mister Google kildene)", () => {
+  assert.match(buildWebSalesRequest("x").systemInstruction.parts[0].text, /Never use a code block/);
+  const r = parseWebSales({ candidates: [{ content: { parts: [{ text: 'Fant to priser. {"sales":[{"title":"A","kind":"listed","price":200,"currency":"NOK","url":"https://www.finn.no/1"}],"background":[]}' }] },
+    groundingMetadata: { groundingChunks: [{ web: { uri: "https://x", title: "finn.no" } }] } }] }, { rates: { NOK: 1 } });
+  assert.equal(r.sales.length, 1, "JSON etter en setning leses fortsatt");
+});

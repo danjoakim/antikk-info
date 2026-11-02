@@ -611,7 +611,7 @@ function renderWebSales({ sales, unchecked = [], debug = null, background, range
     ${uncheckedList ? `<h3>${sales.length ? "Ukontrollerte treff" : "Priser – ikke bekreftet"}</h3>
       <p class="meta unchecked-note">${stats?.searched
         ? "Ikke bekreftet av søket – åpne lenken og sjekk prisen."
-        : "Fra Geminis kunnskap, ikke fra et søk akkurat nå – prisen kan ha endret seg. Åpne lenken og sjekk."}
+        : "Google oppga ikke kilder for disse – åpne lenken og sjekk prisen."}
         ${sales.length ? " Disse teller ikke med i prisene over." : ""}</p>
       <ul class="web-sales unchecked">${uncheckedList}</ul>` : ""}
     ${facts ? `<h3>Bakgrunn</h3><ul class="web-facts">${facts}</ul>` : ""}
@@ -744,7 +744,7 @@ function setSummary(args = {}) {
     else if (web?.sales?.length) html = `<p>Fant ${web.sales.length} ${web.sales.length === 1 ? "pris" : "priser"}, men for få til et intervall. Se dem under.</p>`;
     else if (web?.uncheckedRange) {
       const u = web.uncheckedRange;
-      html = `<p>Fant ${web.unchecked.length} ${web.unchecked.length === 1 ? "pris" : "priser"}: <b>${u.min === u.max ? kr(u.min) : span(u)}</b>. De er ikke bekreftet${web.stats?.searched ? " av søket" : " av et søk nå"}, så sjekk lenkene under.</p>`;
+      html = `<p>Fant ${web.unchecked.length} ${web.unchecked.length === 1 ? "pris" : "priser"}: <b>${u.min === u.max ? kr(u.min) : span(u)}</b>. ${web.stats?.searched ? "De er ikke bekreftet av søket" : "Google oppga ikke kilder for dem"}, så sjekk lenkene under.</p>`;
       range = { ...u, unconfirmed: true };
     }
     else if (web && web.stats?.searched === false) html = `<p>Google-søket ble ikke gjennomført denne gangen, så jeg har ingen priser å vise.</p>

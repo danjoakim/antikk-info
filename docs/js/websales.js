@@ -56,7 +56,7 @@ Rules:
 - Only report a price from a page that appears in your search results, and give that page's exact URL. If you cannot find the page in the search results, leave the price out.
 - Copy price, currency, date and URL exactly from the page. Never invent or estimate a price, date or URL.
 - Background facts must be about the maker, model, pattern or marks (for books and records: the work, its author or artist, and the edition), each with the page it came from. Write them in Norwegian (bokmål), at most two sentences each. You may give the years a mark, stamp, pattern or model was in use when the page says so, but never state a production year for this specific item yourself.
-- Reply with JSON only, no other text.`;
+- Answer format: first one short plain sentence in Norwegian about what you found, then the JSON object as plain text. Never use a code block or backticks (Google then drops the search sources).`;
 
 export function buildWebSalesRequest(description, { thinkingLevel = null } = {}) {
   const prompt = `Item: ${description}
@@ -234,7 +234,10 @@ export async function callGrounded(buildBody, { key, model, signal, label = "Net
   };
   check();
   // Svarte modellen uten å søke (ingen kilder), prøver vi én gang til med tydelig beskjed.
-  if (!searched(data)) {
+  // Nytt forsøk bare når svaret verken har søkedata eller lenker. Google sender ofte ikke søkedata
+  // selv om det ble søkt; et svar med lenker brukes da som det er (merket som ubekreftet).
+  const answer = (data?.candidates?.[0]?.content?.parts ?? []).map((p) => p.text ?? "").join("");
+  if (!searched(data) && !/https?:\/\//.test(answer)) {
     const body = buildBody(level);
     body.contents[0].parts.push({ text: "IMPORTANT: You answered without searching. Run Google Search now and use only what the search results show. Do not answer from memory." });
     ({ res, data } = await send(body));

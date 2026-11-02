@@ -193,6 +193,16 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ## Øktlogg
 
+### 2026-11-02 – Økt 33: Kjent Google-feil – søkedata forsvinner ved JSON i kodeblokk
+**Funnet med «Vis teknisk info»:** gemini-3.8-flash, STOP, «søkeinfo-felt: ingen», svaret begynte med ```json. Likevel hadde treffene datoer fra september–oktober 2026 – Gemini søkte, men Google sendte ingen søkedata. Dette er en kjent feil som er meldt i Googles utviklerforum: når svaret bare er en kodeblokk, mangler ofte `groundingMetadata`/`groundingChunks` (anslått ~60 % ved JSON), på tvers av modeller; uten kildeliste finner modellen oftere opp lenker. Ingen offisiell løsning; rapportert tiltak er å be om svar uten kodeblokk.
+**Gjort:**
+- Instruksen til prissøk og identifisering: én kort setning på norsk, så JSON som ren tekst – aldri kodeblokk eller backticks. Appen leser JSON uansett tekst rundt.
+- Nytt søkeforsøk bare når svaret verken har søkedata eller lenker (sparer omtrent halve ventetiden når Google bare har droppet søkedataene).
+- Ny merking: «Google oppga ikke kilder for disse – åpne lenken og sjekk prisen» (i stedet for «fra Geminis kunnskap»).
+**Testet av brukeren før endringen:** mummikrus (Rebel Club, Party Queue) – 5 ubekreftede priser 230–289 kr fra Norli, Kitchn, Bakeren og Kokken, FINN og en finsk butikk; stiplet prislapp. Ventetid 31 s.
+**Tester:** 65 JS-tester (2 nye) og 63 Python-tester bestått.
+**Følg med:** om kildelisten kommer tilbake (prisene blir da bekreftede), og om ventetiden går ned.
+
 ### 2026-11-02 – Økt 32: Priser med lenke vises alltid, merket som ubekreftet
 **Bakgrunn:** Ny mummikopp: «Google søkte 0 ganger og ga 0 kilder; søket foreslo 6 priser … (jernia.no, kitchn.no, moominarabia.com, multitrend.no)». Brukeren: dette er sikre kilder for pris på en ny kopp, og det er noe galt med logikken når appen ikke viser priser.
 **Beslutning:** Appen skal heller vise nyttige priser med tydelig merking enn ingenting. Priser med lenke vises alltid; bare bekreftede priser teller i de bekreftede spennene.

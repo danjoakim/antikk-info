@@ -77,8 +77,9 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 2. [~] **Åpne API-er uten nøkkel først** (sjekket; Wikidata bygget; Nasjonalbiblioteket må testes fra telefonen): sjekk vilkår, kostnad og om de virker direkte fra telefonen (CORS), skriv oversikten inn i prosjektet, bygg én kilde om gangen og test hver. Kandidater: Nasjonalbiblioteket og Open Library (bøker), MusicBrainz (musikk), Wikidata (produsenter, designere, kunstnere), Met Museum (kunst/antikviteter).
 3. [ ] **Nøkler på server (Supabase Edge Function)** før kilder som krever nøkkel: alle nøkler legges inn én gang der, appen trenger ingen. Gratisdelen holder mens vi tester.
 4. [ ] Deretter kilder med gratis nøkkel, i rekkefølge: DigitaltMuseum (norsk design), LEGO (Rebrickable/Brickset), BoardGameGeek, Numista (mynter), TMDB (film), Comic Vine, RAWG/IGDB (spill), eBay Browse (priser til salgs).
-5. [ ] Felles base over bekreftede funn (idé 3) – krever beslutninger om lagring, bilder og godkjenning.
-6. [ ] Frontlokk (savonnette) i skjemaet; serverversjonen (`app/`) henger etter nettversjonen.
+5. [ ] Småfeil sett i test 02.11.2026: «Fant ikke noe kjent materialstempel. Velg materiale manuelt.» vises også for porselen – skal bare vises for sølv/metall, smykker og ur.
+6. [ ] Felles base over bekreftede funn (idé 3) – krever beslutninger om lagring, bilder og godkjenning.
+7. [ ] Frontlokk (savonnette) i skjemaet; serverversjonen (`app/`) henger etter nettversjonen.
 
 ### Parkerte idéer (ikke start før det over er ferdig)
 - Samlinger («Mine funn») med lagrede analyser, som i Curio

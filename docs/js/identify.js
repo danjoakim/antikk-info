@@ -2,7 +2,7 @@
 // med Gemini og Google-søk, før prisene letes fram. Bare forslag med kilde Google faktisk fant.
 // Ett svar når bildet avgjør det; to–tre kort med «sjekk» bare når det som synes, passer på flere.
 
-import { callGrounded, describeItem, extractJson, groundedDomains, sourceTitles, verified } from "./websales.js";
+import { callGrounded, describeItem, extractJson, groundedDomains, isGroundingLink, sourceTitles, verified } from "./websales.js";
 
 const MAX_CANDIDATES = 3;
 
@@ -73,7 +73,7 @@ export function parseIdentify(data) {
     if (out.some((o) => o.name.toLowerCase() === name.toLowerCase())) continue;
     out.push({
       name, what: clean(c.what, 60), maker: clean(c.maker, 80), title: clean(c.title, 160), creator: clean(c.creator, 80),
-      why: clean(c.why, 300), check: clean(c.check, 200), url: c.url, site: host(c.url),
+      why: clean(c.why, 300), check: clean(c.check, 200), url: c.url, site: isGroundingLink(c.url) ? "Google-søk" : host(c.url),
     });
   }
   // Ett forslag igjen, eller modellen sier at bildet avgjør det: bare ett svar, uten valg.

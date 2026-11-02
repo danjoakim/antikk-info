@@ -193,6 +193,12 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ## Øktlogg
 
+### 2026-11-02 – Økt 34: Googles søkelenker regnes som kilde
+**Brukerens test etter økt 33:** svaret uten kodeblokk (tiltaket virket for formatet), 22 s i stedet for 31 s. Fortsatt «søkeinfo-felt: ingen», men lenkene var nå `https://vertexaisearch.cloud.google.com/grounding-api-redirect/…` – Googles videresendinger som bare finnes i ekte søkeresultater.
+**Gjort:** Slike lenker godtas som bekreftet kilde (prisene teller i spennene; selger vises med butikkens navn; identifiseringen viser «Google-søk» som kilde). «Inkl. salær»/«tilslag» vises bare for solgte priser, ikke butikkpriser. «Om navnet» prøver hvert navn for seg når merket står som «Arabia / Moomin Arabia».
+**Tester:** 66 JS-tester (1 ny) og 63 Python-tester bestått.
+**Merk:** Brukeren er snart tom for ukekvote (nullstilles torsdag).
+
 ### 2026-11-02 – Økt 33: Kjent Google-feil – søkedata forsvinner ved JSON i kodeblokk
 **Funnet med «Vis teknisk info»:** gemini-3.8-flash, STOP, «søkeinfo-felt: ingen», svaret begynte med ```json. Likevel hadde treffene datoer fra september–oktober 2026 – Gemini søkte, men Google sendte ingen søkedata. Dette er en kjent feil som er meldt i Googles utviklerforum: når svaret bare er en kodeblokk, mangler ofte `groundingMetadata`/`groundingChunks` (anslått ~60 % ved JSON), på tvers av modeller; uten kildeliste finner modellen oftere opp lenker. Ingen offisiell løsning; rapportert tiltak er å be om svar uten kodeblokk.
 **Gjort:**

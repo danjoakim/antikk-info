@@ -96,7 +96,11 @@ export function groundedDomains(metadata) {
 export const sourceTitles = (metadata) => (metadata?.groundingChunks ?? []).map((c) => (c.web?.title ?? "").toLowerCase());
 
 /** Nettstedet må være blant kildene: samme domene, eller navnet (f.eks. «finn», «ebay») i en kildetittel. */
+/** Lenke fra Googles søkeresultater (vertexaisearch …/grounding-api-redirect/…). */
+export const isGroundingLink = (url) => /^https:\/\/vertexaisearch\.cloud\.google\.com\/grounding-api-redirect\//.test(String(url ?? ""));
+
 export function verified(url, domains, titles = []) {
+  if (isGroundingLink(url)) return true;   // Googles egen videresending: finnes bare i ekte søkeresultater
   const h = host(url);
   if (!h) return false;
   for (const d of domains) if (h === d || h.endsWith(`.${d}`) || d.endsWith(`.${h}`)) return true;

@@ -195,3 +195,11 @@ test("Svarformat: en setning og så JSON uten kodeblokk (ellers mister Google ki
     groundingMetadata: { groundingChunks: [{ web: { uri: "https://x", title: "finn.no" } }] } }] }, { rates: { NOK: 1 } });
   assert.equal(r.sales.length, 1, "JSON etter en setning leses fortsatt");
 });
+
+test("Lenker fra Googles søkeresultater regnes som bekreftet kilde", async () => {
+  const { verified, isGroundingLink } = await import("../docs/js/websales.js");
+  const g = "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AbC123";
+  assert.equal(isGroundingLink(g), true);
+  assert.equal(verified(g, new Set(), []), true);
+  assert.equal(verified("https://vertexaisearch.cloud.google.com/other", new Set(), []), false);
+});

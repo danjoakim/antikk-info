@@ -599,7 +599,7 @@ function renderWebSales({ sales, unchecked = [], debug = null, background, range
   const saleItem = (s) => `
     <li><span class="web-sale-title">${esc(s.title)}</span>
       <span class="web-sale-price">${s.kind === "listed" ? "Til salgs: " : "Solgt: "}${esc(s.price.toLocaleString("nb-NO"))} ${esc(s.currency)}${s.nok && s.currency !== "NOK" ? ` · ca. ${kr(s.nok)}` : ""}</span>
-      <span class="meta">${esc(SIMILARITY_LABELS[s.similarity])}${BASIS_LABELS[s.basis] ? ` · ${BASIS_LABELS[s.basis]}` : ""}${s.date ? ` · ${esc(s.date)}` : ""} ·
+      <span class="meta">${esc(SIMILARITY_LABELS[s.similarity])}${s.kind === "sold" && BASIS_LABELS[s.basis] ? ` · ${BASIS_LABELS[s.basis]}` : ""}${s.date ? ` · ${esc(s.date)}` : ""} ·
         <a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.seller)}</a></span></li>`;
   const list = sales.map(saleItem).join("");
   const uncheckedList = unchecked.map(saleItem).join("");
@@ -855,7 +855,9 @@ function renderMaker(maker) {
       <p class="meta wiki-status">${person ? "" : "Navnet står ikke i listen vår. "}Slår opp i Wikidata og Wikipedia …</p>`;
     const category = state.confirmed?.item_type ?? "pocket_watch";
     // Wikidata først: vet om treffet er et firma, merke eller menneske. Ellers Wikipedia-søket som før.
-    lookupWikidata(name).catch(() => null).then((wd) => {
+    // «Arabia / Moomin Arabia»: prøv hvert navn for seg.
+    const names = name.split(/\s+\/\s+|\s*;\s*/).map((n) => n.trim()).filter(Boolean);
+    names.reduce((p, n) => p.then((hit) => hit ?? lookupWikidata(n).catch(() => null)), Promise.resolve(null)).then((wd) => {
       if ($("#maker-card") !== card || state.confirmed !== c) return true;
       if (!wd) return false;
       $(".wiki-status", card).outerHTML = `
@@ -865,7 +867,7 @@ function renderMaker(maker) {
           ? ` og <a href="${esc(wd.extract.url)}" target="_blank" rel="noopener">Wikipedia: ${esc(wd.extract.title)}</a> (CC BY-SA)` : ""}.
           Sjekk at det er riktig ${person ? "person" : "merke"}.</p>`;
       return true;
-    }).then((done) => done || lookupWikipedia(name, category).then((hit) => {
+    }).then((done) => done || lookupWikipedia(names[0] ?? name, category).then((hit) => {
       if ($("#maker-card") !== card || state.confirmed !== c) return;
       $(".wiki-status", card).outerHTML = hit
         ? `<p>${esc(hit.extract)}</p>

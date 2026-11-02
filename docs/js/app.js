@@ -336,15 +336,8 @@ function showLoadingError(message, retry) {
   $("#back-btn").onclick = () => (state.analysis ? show("confirm") : state.photos.length ? openCapture() : show("intro"));
 }
 
-function formatAnalysisTime(a) {
-  if (!a?.seconds) return "";
-  const mb = (a.bytes / 1e6).toLocaleString("nb-NO", { maximumFractionDigits: 1 });
-  return `Analysen tok ${Math.round(a.seconds)} s · ${a.photos} ${a.photos === 1 ? "bilde" : "bilder"} · ${mb} MB sendt`;
-}
-
 function renderConfirm() {
   const { facts, normalized } = state.analysis;
-  $("#analysis-time").textContent = formatAnalysisTime(state.analysis);
   const form = $("#confirm-form");
   const options = (list) => list.map((e) => `<option value="${e.code}">${esc(e.label)}</option>`).join("");
 

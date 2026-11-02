@@ -194,6 +194,9 @@ Denne filen er prosjektets hukommelse. Den ligger i rotmappen og følger koden.
 
 ## Øktlogg
 
+### 2026-11-02 – Fjernet «Analysen tok … · N bilder · X MB sendt»
+Brukeren: ingen vil ha den informasjonen. Linjen på «Stemmer dette?» og funksjonen bak er fjernet. 66 JS-tester bestått; nettlesertest av bokflyten uten feil.
+
 ### 2026-11-02 – Økt 35: Søket virker; prislapp for alle priser, teknisk info bare ved feil
 **Brukerens test etter økt 34:** «Søk: 2 · kilder: 2 · søkeinfo-felt: searchEntryPoint, groundingChunks, groundingSupports, webSearchQueries», 9 s – tiltaket uten kodeblokk fikk søkedataene tilbake. Men bare 1 av 5 priser var fra kildene, så prislappen viste «?», og teknisk info vistes selv om alt virket.
 **Gjort:** Når det er for få bekreftede priser til et eget spenn, viser prislappen spennet for alle prisene (stiplet når noen er ubekreftet), og boblen sier f.eks. «Fant 5 priser: 230–289 kr. 1 er bekreftet av søket, 4 bør du sjekke selv.» «Vis teknisk info» vises bare når Google ikke rapporterte søk, eller når ingen priser ble funnet.
